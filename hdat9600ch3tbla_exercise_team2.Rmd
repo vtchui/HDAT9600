@@ -1,0 +1,110 @@
+---
+title: "HDAT9600 Chapter 3 TBLA Exercise"
+subtitle: "insert details here"
+author: "Victor Hui"
+date: "02/03/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# leave this code here, but feel free to adjust the options or add some more
+# see the knitr documentation for details
+knitr::opts_chunk$set(echo = TRUE, fig.width=12, fig.height=12)
+```
+
+
+## Instructions
+
+You should complete the tasks described below, in the spaces provided. Don't hesitate to ask the course instructors for help (use the OpenLearning environment to do that) --- but remember that you should understand and be able to explain what you did in your solutions. The course instructors are happy to point you in the right direction and to make suggestions, but they won't, of course, complete the task for you!
+
+
+## Introduction
+
+In this task, you will use a dataset called `tvdoctor` which is contained in the _faraway_ package for R which you should already have installed --- it should have been installed automatically when you installed any of the packages containing the HDAT9600 chapter tutorials. If not, install it now using the Packages tab in RStudio or the `install.packages()` function at R console prompt.
+
+```{r task-setup}
+# this loads the tvdoctor dataset and makes it available for code in 
+# subsequent code chunks.
+data(tvdoctor, package="faraway")
+```
+
+
+The origins of this dataset are unknown, and therefore its veracity should be viewed with some suspicion, but it purports to contain data collected in 1993 for life expectancy (the `life` variable), the number of people per television set, and the number of people per doctor in 38 different countries. Obviously this is a rather inadequate dataset, even if the data are real, but it is useful for teaching purposes.
+
+
+## Task 1
+
+a.  Fit a linear regression model to the `tvdoctor` dataset using `life` as the outcome (response) variable and the other two variables as predictors. Print the model summary.
+
+```{r task-1-a}
+# insert your R code (with comment lines if you wish) here
+
+tv_mod <- lm(life ~ tv + doctor, data=tvdoctor)
+summary(tv_mod)
+```
+
+Using the model you fitted in step a. above, perform regression diagnostics to answer the following questions --- you can use a single plot, multiple plots and/or formal statistical tests as you see fit. Write a sentence or two as commentary stating your conclusions based on the plot(s) and/or tests you display. 
+
+
+b.  Check the constant variance assumption for the errors.
+
+```{r task-1-b}
+# insert your R code (with comment lines if you wish) here
+
+# Eye ball test
+plot(fitted(tv_mod),residuals(tv_mod),xlab="Fitted",ylab="Residuals")
+abline(h=0)
+
+plot(fitted(tv_mod),sqrt(abs(residuals(tv_mod))),xlab="Fitted",ylab=expression(sqrt(hat(epsilon))))
+
+# Fitted values and residuals into a linear model
+summary(lm(sqrt(abs(residuals(tv_mod))) ~ fitted(tv_mod)))
+
+# Using the Breusch-Pagan test
+# Breusch-Pagan test from lmtest library
+lmtest::bptest(tv_mod, studentize = FALSE)
+
+# Breusch-Pagan test from olsrr library
+olsrr::ols_test_breusch_pagan(tv_mod, rhs=TRUE)
+
+
+```
+
+On eyeball test, most fitted (x axis) values appear to cluster around 70.
+Possibly as fitted values increase, there is a trend of more residuals above 0.
+This is the same with the sqrt hat epsilon residuals.
+
+When using the fitted values and residuals in a linear model, the beta is only very small with a small standard error.
+-0.02 and 0.03 respectively, and not statistically significant
+Suggestive there is no heteroscedasticity .
+
+Lastly, on the Breusch-Pagan test, the BP test statistic gives 2.4616 and is not statistically significant.
+Given this data, we fail to reject the null hypothesis and there is insufficient evidence to say heteroscedasticity is present.
+
+HOWEVER, one of the fitted values (<45) has a very high residual.
+This potential outlier may mask the otherwise positive correlation between fitted values and higher residuals.
+
+
+c.  Check the normality assumption for the errors. 
+
+```{r task-1-c}
+# insert your R code (with comment lines if you wish) here
+
+hist(residuals(tv_mod), breaks=20)
+qqnorm(residuals(tv_mod), ylab="Residuals")
+qqline(residuals(tv_mod))
+
+shapiro.test(residuals(tv_mod))
+
+```
+
+_Replace this text with your commentary for part c._
+
+Histogram of 38 values. Broadly speaking, does not look obviously skewed though more data would help interpretation
+
+QQ test largely shows values following the normal diagonal line
+
+Shapiro-Wilk test has a non significant p value, cannot reject null hypothesis that residuals are normally distributed
+
+
+**Reminder**: don't forget to save this file and to knit it to check that everything works.
