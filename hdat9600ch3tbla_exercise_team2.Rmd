@@ -1,7 +1,7 @@
 ---
 title: "HDAT9600 Chapter 3 TBLA Exercise"
 subtitle: "insert details here"
-author: "Victor Hui & Meg Stevens"
+author: "Team 2 - Victor Hui & Meg Stevens"
 date: "02/03/2021"
 output: html_document
 ---
