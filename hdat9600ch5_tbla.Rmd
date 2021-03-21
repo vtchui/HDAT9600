@@ -1,0 +1,116 @@
+---
+title: "HDAT9600 Chapter 5 TBLA"
+subtitle: "input details here"
+author: "Victor Hui, Haran Nathan, Maathumai Ranjan, Meg Stevens"
+date: "insert date of completeion here"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# leave this code here, but feel free to adjust the options or add some more
+# see the knitr documentation for details
+knitr::opts_chunk$set(echo = TRUE, fig.width=12, fig.height=12)
+```
+
+## Instructions
+
+As a team, you should complete the tasks described below, in the spaces provided. Don't hesitate to ask each other and the course instructors for help (use the OpenLearning environment to do that) --- remember that these are learning activities and we learn most when we share.
+
+## Task 1 (7 marks)
+
+In this task, you will be using the `nodal` dataset which comes with the _boot_ package for R which you should already have installed --- it should have been installed automatically when you installed the package containing the HDAT9600 chapter 2 tutorial. If not, install it now using the Packages tab in RStudio or the `install.packages()` function at R console prompt.
+
+The manual (help) page for the `nodal` dataset states the following:
+
+> The nodal data frame has 53 rows and 7 columns.
+
+> The treatment strategy for a patient diagnosed with cancer of the prostate depend highly on whether the cancer has spread to the surrounding lymph nodes. It is common to operate on the patient to get samples from the nodes which can then be analysed under a microscope but clearly it would be preferable if an accurate assessment of nodal involvement could be made without surgery.
+
+> For a sample of 53 prostate cancer patients, a number of possible predictor variables were measured before surgery. The patients then had surgery to determine nodal involvement. It was required to see if nodal involvement could be accurately predicted from the predictor variables and which ones were most important.
+
+The variables in the data set are all binary variables:
+
+`m`
+: A column of ones (this column is deleted in the set-up code below, so ignore it henceforth.)
+
+`r`
+: An indicator of nodal involvement.
+
+`aged`
+: The patients age dichotomized into less than 60 (0) and 60 or over 1.
+
+`stage`
+: A measurement of the size and position of the tumour observed by palpitation with the fingers via the rectum. A value of 1 indicates a more serious case of the cancer.
+
+`grade`
+: Another indicator of the seriousness of the cancer, this one is determined by a pathology reading of a biopsy taken by needle before surgery. A value of 1 indicates a more serious case of the cancer.
+
+`xray`
+: A third measure of the seriousness of the cancer taken from an X-ray reading. A value of 1 indicates a more serious case of the cancer.
+
+`acid`
+: The level of acid phosphatase in the blood serum.
+
+```{r task-1-setup}
+# this loads the nodal dataset and makes it available for code in 
+# subsequent code chunks.
+data(nodal, package="boot")
+nodal$m <- NULL
+```
+
+### 1.a
+
+Carry out a brief exploratory data analysis, using the `summary()` function on the whole data frame, and also plotting it as a matrix image. Ensure that the columns in the data frame are plotted as columns in the matrix image. Hint: `image()`. Commentary is optional. (1 mark)
+
+```{r task-1-a}
+# insert your R code (with comment lines if you wish) here
+summary(nodal)
+head(nodal)
+
+# function to rotate matrices, taken from Chapter 1 section_3.rmd
+rotate <- function(x) t(apply(x, 2, rev))
+
+image(rotate(matrix(c(nodal$r,nodal$aged),nrow=53,byrow=FALSE)),
+      xlab="r - nodal involvement",
+      ylab="aged 60 or over")
+
+
+
+```
+
+_Replace this text with your optional commentary for task 1.a_
+
+### 1.b
+
+Fit an appropriate regression model with nodal outcome (the `r` variable) as the outcome and all the other variables as predictors. Display the model summary and comment on it, in particular whether there is evidence that any of the predictors are related to the outcome. (2 marks)
+
+```{r task-1-b}
+# insert your R code (with comment lines if you wish) here
+
+```
+
+### 1.c
+
+Fit a smaller model that removes the two least significant variables in the model fitted in task 1.b. Can this smaller model be used in preference to the larger model? Justify your answer by creating an appropriate analysis of deviance. (2 marks)
+
+
+```{r task-1-c}
+# insert your R code (with comment lines if you wish) here
+
+```
+
+_Replace this text with your commentary for task 1.c_
+
+### 1.d
+
+Using the smaller model from task 1.c, calculate how much does having a serious x-ray result increase the odds of nodal involvement compared to have a non-serious x-ray result? Provide a 95% confidence interval for the odds. (2 marks)
+
+```{r task-1-d}
+# insert your R code (with comment lines if you wish) here
+
+```
+
+
+### Save and knit
+
+**Reminder**: don't forget to save this file, to knit it and check that everything works.
