@@ -71,14 +71,36 @@ head(nodal)
 rotate <- function(x) t(apply(x, 2, rev))
 
 image(rotate(matrix(c(nodal$r,nodal$aged),nrow=53,byrow=FALSE)),
-      xlab="r - nodal involvement",
-      ylab="aged 60 or over")
+      xlab="LEFT = r - nodal involvement, RIGHT = age over 60 or over",
+      ylab="red is 1, yellow is 0")
+# each band of the image represents one data row
 
+image(rotate(matrix(c(nodal$r,nodal$stage),nrow=53,byrow=FALSE)),
+      xlab="LEFT = r - nodal involvement, RIGHT = more serious case of cancer by digital palpation stage",
+      ylab="red is 1, yellow is 0")
 
+image(rotate(matrix(c(nodal$r,nodal$grade),nrow=53,byrow=FALSE)),
+      xlab="LEFT = r - nodal involvement, RIGHT = more serious case of cancer by biopsy result",
+      ylab="red is 1, yellow is 0")
+
+image(rotate(matrix(c(nodal$r,nodal$xray),nrow=53,byrow=FALSE)),
+      xlab="LEFT = r - nodal involvement, RIGHT = more serious case of cancer by x-ray result",
+      ylab="red is 1, yellow is 0")
+
+image(rotate(matrix(c(nodal$r,nodal$acid),nrow=53,byrow=FALSE)),
+      xlab="LEFT = r - nodal involvement, RIGHT = level of phosphatase in blood serum",
+      ylab="red is 1, yellow is 0")
 
 ```
 
 _Replace this text with your optional commentary for task 1.a_
+
+All data points are binary.<br>
+r - nodal involvement is the outcome variable and the others would be predictors<br>
+Matrix images - each band of the image represents one data row<br>
+None of the predictors are obviously more predictive than the others - based on eyeball matching of colours<br>
+Why is variable acid "level of acid phosphatase in the blood serum" a binary variable???
+
 
 ### 1.b
 
@@ -86,8 +108,11 @@ Fit an appropriate regression model with nodal outcome (the `r` variable) as the
 
 ```{r task-1-b}
 # insert your R code (with comment lines if you wish) here
+nodal_mod <- glm(r ~ aged + stage + grade + xray + acid, family=binomial, data=nodal)
+summary(nodal_mod)
 
 ```
+Interpretation for task 1.b to go here
 
 ### 1.c
 
