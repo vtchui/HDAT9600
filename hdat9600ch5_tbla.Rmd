@@ -111,8 +111,14 @@ Fit an appropriate regression model with nodal outcome (the `r` variable) as the
 nodal_mod <- glm(r ~ aged + stage + grade + xray + acid, family=binomial, data=nodal)
 summary(nodal_mod)
 
+# str(nodal_mod)
+# this gives the structure of the model object, but also prints a long list of stuff, hence commented out unless required
+
 ```
-Interpretation for task 1.b to go here
+
+Xray and Acid predictors are statistically significant.
+Age, Stage and Grade are not statistically significant.
+Based on a statistically significant P value of p=0.05
 
 ### 1.c
 
@@ -121,10 +127,18 @@ Fit a smaller model that removes the two least significant variables in the mode
 
 ```{r task-1-c}
 # insert your R code (with comment lines if you wish) here
+nodal_small <- glm(r ~ stage + xray + acid, family=binomial, data=nodal)
+summary(nodal_small)
+
+# Comparing the two models
+print(anova(nodal_mod,nodal_small, test="Chi"))
 
 ```
 
-_Replace this text with your commentary for task 1.c_
+The two significant values are aged and grade<br>
+When removed, the three predictors all become statistically significant P<0.05<br>
+
+The analysis of deviance by ANOVA shows that removal of the two predictors (difference between the two models) is statistically significant, therefore we can conclude that aged and grade are not significant predictors of nodal r.
 
 ### 1.d
 
@@ -133,7 +147,20 @@ Using the smaller model from task 1.c, calculate how much does having a serious 
 ```{r task-1-d}
 # insert your R code (with comment lines if you wish) here
 
+# exponents of the betas can be interpreted directly as odds
+beta <- nodal_small$coefficients
+exp(beta)
+
+# profile likelihood-based confidence interval using confint function
+confint <- confint(nodal_small)
+
+# xray is the third variable
+xray_ci <- confint[3,]
+exp(xray_ci)
+
 ```
+The odds show an increase of 676% of nodal involvement with a serious X-ray result compared to a non-serious X-ray result.
+The 95% confidence intervals for the odds ratio would be 57%-3549%
 
 
 ### Save and knit
