@@ -170,6 +170,8 @@ exp(xray_ci)
 The odds show an increase of 676% of nodal involvement with a serious X-ray result compared to a non-serious X-ray result.
 The 95% confidence intervals for the odds ratio would be 57%-3549%
 
+Alternate explanation:
+The odds of nodal involvement increases by 5.8x in those with a serious X-ray result (compared to a non-serious X-ray result), according to this model. The 95% confidence interval is from a 57% (or 0.6x) increase in odds to 34.5x increase in odds with a serious compared to non-serious X-ray result.
 
 ### Save and knit
 
