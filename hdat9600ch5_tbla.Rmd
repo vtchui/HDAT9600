@@ -91,6 +91,14 @@ image(rotate(matrix(c(nodal$r,nodal$acid),nrow=53,byrow=FALSE)),
       xlab="LEFT = r - nodal involvement, RIGHT = level of phosphatase in blood serum",
       ylab="red is 1, yellow is 0")
 
+
+# plotting whole data frame as an image
+image(1:ncol(nodal), 1:nrow(nodal), rotate(as.matrix(nodal)), axes=FALSE, ylab="Observations (red is 1, yellow is 0", xlab="")
+
+# add axis labels, note: 3 <- above, 2 <- left
+image(1:ncol(nodal), 1:nrow(nodal), rotate(as.matrix(nodal)), axes=FALSE, add=TRUE)
+axis(3, at=1:ncol(nodal), labels=colnames(nodal))
+
 ```
 
 _Replace this text with your optional commentary for task 1.a_
@@ -99,7 +107,7 @@ All data points are binary.<br>
 r - nodal involvement is the outcome variable and the others would be predictors<br>
 Matrix images - each band of the image represents one data row<br>
 None of the predictors are obviously more predictive than the others - based on eyeball matching of colours<br>
-Why is variable acid "level of acid phosphatase in the blood serum" a binary variable???
+Why is variable acid "level of acid phosphatase in the blood serum" a binary variable??? -- I saw this dataset used to have acid and age as their numeric values.. someone must have dichotomised them both at some stage (must use a cut off for acid phosphatase level?)
 
 
 ### 1.b
