@@ -1,6 +1,45 @@
-#Import data
-birth<- read.csv("C:\\Users\\61413\\Documents\\HDAT9600\\Week 6\\birth.csv")
+# Low birth weight (defined as weighing less than 2500 grams) is an outcome that has been of concern to physicians for years. 
+# This is due to the fact that infant mortality rates and birth defect rates are very high for low birth weight babies. 
+# A woman's behaviour during pregnancy (including diet, smoking habits, and receiving prenatal care) 
+# can greatly alter the chances of carrying the baby to term and, consequently, of delivering a baby of normal birth weight.
+
+# Consider the data set birth.csv collected at the Baystate Medical Center, Springfield, USA during 1986. 
+# Data were collected on 189 women, 59 of which had low birth weight babies and 130 of which had normal birth weight babies. 
+# The variables identified in the dataset have been shown to be associated with low birth weight in the obstetrical literature.
+# 
+# The variables are:
+# .low: indicator of birth weight less than 2.5kg (1=less than 2.5 kg, 0=2.5 kg or above)
+# .age: mother's age in years
+# .lwt: mother's weight in pounds at last menstrual period
+# .race: mother's race (1=white, 2=black, 3=other)<br>
+# .smoke: smoking status during pregnancy (0=did not smoke, 1=smoked)
+# .ptl: had previous premature labours (1=had, 0=had not)
+# .ht: history of hypertension (1=history, 0=non history)
+# .ui: presence of uterine irritability (1=present, 0=absent)
+# .ftv: number of physician visits during the first trimester (0=0, 1=1, 2=2 or more)
+# 
+# Four variables which were thought to be of importance were:
+# .age
+# .weight of the subject at her last menstrual period
+# .race
+# .the number of physician visits during the first trimester of pregnancy.
+
+
+# Getting the path of your current open file
+# Extra code to ensure this file imports birth.csv in local directory for everyone
+library(rstudioapi)
+current_path = rstudioapi::getActiveDocumentContext()$path 
+setwd(dirname(current_path ))
+print( getwd() )
+
+# Import data
+birth <- read.csv("./birth.csv", sep=",", header=TRUE)
+
 head(birth)  
+
+
+
+
 
 ########################################################################################################################
 
@@ -83,7 +122,7 @@ summary(Fullmodel)
 #Reduce model based on prior  knowledge
 Reducedmodel <- glm(low ~ age +lwt + race + ftv, family = binomial, data=birth)
 summary(Reducedmodel)
-# none of the variables are siginificant at 5% significance level. This model looks rubbish compared to full model, higher AIC...
+# none of the variables are significant at 5% significance level. This model looks rubbish compared to full model, higher AIC...
 
 # search the model space for a reduced model using the step() function
 logmod_reduced <- step(Fullmodel, trace=1)
