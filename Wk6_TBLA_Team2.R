@@ -30,7 +30,7 @@
 library(rstudioapi)
 current_path = rstudioapi::getActiveDocumentContext()$path 
 setwd(dirname(current_path ))
-print( getwd() )
+
 
 # Import data
 birth <- read.csv("./birth.csv", sep=",", header=TRUE)
@@ -166,3 +166,12 @@ matplot(thresholds, cbind(sensitivities, specificities), type="ll", lty=1:2,
 plot(1 - specificities, sensitivities, type="l",
      xlab="1 - Specificity", ylab="Sensitivity")
 abline(0,1, lty=2)
+
+# Area under curve
+library(DescTools)
+
+# sorts sensitivity and specificities into x and y coordinates
+x <- sort(1-specificities)
+y <- sort(sensitivities)
+
+print(AUC(x,y))
