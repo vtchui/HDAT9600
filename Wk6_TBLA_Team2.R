@@ -53,36 +53,36 @@ plot(birth[,c("low", "age", "lwt","race","ftv")])
 library(ggplot2)
 
 ggplot(data=birth, aes(x=age)) + geom_histogram() + 
-  facet_grid(low ~ ., scales = "free") + 
+  facet_grid(low ~ ., scales = "free") + ylim(0, 15) +
   labs(x="Age", y="Observations")
 
 ggplot(data=birth, aes(x=lwt)) + geom_histogram() + 
-  facet_grid(low ~ ., scales = "free") + 
+  facet_grid(low ~ ., scales = "free") + ylim(0, 25) +
   labs(x="Weight", y="Observations")
 
 ggplot(data=birth, aes(x=race)) + geom_histogram() + 
-  facet_grid(low ~ ., scales = "free") + 
+  facet_grid(low ~ ., scales = "free") + ylim(0, 80) +
   labs(x="Race", y="Observations")
 
 ggplot(data=birth, aes(x=smoke)) + geom_histogram() + 
-  facet_grid(low ~ ., scales = "free") + 
-  labs(x="", y="Observations")
+  facet_grid(low ~ ., scales = "free") +
+  labs(x="Smoking (0=no, 1=yes)", y="Observations")
 
 ggplot(data=birth, aes(x=ftv)) + geom_histogram(binwidth=1) + 
-  facet_grid(low ~ ., scales = "free") + 
-  labs(x="", y="Observations")
+  facet_grid(low ~ ., scales = "free") + ylim(0, 70) +
+  labs(x="Physician visits", y="Observations")
 
-ggplot(data=birth, aes(x=ptl)) + geom_histogram(binwidth=1) + 
-  facet_grid(low ~ ., scales = "free") + 
-  labs(x="", y="Observations")
+ggplot(data=birth, aes(x=ptl)) + geom_histogram() + 
+  facet_grid(low ~ ., scales = "free") + ylim(0, 120) +
+  labs(x="Prev premature labour (0=no, 1=yes)", y="Observations")
 
-ggplot(data=birth, aes(x=ht)) + geom_histogram(binwidth=1) + 
-  facet_grid(low ~ ., scales = "free") + 
-  labs(x="", y="Observations")
+ggplot(data=birth, aes(x=ht)) + geom_histogram() + 
+  facet_grid(low ~ ., scales = "free") + ylim(0, 125) +
+  labs(x="Hx of HTN (0=no, 1=yes)", y="Observations")
 
-ggplot(data=birth, aes(x=ui)) + geom_histogram(binwidth=1) + 
-  facet_grid(low ~ ., scales = "free") + 
-  labs(x="", y="Observations")
+ggplot(data=birth, aes(x=ui)) + geom_histogram() + 
+  facet_grid(low ~ ., scales = "free") + ylim(0, 120) +
+  labs(x="Uterine irritability (0=no, 1=yes)", y="Observations")
 
 
 # For the binary variables
