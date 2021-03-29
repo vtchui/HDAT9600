@@ -71,7 +71,7 @@ head(nodal)
 rotate <- function(x) t(apply(x, 2, rev))
 
 image(rotate(matrix(c(nodal$r,nodal$aged),nrow=53,byrow=FALSE)),
-      xlab="LEFT = r - nodal involvement, RIGHT = age over 60 or over",
+      xlab="LEFT = r - nodal involvement, RIGHT = age under 60 or over",
       ylab="red is 1, yellow is 0")
 # each band of the image represents one data row
 
@@ -93,7 +93,7 @@ image(rotate(matrix(c(nodal$r,nodal$acid),nrow=53,byrow=FALSE)),
 
 
 # plotting whole data frame as an image
-image(1:ncol(nodal), 1:nrow(nodal), rotate(as.matrix(nodal)), axes=FALSE, ylab="Observations (red is 1, yellow is 0", xlab="")
+image(1:ncol(nodal), 1:nrow(nodal), rotate(as.matrix(nodal)), axes=FALSE, ylab="Observations (red is 1, yellow is 0)", xlab="")
 
 # add axis labels, note: 3 <- above, 2 <- left
 image(1:ncol(nodal), 1:nrow(nodal), rotate(as.matrix(nodal)), axes=FALSE, add=TRUE)
@@ -107,7 +107,7 @@ All data points are binary.<br>
 r - nodal involvement is the outcome variable and the others would be predictors<br>
 Matrix images - each band of the image represents one data row<br>
 None of the predictors are obviously more predictive than the others - based on eyeball matching of colours<br>
-Why is variable acid "level of acid phosphatase in the blood serum" a binary variable??? -- I saw this dataset used to have acid and age as their numeric values.. someone must have dichotomised them both at some stage (must use a cut off for acid phosphatase level?)
+Perhaps there are more individuals with 2 or more predictor variables with nodal involvement than without
 
 
 ### 1.b
@@ -143,10 +143,11 @@ print(anova(nodal_mod,nodal_small, test="Chi"))
 
 ```
 
-The two significant values are aged and grade<br>
+The two least significant values are aged and grade<br>
 When removed, the three predictors all become statistically significant P<0.05<br>
 
-The analysis of deviance by ANOVA shows that removal of the two predictors (difference between the two models) is statistically significant, therefore we can conclude that aged and grade are not significant predictors of nodal r.
+The analysis of deviance by ANOVA shows that removal of the two predictors (difference between the two models) is statistically significant, therefore we can conclude that aged and grade are not significant predictors of nodal `r`, if the other three variables are also in the model.
+
 
 ### 1.d
 
