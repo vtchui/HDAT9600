@@ -1,0 +1,225 @@
+---
+title: "HDAT9600 Final Assignment"
+subtitle: "Please see course outline / 'Announcements' for submission deadline"
+author: "insert your team name here"
+date: "insert date of completion here"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# leave this code here, but feel free to adjust the options or add some more
+# see the knitr documentation for details
+knitr::opts_chunk$set(echo = TRUE, fig.width=12, fig.height=12)
+```
+
+## Instructions
+
+This file (hdat9600_final_assignment.Rmd) is the R Markdown document in which you need to complete your HDAT9600 final assignment. This assignment is assessed and will count for 30% of the total course marks. The assignment comprises two tasks worth 15 marks each. The first task will focus on logistic regression, and the second task will focus on survival analysis. There is no word limit, but a report of about 10 pages in length when printed (except that it will not be printed) is appropriate.
+
+Don't hesitate to ask the course convenor for help via OpenLearning. The course instructor are happy to point you in the right direction and to make suggestions, but they won't, of course, complete your assignments for you!
+
+
+## Data for this assignment
+
+The data used for this assignment consist of records from Intensive Care Unit (ICU) hospital stays in the USA. All patients were adults who were admitted for a wide variety of reasons. ICU stays of less than 48 hours have been excluded. 
+
+The source data for the assignment are data made freely available for the 2012 MIT PhysioNet/Computing for Cardiology Challenge. Details are provided [here](https://physionet.org/challenge/2012/). Training Set A data have been used. The original data has been modified and assembled to suit the purpose of this assignment. While not required for the purposes of this assignment, full details of the preparatory work can be found in the hdat9600_final_assignment_data_preparation file.
+
+The dataframe consists of 120 variables, which are defined as follows:
+
+#### Patient Descriptor Variables
+<li> <em>RecordID:</em>            a unique integer for each ICU stay</li>
+<li> <em>Age:</em>                 years</li>
+<li> <em>Gender:</em>              male/female</li>
+<li> <em>Height:</em>              cm</li>
+<li> <em>ICUType:</em>             Coronary Care Unit; Cardiac Surgery Recovery Unit; Medical ICU; Surgical ICU</li>
+<li> <em>Length_of_stay:</em>      The number of days between the patient’s admission to the ICU and the end of hospitalisation</li>
+<li> <em>Survival:</em>            The number of days between ICU admission and death for patients who died</li>
+
+
+#### Outcome Variables
+<li> <em>in_hospital_death:</em>   0:survivor/1:died in-hospital **this is the outcome variable for Task 1: Logistic Regression**</li>
+<li> <em>Status:</em>              True/False **this is the censoring variable for Task 2: Survival Analysis**</li>
+<li> <em>Days:</em>                Length of survival (in days) **this is the survival time variable for Task 2: Survival Analysis**</li>
+
+
+#### Clinical Variables
+<em>Use the hyperlinks below to find out more about the clinical meaning of each variable.</em>
+The first two clinical variables are summary scores that are used to assess patient condition and risk.
+
+<li> <em>SAPS-I score</em> [Simplified Acute Physiological Score (<a href="http://www.ncbi.nlm.nih.gov/pubmed/6499483"
+target="_blank"><em>Le Gall et al., 1984</em></a>)]</li>
+<li> <em>SOFA score</em> [Sequential Organ Failure Assessment (<a href="http://www.ncbi.nlm.nih.gov/pubmed/11594901"
+target="_blank"><em>Ferreira et al., 2001</em></a>)]</li>
+
+###
+
+The following 36 clinical measures were assessed at multiple timepoints during each patient's ICU stay. For each of the 36 clinical measures, you are given 3 summary variables: a) The minimum value during the first 24 hours in ICU (_min), b) The maximum value during the first 24 hours in ICU (_max), and c) The difference between the mean and the most extreme values during the first 24 hours in ICU (_diff). For example, for the clinical measure Cholesterol, these three variables are labelled 'Cholesterol_min', 'Cholesterol_max', and 'Cholesterol_diff'.
+
+<li><a href="http://en.wikipedia.org/wiki/Human_serum_albumin" target="_blank">
+<em>Albumin</em></a> (g/dL)</li>
+<li><a href="http://en.wikipedia.org/wiki/Alkaline_phosphatase" target="_blank">
+<em>ALP</em></a> [Alkaline phosphatase (IU/L)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Alanine_transaminase" target="_blank">
+<em>ALT</em></a> [Alanine transaminase (IU/L)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Aspartate_transaminase" target="_blank">
+<em>AST</em></a> [Aspartate transaminase (IU/L)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Bilirubin" target="_blank">
+<em>Bilirubin</em></a> (mg/dL)</li>
+<li><a href="http://en.wikipedia.org/wiki/BUN" target="_blank">
+<em>BUN</em></a> [Blood urea nitrogen (mg/dL)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Cholesterol" target="_blank">
+<em>Cholesterol</em></a> (mg/dL)</li>
+<li><a href="http://en.wikipedia.org/wiki/Serum_creatinine#Plasma_creatinine"
+target="_blank">
+<em>Creatinine</em></a> [Serum creatinine (mg/dL)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Diastolic_blood_pressure"
+target="_blank">
+<em>DiasABP</em></a> [Invasive diastolic arterial blood pressure (mmHg)]</li>
+<li><a href="http://en.wikipedia.org/wiki/FIO2" target="_blank">
+<em>FiO2</em></a> [Fractional inspired O<sub>2</sub> (0-1)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Glasgow_coma_score" target="_blank">
+<em>GCS</em></a> [Glasgow Coma Score (3-15)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Serum_glucose" target="_blank">
+<em>Glucose</em></a> [Serum glucose (mg/dL)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Bicarbonate#Diagnostics"
+target="_blank">
+<em>HCO3</em></a> [Serum bicarbonate (mmol/L)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Hematocrit" target="_blank">
+<em>HCT</em></a> [Hematocrit (%)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Heart_rate" target="_blank">
+<em>HR</em></a> [Heart rate (bpm)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Hypokalemia" target="_blank">
+<em>K</em></a> [Serum potassium (mEq/L)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Lactic_acid" target="_blank">
+<em>Lactate</em></a> (mmol/L)</li>
+<li><a href="http://en.wikipedia.org/wiki/Magnesium#Biological_role"
+target="_blank">
+<em>Mg</em></a> [Serum magnesium (mmol/L)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Mean_arterial_pressure">
+<em>MAP</em></a> [Invasive mean arterial blood pressure (mmHg)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Mechanical_ventilation"
+target="_blank">
+<em>MechVent</em></a> [Mechanical ventilation respiration (0:false, or 1:true)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Serum_sodium" target="_blank">
+<em>Na</em></a> [Serum sodium (mEq/L)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Diastolic_blood_pressure"
+target="_blank">
+<em>NIDiasABP</em></a> [Non-invasive diastolic arterial blood pressure (mmHg)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Mean_arterial_pressure">
+<em>NIMAP</em></a> [Non-invasive mean arterial blood pressure (mmHg)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Systolic_blood_pressure"
+target="_blank">
+<em>NISysABP</em></a> [Non-invasive systolic arterial blood pressure (mmHg)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Arterial_blood_gas" target="_blank">
+<em>PaCO2</em></a> [partial pressure of arterial CO<sub>2</sub> (mmHg)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Arterial_blood_gas" target="_blank">
+<em>PaO2</em></a> [Partial pressure of arterial O<sub>2</sub> (mmHg)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Arterial_blood_gas" target="_blank">
+<em>pH</em></a> [Arterial pH (0-14)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Platelets" target="_blank">
+<em>Platelets</em></a> (cells/nL)</li>
+<li><a href="http://en.wikipedia.org/wiki/Respiratory_physiology" target="_blank">
+<em>RespRate</em></a> [Respiration rate (bpm)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Arterial_blood_gas" target="_blank">
+<em>SaO2</em></a> [O<sub>2</sub> saturation in hemoglobin (%)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Systolic_blood_pressure"
+target="_blank">
+<em>SysABP</em></a> [Invasive systolic arterial blood pressure (mmHg)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Normal_human_body_temperature"
+target="_blank">
+<em>Temp</em></a> [Temperature (&deg;C)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Troponin" target="_blank">
+<em>TropI</em></a> [Troponin-I (&mu;g/L)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Troponin" target="_blank">
+<em>TropT</em></a> [Troponin-T (&mu;g/L)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Fluid_balance" target="_blank">
+<em>Urine</em></a> [Urine output (mL)]</li>
+<li><a href="http://en.wikipedia.org/wiki/Reference_ranges_for_blood_tests#Hematology" target="_blank">
+<em>WBC</em></a> [White blood cell count (cells/nL)]</li>
+<li>
+<em>Weight</em> (kg)</li>
+
+
+## Accessing the Data
+The data frame can be loaded with the following code:
+
+```
+icu_patients_df0 <- readRDS("icu_patients_df0.rds")
+icu_patients_df1 <- readRDS("icu_patients_df1.rds")
+```
+**Note:** icu_patients_df1 is an imputed (i.e. missing values are 'derived') version of icu_patients_df0.  This assignment does not concern the methods used for imputation.
+
+
+# Task 1 (15 marks)
+
+In this task, you are required to develop a logistic regression model using the `icu_patients_df1` data set which adequately explains or predicts the `in_hospital_death` variable as the outcome using a subset of the available predictor variables. You should fit a series of models, evaluating each one, before you present your final model. Your final model should **not** include all the predictor variables, just a small subset of them, which you have selected based on statistical significance and/or background knowledge. It is perfectly acceptable to include predictor variables in your final model which are not statistically significant, as long as you justify their inclusion on medical or physiological grounds (you will not be marked down if your medical justification is not exactly correct or complete, but do you best). Aim for between five and ten predictor variables (slightly more or fewer is OK). You should assess each model you consider for goodness of fit and other relevant statistics to help you choose between them. For your final model, present a set of diagnostic statistics and/or charts and comment on them. You don't need to do an exhaustive exploratory data analysis of all the variables in the data set, but you should examine those variables that you use in your model. Finally, re-fit your final model to the unimputed data frame (`icu_patients_df0.rds`) and comment on any differences you find compared to the same model fitted to the imputed data. 
+
+
+### Hints
+
+1. Select an initial subset of explanatory variables that you will use to predict the risk of in-hospital death. Justify your choice.
+
+2. Conduct basic exploratory data analysis on your variables of choice.
+
+3. Fit appropriate univariate logistic regression models.
+
+4. Fit an appropriate series of multivariable logistic regression models, justifying your approach. Assess each model you consider for goodness of fit and other relevant statistics.
+
+5. Present your final model. Your final model should **not** include all the predictor variables, just a small subset of them, which you have selected based on statistical significance and/or background knowledge.
+
+6. For your final model, present a set of diagnostic statistics and/or charts and comment on them.
+
+7. Write a paragraph summarising the most important findings of your final model. Include the most important values from the statistical output, and a simple clinical interpretation.
+
+
+
+#####
+**Create your response to this task here, as a mixture of embedded (`knitr`) R code and any resulting outputs, and explanatory or commentary text.** 
+
+
+
+# Task 2 (15 marks)
+
+In this task, you are required to develop a Cox proportional hazards survival model using the `icu_patients_df1` data set which adequately explains or predicts the length of survival indicated by the `Days` variable, with censoring as indicated by the `Status` variable.  You should fit a series of models, maybe three or four, evaluating each one, before you present your final model. Your final model should **not** include all the predictor variables, just a small subset of them, which you have selected based on statistical significance and/or background knowledge. Aim for between five and ten predictor variables (slightly more or fewer is OK). It is perfectly acceptable to include predictor variables in your final model which are not statistically significant, as long as you justify their inclusion on medical or physiological grounds (you will not be marked down if your medical justification is not exactly correct, but do you best). You should assess each model you consider for goodness of fit and other relevant statistics, and you should assess your final model for violations of assumptions and perform other diagnostics which you think are relevant (and modify the model if indicated, or at least comment on the possible impact of what your diagnostics show). Finally, re-fit your final model to the unimputed data frame (`icu_patients_df0.rds`) and comment on any differences you find.
+
+
+### Hints
+
+1. Select an initial subset of explanatory variables that you will use to predict survival. Justify your choice.
+
+2. Conduct basic exploratory data analysis on your variables of choice.
+
+3. Fit appropriate univariate Cox proportional hazards models.
+
+4. Fit an appropriate series of multivariable Cox proportional hazards models, justifying your approach. Assess each model you consider for goodness of fit and other relevant statistics.
+
+5. Present your final model. Your final model should **not** include all the predictor variables, just a small subset of them, which you have selected based on statistical significance and/or background knowledge.
+
+6. For your final model, present a set of diagnostic statistics and/or charts and comment on them. 
+
+7. Write a very brief paragraph summarising the most important findings of your final model. Include the most important values from the statistical output, and a simple clinical interpretation. 
+
+####
+**Create your response to this task here, as a mixture of embedded (`knitr`) R code and any resulting outputs, and explanatory or commentary text.** 
+
+
+
+## Save, knit and submit
+
+**Reminder**: don't forget to save this file, to knit it to check that everything works, and then submit via the drop box in OpenLearning.
+
+## Submit your assignment
+
+When you have finished, and are satisfied with your assignment solutions, and this file knits without errors and the output looks the way you want, then you should submit via the drop box in OpenLearning.
+
+### Problems?
+
+If you encounter problems with any part of the process described above, please contact the course convenor via OpenLearning as soon as possible so that the issues can be resolved in good time, and well before the assignment is due.
+
+
+### Additional Information
+
+Each task attracts the indicated number of marks (out of a total of 30 marks for the assignment). The instructions are deliberately open-ended and less prescriptive than the individual assignments to allow you some latitude in what you do and how you go about the task. However, to complete the tasks and gain full marks, you only need to replicate or repeat the steps covered in the course - if you do most or all of the things described in the revalant chapters of the HDAT9600 course, full marks will be awarded. 
+
+Note also that with respect to the model fitting, there are no **right** or **wrong** answers when it comes to variable selection and other aspects of model specification. Deep understanding of the underlying medical concepts which govern patient treatment and outcomes in ICUs is not required or assumed, although you should try to gain some understanding of each variable using the links provided. You will not be marked down if your medical justifications are not exactly correct or complete, but do you best, and don't hesitate to seek help from the course convenor.
