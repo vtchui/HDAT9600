@@ -145,10 +145,11 @@ target="_blank">
 The data frame can be loaded with the following code:
 
 ``` {r task-setup}
+
 # Getting the path of your current open file
 # Extra code to ensure this file imports birth.csv in local directory for everyone
 library(rstudioapi)
-current_path = rstudioapi::getActiveDocumentContext()$path 
+current_path <- rstudioapi::getActiveDocumentContext()$path 
 setwd(dirname(current_path ))
 
 icu_patients_df0 <- readRDS("icu_patients_df0.rds")
@@ -229,13 +230,15 @@ head(icu_patients_df1)
 ``` {r task1.2}
 
 # add in BMI variable
-icu_patients_df1$BMI <- (icu_patients_df1$Weight_min) / (0.01*icu_patients_df1$Height)^2
-summary(icu_patients_df1$Weight_min)
-summary(icu_patients_df1$Height) #max height is 426.7cm!?
-summary(icu_patients_df1$BMI)
+# icu_patients_df1$BMI <- (icu_patients_df1$Weight_min) / (0.01*icu_patients_df1$Height)^2
+# summary(icu_patients_df1$Weight_min)
+# summary(icu_patients_df1$Height) #max height is 426.7cm!?
+# summary(icu_patients_df1$BMI)
+# BMI actually gives no meaningful data - remove this code!
 
 # Basic EDA for each variable
 library(ggplot2)
+table(icu_patients_df1$in_hospital_death) #297 deaths out of 2016 observations = 14.4%
 
 # Patients who died had lower albumin
 ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Albumin_min))+ geom_boxplot()
@@ -322,7 +325,7 @@ ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Urin
 ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = WBC_max))+ geom_boxplot()
 
 # Not uninterpretable data
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = BMI))+ geom_boxplot()
+# ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = BMI))+ geom_boxplot()
 
 # Using weight instead, roughly the same
 ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Weight_min))+ geom_boxplot()
@@ -478,42 +481,198 @@ summary(maxTemp_glm)
 4. Fit an appropriate series of multivariable logistic regression models, justifying your approach. Assess each model you consider for goodness of fit and other relevant statistics.
 
 ``` {r task1.4}
-fullICU_glm <- glm(in_hospital_death ~ 
-                    Albumin_min + Bilirubin_max + BUN_max + Creatinine_max + 
-                      GCS_min + Glucose_max + HR_max + Lactate_max + PaCO2_min + 
-                      pH_min + RespRate_max + Temp_min + TroponinT_max + 
-                      Urine_min + WBC_max + Age + Gender + ICUType + SAPS1 + 
-                      SOFA + # these are statistically sig
-                      
-                      FiO2_max + HCT_min + K_max + MAP_min + PaCO2_max + PaO2_min +
-                      Platelets_min + SaO2_min + Weight_min + Length_of_stay +
-                      
-                      # interaction terms
-                      PaO2_min:FiO2_max, # PaO2 / FiO2 ratio is used to assess for acute respiratory distress syndrome,
-                      
-                      data=icu_patients_df1, family="binomial")
 
-# significant variables in the multi glm are:
-# Albumin_min, Bilirubin_max, BUN_max, Creatinine_max, PaCO2_min, RespRate_max, Age, Gender, ICUType
-# SAPS1, SOFA, PaCO2_max
-
-# interaction term P:F ratio had no effect
-summary(fullICU_glm)
-
-signifICU_glm <- glm(in_hospital_death ~ 
-                    Albumin_min + Bilirubin_max + BUN_max + Creatinine_max + 
-                      PaCO2_min + RespRate_max + Age + Gender + ICUType + SAPS1 + 
-                      SOFA + PaCO2_max, data=icu_patients_df1, family="binomial")
-summary(signifICU_glm) # using only the signif variables in the multi model actually results in a HIGHER AIC
+# Considering ALL variables:
+# column 1 is record id
+# column 2 is Length_of_stay
+# column 3 is SAPS1
+# column 4 is SOFA
+# column 5 is survival
+# column 7 is days
+# column 8 is status
+# column 9 is age
+# column 43 is gender
+# column 53 is Height
+# column 57 is ICUType
+# these columns should be excluded - the relevant ones will be reincluded in future models
 
 
+# Split looking at all the variables by min,max,diff
+# If trying to look at all variables at the same time, leads to linearity error
 
-fullICU_glm <- step(fullICU_glm, trace=1)
+### min ICU data ###
+
+minICUdata <- icu_patients_df1[, -c(1,2,3,4,5,7,8,9,43,53,57)] # remove columns as above
+minICUdata <- minICUdata[, c(1, seq(from=4, to=109, by = 3))] # every third column starting from a min column
+
+minICU_glm <- glm(in_hospital_death ~ . ,data=minICUdata, family="binomial")
+summary(minICU_glm)
+# Bilirubin_min, BUN_min, HCT_min, Lactate_min, Temp_min, Na_min, PaO2_min, Urine_min were statistically significant
+
+
+###  max ICU data ### 
+maxICUdata <- icu_patients_df1[, -c(1,2,3,4,5,7,8,9,43,53,57)] # remove columns as above
+maxICUdata <- maxICUdata[, c(1, seq(from=3, to=109, by = 3))] # every third column starting from a max column
+
+maxICU_glm <- glm(in_hospital_death ~ . ,data=maxICUdata, family="binomial")
+summary(maxICU_glm)
+# BUN_max, Creatinine_max, GCS_max, Platelet_max, Temp_max, Urine_max were statistically significant
+
+### diff ICU data ### 
+diffICUdata <- icu_patients_df1[, -c(1,2,3,4,5,7,8,9,43,53,57)] # remove columns as above
+diffICUdata <- diffICUdata[, c(1, seq(from=2, to=109, by = 3))] # every third column starting from a diff column
+
+diffICU_glm <- glm(in_hospital_death ~ . ,data=diffICUdata, family="binomial")
+summary(diffICU_glm)
+# Albumin_diff, Bilirubin_diff, BUN_diff, Mg_diff, NISysABP_diff, Urine_diff were statistically significant
+
+sum(is.na(icu_patients_df1$NISysABP_diff)) # there are 453 missing values from NISysABP_diff column! removed
+
+
+
+### if you built a model that used the min/max/diff significant variables:
+
+minmaxdiffICU_glm <- glm(in_hospital_death ~ Age + Length_of_stay + SOFA + SAPS1 + ICUType + Gender +
+                           #min variables that were significant
+                           Bilirubin_min + BUN_min + HCT_min + Lactate_min + Temp_min + Na_min + PaO2_min + Urine_min + 
+                           #max variables that were significant
+                           BUN_max + Creatinine_max + GCS_max + Platelets_max + Temp_max + Urine_max +
+                           #diff variables that were significant
+                           Albumin_diff + Bilirubin_diff + BUN_diff + Mg_diff + Urine_diff # NISysABP_diff removed because of missing values
+                           ,data=icu_patients_df1, family="binomial")
+
+summary(minmaxdiffICU_glm)
+
+step_minmaxdiffICU_glm <- step(minmaxdiffICU_glm, trace=1)
+summary(step_minmaxdiffICU_glm)
+
+# predictors left behind after step() are:
+# Age, SAPS1, ICUType
+# Albumin_diff
+# Bilirubin_min, Bilirubin_diff
+# BUN_min, BUN_diff
+# Creatinine_max
+# GCS_max
+# Lactate_min
+# Na_min
+# Platelets_max
+# Temp_min
+# Urine_max, Urine_diff
+
+
+
+
+
+
+
 ```
 
 5. Present your final model. Your final model should **not** include all the predictor variables, just a small subset of them, which you have selected based on statistical significance and/or background knowledge.
+```{r task1.5}
+
+finalICU_glm <- glm(in_hospital_death ~ 
+                      # significant predictors from step()
+                      Age + SAPS1 + ICUType + Albumin_diff + Bilirubin_min + Bilirubin_diff + BUN_min + BUN_diff + Creatinine_max + GCS_max + Lactate_min + Na_min + Platelets_max + Temp_min + Urine_max + Urine_diff +
+                      
+                      # predictors that are clinically relevant but not included in above
+                      
+                      # baseline demographics should be included even if not significant
+                      Gender + Length_of_stay + Weight_min + 
+                      SOFA + # an indicator of how well SOFA score determines mortality independent to its components
+                      
+                      # other clinical relevance
+                      Albumin_min + # low albumin indicates malnutrition or liver failure
+                      Glucose_max + # hyperglycaemia is a stress response
+                      HCT_min + # low HCT = anaemia
+                      HR_max + # tachycardia may indicate septic shock / inflammation
+                      PaO2_min + # hypoxia = inadequate organ perfusion/oxygenation
+                      PaCO2_min + #hypercapnia = respiratory / ventilation failure
+                      pH_min + # indicates acidaemia / inadequate organ perfusion
+                      RespRate_max + # indicates respiratory failure
+                      TroponinT_max + # indicates myocardial damage
+                      WBC_max # indicates infection
+                      
+                    ,data=icu_patients_df1, family="binomial")
+summary(finalICU_glm)
+```
+
 
 6. For your final model, present a set of diagnostic statistics and/or charts and comment on them.
+
+```{r task1.6}
+library(magrittr)
+library(dplyr)
+
+# lots of missing data in:
+# Survival, ABP, NIBP variables
+# some missing data in SAPS1 and Weight - correlates with GLM full model missing data
+for(i in 1:length(colnames(icu_patients_df1))){
+  print(c(i,colnames(icu_patients_df1[i]), sum(is.na(icu_patients_df1[i]))))
+}
+
+# remove observations with missing values from the data frame, 
+# because they are automatically dropped by glm()
+
+# remove the survival, ABP, some of the BP, height columns first
+icu_patients_df1_nm <- icu_patients_df1[, -c(5,34:36,53,73:81, 100:102)]
+icu_patients_df1_nm <- na.omit(icu_patients_df1_nm)
+
+
+### Goodness of fit using bins ###
+
+# add predicted probabilities to the data frame
+icu_patients_df1_nm %>% mutate(predprob=predict(finalICU_glm, type="response"),
+                   linpred=predict(finalICU_glm)) %>%
+# group the data into bins based on the linear predictor fitted values
+group_by(cut(linpred, breaks=unique(quantile(linpred, (1:50)/51)))) %>%
+# summarise by bin
+summarise(death_bin=sum(in_hospital_death), predprob_bin=mean(predprob), n_bin=n()) %>%
+# add the standard error of the mean predicted probaility for each bin
+mutate(se_predprob_bin=sqrt(predprob_bin*(1 - predprob_bin)/n_bin)) %>%
+# plot it with 95% confidence interval bars
+ggplot(aes(x=predprob_bin, 
+           y=death_bin/n_bin, 
+           ymin=death_bin/n_bin - 1.96*se_predprob_bin,
+           ymax=death_bin/n_bin + 1.96*se_predprob_bin)) +
+  geom_point() + geom_linerange(colour="orange", alpha=0.4) +
+  geom_abline(intercept=0, slope=1) + 
+  labs(x="Predicted probability (binned)",
+       y="Observed proportion (in each bin)")
+# the ideal calibration line fits within most of the dots and their 95% CI
+
+### Goodness of fit using Hosmer Lemeshow stat ###
+
+icu_patients_df1_nm %>% mutate(predprob=predict(finalICU_glm, type="response"),
+                   linpred=predict(finalICU_glm)) %>%
+group_by(cut(linpred, breaks=unique(quantile(linpred, (1:50)/51)))) %>%
+summarise(death_bin=sum(in_hospital_death), predprob_bin=mean(predprob), n_bin=n()) %>%
+mutate(se_predprob_bin=sqrt(predprob_bin*(1 - predprob_bin)/n_bin)) -> hl_df
+
+hl_stat <- with(hl_df, sum( (death_bin - n_bin*predprob_bin)^2 /
+                            (n_bin* predprob_bin*(1 - predprob_bin))))
+hl <- c(hosmer_lemeshow_stat=hl_stat, hl_degrees_freedom=nrow(hl_df) - 1)
+hl
+
+# calculate p-value
+c(p_val=1 - pchisq(hl[1], hl[2])) # the p value here is not statistically significant, indicating no lack of fit
+
+
+### Brier score ###
+
+get_brier <- function(model){
+  predprob <- predict(model, type="response")
+  Brier_score <- mean((predprob - icu_patients_df1_nm$in_hospital_death)^2)
+  return(Brier_score)
+}
+
+get_brier(finalICU_glm)
+get_brier(minmaxdiffICU_glm)
+get_brier(step_minmaxdiffICU_glm)
+
+# the final model has the lowest brier score -> lower score is better fit
+
+```
+
 
 7. Write a paragraph summarising the most important findings of your final model. Include the most important values from the statistical output, and a simple clinical interpretation.
 
@@ -521,6 +680,8 @@ fullICU_glm <- step(fullICU_glm, trace=1)
 
 #####
 **Create your response to this task here, as a mixture of embedded (`knitr`) R code and any resulting outputs, and explanatory or commentary text.** 
+
+
 
 
 
