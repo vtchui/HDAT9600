@@ -596,6 +596,54 @@ finalICU_glm <- glm(in_hospital_death ~
 summary(finalICU_glm)
 ```
 
+```{r task 1.5_test-poisson}
+
+# test using modified poisson regression for more common outcomes on the same covariates as above
+
+finalICU_glm_poisson <- glm(in_hospital_death ~ 
+                      # significant predictors from step()
+                      Age + SAPS1 + ICUType + Albumin_diff + Bilirubin_min + 
+                      Bilirubin_diff + BUN_min + BUN_diff + Creatinine_max + 
+                      GCS_max + Lactate_min + Na_min + Platelets_max + 
+                      Temp_min + Urine_max + Urine_diff +
+                        
+                      # baseline demographics should be included even if not significant
+                      Gender + Length_of_stay + Weight_min + 
+                      SOFA + # an indicator of how well SOFA score determines mortality independent to its components
+                      
+                      # other clinical relevance
+                      Albumin_min + # low albumin indicates malnutrition or liver failure
+                      Glucose_max + # hyperglycaemia is a stress response
+                      HCT_min + # low HCT = anaemia
+                      HR_max + # tachycardia may indicate septic shock / inflammation
+                      PaO2_min + # hypoxia = inadequate organ perfusion/oxygenation
+                      PaCO2_min + #hypercapnia = respiratory / ventilation failure
+                      pH_min + # indicates acidaemia / inadequate organ perfusion
+                      RespRate_max + # indicates respiratory failure
+                      TroponinT_max + # indicates myocardial damage
+                      WBC_max # indicates infection
+                      
+                    , data=icu_patients_df1, family="poisson"(link="log"))
+
+summary(finalICU_glm_poisson)
+
+# fewer significant variables (likely as CI can be wider in poisson)
+# but the variables that are significant were also significant in the logistic model
+
+# examine ORs from logistic regression
+options(scipen=999) # turn off scientific notation
+exp(coef(finalICU_glm))
+
+# examine RRs from logistic regression
+exp(coef(finalICU_glm_poisson))
+
+# the ORs and RRs appear very similar --> check the actual differences
+exp(coef(finalICU_glm))-exp(coef(finalICU_glm_poisson))
+# the intercept is very different (by 82000!) - not sure how to interpret that. the other estimates are very similar
+
+# perhaps the logistic model is therefore justified? just need to be careful in interpretation using 'odds' rather than 'risk'
+```
+
 
 6. For your final model, present a set of diagnostic statistics and/or charts and comment on them.
 
