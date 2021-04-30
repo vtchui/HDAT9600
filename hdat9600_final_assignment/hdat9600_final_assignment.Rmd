@@ -937,6 +937,97 @@ In this task, you are required to develop a Cox proportional hazards survival mo
 
 1. Select an initial subset of explanatory variables that you will use to predict survival. Justify your choice.
 
+```{r task 2.1}
+library(survival)
+# Initial variables used to predict survival
+# (copied from Task 1)
+
+## ICU first 24 hrs clinical data:
+# Albumin_min : low albumin assoc with malnutrition 
+# Bilirubin_max: may indicate liver failure and also is included in SOFA scoring
+# BUN_max : high urea assoc with renal impairment
+# Creatinine_max : high creatinine assoc with renal impairment
+# FiO2_max : high oxygen requirements indicate lung pathology
+# GCS_min : low GCS indicates head pathology
+# Glucose_min : both hypo and hyperglycaemia can contribute to mortality
+# Glucose_max
+# HCT_min : HCT or haemoglobin assoc with mortality
+# HR_min : too high or too low HR can cause cardiac issues
+# HR_max
+# K_min : both hypo and hyperkalaemia can indicate pathology
+# K_max
+# Lactate_max : high lactate is a marker of inadequate organ perfusion
+# Mg_min : low magnesium could result in arrhythmias
+# MAP_min : hypoperfusion leads to morbidity
+# MAP_max : hyperperfusion / dysregulation of circulation could lead to morbidity
+# MAP_diff
+# MechVent : mech vent associated with mortality
+# Na_min : both hypo and hypernatremia can lead to brain oedema / damage / seizures
+# Na_max
+# PaCO2_min 
+# PaCO2_max : hypercapnia can result from ventilatory failure
+# PaO2_min : because oxygen is important
+# pH_min : both acidaemia and alkaemia indicates systemic or renal pathology
+# pH_max
+# Platelets_min : low platelets indicate higher risk of bleeding
+# RespRate_max : high RR is related to mortality
+# SaO2_min : because oxygen is important
+# Temp_min : hypothermia / hyperthermia may lead to morbiditiy
+# Temp_max
+# TropT_max : indicates myocardial injury
+# Urine_min : low urine output indicates renal impairment
+# WBC_max : presence of infection
+# Weight : whether obesity has any contributing factors
+
+# Non clinical variables:
+# age
+# gender
+# height (and therefore BMI)
+# ICUType
+# Length_of_stay
+# SAPS1
+# ICUType
+
+# Variables I am unsure of clinical significant:
+# ALP / ALT / AST
+# HCO3
+
+
+## Some univariate models
+# at the moment, this is predicting mortality (status=0 if survives by end of follow-up; status=1 if dies)
+# do we need to switch the status variable to predict survival? or we can just interpret accordingly as mortality != survival?
+
+# started working through some variables I thought might be significant
+age_cox <- coxph(Surv(Days, Status) ~ Age, data=icu_patients_df1)
+summary(age_cox)
+
+gender_cox <- coxph(Surv(Days, Status) ~ Gender, data=icu_patients_df1)
+summary(gender_cox)
+
+icutype_cox <- coxph(Surv(Days, Status) ~ ICUType, data=icu_patients_df1)
+summary(icutype_cox)
+
+los_cox <- coxph(Surv(Days, Status) ~ Length_of_stay, data=icu_patients_df1)
+summary(los_cox)
+
+saps1_cox <- coxph(Surv(Days, Status) ~ SAPS1, data=icu_patients_df1)
+summary(saps1_cox)
+
+sofa_cox <- coxph(Surv(Days, Status) ~ SOFA, data=icu_patients_df1)
+summary(sofa_cox)
+
+weight_cox <- coxph(Surv(Days, Status) ~ Weight_min, data=icu_patients_df1)
+summary(weight_cox)
+
+minalb_cox <- coxph(Surv(Days, Status) ~ Albumin_min, data=icu_patients_df1)
+summary(minalb_cox)
+
+maxbili_cox <- coxph(Surv(Days, Status) ~ Bilirubin_min, data=icu_patients_df1)
+summary(maxbili_cox)
+
+
+```
+
 2. Conduct basic exploratory data analysis on your variables of choice.
 
 3. Fit appropriate univariate Cox proportional hazards models.
