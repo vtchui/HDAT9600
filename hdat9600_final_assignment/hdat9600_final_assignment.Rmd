@@ -1879,7 +1879,7 @@ prophazard.mvfinal
 # Including time x covariate interactions to fix proportional hazards for problematic variables
 
 
-# splitting the old age mortality dataset to two time intervals 
+# splitting the dataset to time intervals 
 ICU.fit <- survfit( Surv(Days, Status) ~ 1, data = icu_patients_df1) 
 plot(ICU.fit, main = 'Kaplan-Meier estimate of survival function', xlab = 'Length of survival (in days)')
 plot(ICU.fit, main = 'Kaplan-Meier estimate of survival function', xlab = 'Length of survival (in days)',xlim=c(0,30))
@@ -1887,7 +1887,7 @@ plot(ICU.fit, main = 'Kaplan-Meier estimate of survival function', xlab = 'Lengt
 plot(ICU.fit, main = 'Kaplan-Meier estimate of survival function', xlab = 'Length of survival (in days)',xlim=c(250,1000))
 plot(ICU.fit, main = 'Kaplan-Meier estimate of survival function', xlab = 'Length of survival (in days)',xlim=c(1000,2408))
 
-
+## 1st attempt
 ICU.split <- survSplit( Surv(Days, Status) ~ ., data = data, cut=c(30,250,1000), episode= "tgroup", id="id2")
 head(ICU.split)
 
@@ -1904,8 +1904,25 @@ summary(ICU.mv4)
 prop.mv4 <- cox.zph(ICU.mv4, terms=FALSE)
 prop.mv4
 
-
 #Global test is better (p-value is 0.02207... need otplay aorund until it becomes insignificant)
+
+
+## 2nd attempt -- non-significant global test
+# trialled based on suspicion of different patient groups for different survival times
+# (i.e. there will be systemic differences between patients who survive 5 days vs 60 days vs 365 days)
+ICU.split2 <- survSplit( Surv(Days, Status) ~ ., data = data, cut=c(5,60,365), episode= "tgroup", id="id2")
+ICU.mv5 <- coxph(Surv(Days, Status) ~ as.factor(Gender) + as.factor(ICUType) + 
+                  Age + SAPS1:strata(tgroup) + SOFA:strata(tgroup) + Weight_min + 
+                  Weight_max + Weight_diff + Bilirubin_min:strata(tgroup) + 
+                  Bilirubin_diff:strata(tgroup) + Creatinine_min + Creatinine_diff + 
+                  GCS_min:strata(tgroup) + GCS_max:strata(tgroup) + HCO3_diff + 
+                  HR_min:strata(tgroup) + Na_max + PaO2_max + Platelets_min + 
+                  Platelets_max + Temp_max + Urine_max:strata(tgroup) + WBC_min + 
+                   WBC_max + WBC_diff, data = ICU.split2)
+
+prop.mv5 <- cox.zph(ICU.mv5, terms=FALSE)
+prop.mv5
+## global test 0.11 (still significant in ICU type and urine_max variables ... couldnt figure out how to fix these)
 
 
 
