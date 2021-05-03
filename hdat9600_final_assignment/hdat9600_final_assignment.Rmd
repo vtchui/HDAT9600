@@ -1885,7 +1885,7 @@ plot(ICU.fit, main = 'Kaplan-Meier estimate of survival function', xlab = 'Lengt
 plot(ICU.fit, main = 'Kaplan-Meier estimate of survival function', xlab = 'Length of survival (in days)',xlim=c(0,30))
 plot(ICU.fit, main = 'Kaplan-Meier estimate of survival function', xlab = 'Length of survival (in days)',xlim=c(30,250))
 plot(ICU.fit, main = 'Kaplan-Meier estimate of survival function', xlab = 'Length of survival (in days)',xlim=c(250,1000))
-plot(ICU.fit, main = 'Kaplan-Meier estimate of survival function', xlab = 'Length of survival (in days)',xlim=c(1000,max(Days)))
+plot(ICU.fit, main = 'Kaplan-Meier estimate of survival function', xlab = 'Length of survival (in days)',xlim=c(1000,2408))
 
 
 ICU.split <- survSplit( Surv(Days, Status) ~ ., data = data, cut=c(30,250,1000), episode= "tgroup", id="id2")
@@ -1911,11 +1911,30 @@ prop.mv4
 
 # Checking Linearity by observing Martingale residuals
 
-ggcoxfunctional(ICU.mvfinal, data) #can't seem to get this to work...
+#ggcoxfunctional(ICU.mvfinal, data) #can't seem to get this to work...
+
+  # got it to work by excluding categorical variabes from the model (not sure if appropriate)
+ICU.nofactor<- coxph(Surv(Days, Status) ~ 
+                        Age + SAPS1 + SOFA + Weight_min + Weight_max + Weight_diff + 
+                        Bilirubin_min + Bilirubin_diff + Creatinine_min + Creatinine_diff + 
+                         GCS_min + GCS_max + HCO3_diff + HR_min + Na_max + PaO2_max + 
+                        Platelets_min + Platelets_max + Temp_max + Urine_max + WBC_min + 
+                        WBC_max + WBC_diff, data = data)
+ggcoxfunctional(ICU.nofactor, data)
+  # they don't look particularly linear... especially with laboratory values very far from the reference ranges 
+    # (likely few observations in this range / potential outliers)
 
 ggcoxdiagnostics(ICU.mvfinal, type = "martingale", linear.predictions = FALSE, ggtheme = theme_bw()) 
 # looks linear to me...
+# this plot is plotting the residuals of the overall model rather than one variable at a time - but does look linear
+# with 2 large negative outliers (large negative interpretation = 'lived too long')
 
+# get the observation number for the outliers
+resid(ICU.mvfinal)[resid(ICU.mvfinal) < -3]
+  # could potentially remove from data for model???
+  icu_patients_df1[c(348,911),]
+  # looks like they were relatively elderly with very low min and max GCS, and SOFA scores predictive of very likely mortality
+  # yet they survived...
 ```
 
 5. Present your final model. Your final model should **not** include all the predictor variables, just a small subset of them, which you have selected based on statistical significance and/or background knowledge.
