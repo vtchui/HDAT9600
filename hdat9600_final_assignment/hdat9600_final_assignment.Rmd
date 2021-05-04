@@ -225,6 +225,7 @@ head(icu_patients_df1)
 # HCO3
 
 ```
+
 2. Conduct basic exploratory data analysis on your variables of choice.
 
 ``` {r task1.2}
@@ -239,6 +240,22 @@ head(icu_patients_df1)
 # Basic EDA for each variable
 library(ggplot2)
 table(icu_patients_df1$in_hospital_death) #297 deaths out of 2016 observations = 14.4%
+
+
+# Write a function to plot box plots for each variable by in_hospital_death
+boxplot_eda <- function(variable){
+  ggplot(data=icu_patients_df1, 
+         mapping = aes(x = in_hospital_death=="1", 
+                       y = icu_patients_df1[,variable])) + 
+    geom_boxplot() +
+    labs(title=paste('Box plot of',variable), x='In hospital death', y=variable)
+}
+
+# test function
+boxplot_eda('Albumin_min')
+
+## planning to remove code below and use the function for continuous variables to tidy up the code
+
 
 # Patients who died had lower albumin
 ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Albumin_min))+ geom_boxplot()
@@ -339,6 +356,7 @@ ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Leng
 # Patients who died had higher SAPS1 and SOFA scores
 ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = SAPS1))+ geom_boxplot()
 ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = SOFA))+ geom_boxplot()
+
 
 # cardiac surgery recovery unit have a smaller death circle compared to the other 3 ICU units
 # ie less proportion of in hospital deaths compared to alive
@@ -1058,6 +1076,25 @@ plot(ICU.fit, fun="cumhaz", main = "Nelson-Aalen estimate of cumulative hazard f
 ```
 
 There were 773 deaths (out of 2061 participants) during follow-up.The median follow-up time cannot be determined as the survival rate has not yet dropped to 50% survival at the end of the available data. The cumulative hazard rate (as shown in the Nelson Aalen plot)  reaches 47% by the end of the available data.
+
+```{r-EDA function}
+# write a function for continuous variable EDA output
+cont_eda <- function(variable){
+    print(paste(variable,'EDA:'))
+  
+    na_rm <- na.omit(icu_patients_df1[,variable])
+    print(paste('Number of non-missing values:',length(na_rm))) # number of non-missing values
+  
+    print(quantile(icu_patients_df1[,variable], na.rm=TRUE))
+    hist(icu_patients_df1[,variable], breaks=20, xlab=variable, main=paste('Histogram of',variable))
+}
+
+# test with a couple of variables
+cont_eda('Height')
+cont_eda('Bilirubin_min')
+
+## planning to replace code in chunk below with the continuous variables called to the function, to tidy it up
+```
 
 ```{r task2.2.2}
 
