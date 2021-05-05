@@ -168,77 +168,124 @@ In this task, you are required to develop a logistic regression model using the 
 
 1. Select an initial subset of explanatory variables that you will use to predict the risk of in-hospital death. Justify your choice.
 
+**Selecting an initial subset of explanatory variables:
+
+To select a subset of explanatory variables our group of investigators will examine the SAPS1 score and the SOFA score included in the dataset in more detail to ascertain the variables that might be logically associated with increased mortality and poor survival. We will also assess the APACHE score which is commonly used in ICU risk predcition models.
+
+`SAPS1` - Simplified Acute Physiology Score is a measure of the severity of disease for patients admitted to ICU. The following measures increases the SAPS1 score:
+
+  * Advanced Age
+  * Low and high Heart Rate
+  * Low and high Systolic Blood Pressure
+  * High Temperature
+  * Low Glasgow Coma Scale (However it is most meaningful to use the highest GCS score available for prognostication)
+  * Mechanical Ventilation or CPAP
+  * High PaO2/ FiO2 ratio (It is likely that highes FiO2 is administered during lowest PaO2)
+  * Low Urine Output
+  * High Blood Urea Nitrogen
+  * Low or High Sodium
+  * Low or high Potassium
+  * Low Bicarbonate
+  * High Bilirubin
+  * Low or High White Blood Cell
+  * Chronic diseases
+  * Type of admission (ie ICU Type)
+
+*`SOFA` - sequential organ failure assessment is a predictor of ICU mortality. The following measures increase the SOFA score:
+  * Elevated PaO2/ FiO2 ratio- 
+  * Reduced GCS - Nervous system
+  * Reduced MAP - Cardiovascular system
+  * Administration of vasopressors - Cardiovascular system
+  * High Bilirubin - Liver
+  * Low Platelets - Coagulation
+  * High Creatinine - Kidneys
+  * Low Urine - Kidneys
+  
+  
+*The `APACHE` score is commonly used validated risk score for ICU risk prediction. The variables that increase the APACHE score include:
+
+  * Advanced Age
+  * High or Low Temperature
+  * High or Low MAP
+  * High or Low HR
+  * High or Low Respiratory Rate
+  * High PaO2/FiO2 ratio
+  * High or Low pH
+  * High or Low Na
+  * High or Low K
+  * High Creatinine
+  * High or low HCT
+  * High or Low WBC
+
+
+* For our analysis, we will include variables that will increase SOFA, SAPS or APACHE scores. 
+        eg: increased BUN and reduced HCO3 will increase the SAPS score, therfore we will include BUN max(but not BUN_min and BUN_diff) and 
+        HCO3_min (but not HCO3_max and HCO3_diff). Where both extremes of a variable will increase the risk score, both min and max variables will 
+        be included.
+        
+* Other factors known to be associated with morbidity/ mortality not included in risk scores: 
+  * Height/ weight - Body composition/ BMI is associated with mortality and survival
+  * Gender - Male gender associated with worse outcomes
+  * Glucose - high and low Glucose levels are associated with pathology
+  * Troponin T and I - high troponin results(cardiac biomarkers) associated with morbidity and mortality
+  * Lactate - elevated lactate is associated with poor organ perfusion and ICU morbidity/ mortality
+  * Albumin - reduced albumin is associated with poor clinical outcomes
+        
+***BELOW IS A LIST OF THE VARIABLES TO BE INCLUDED:***
+DEMOGRAPHIC VARAIBLES:
+  * Age
+  * Gender
+  * ICU Type
+  * Height 
+  * Weight_max
+  
+CLINICAL VARIABLES:
+  * Albumin_min
+  * Bilirubin_max 
+  * BUN_max
+  * Creatinine_max  
+  * GCS_min
+  * Glucose_min and Glucose_max
+  * HCO3_min
+  * HR_min and HR_max 
+  * K_min K_max
+  * Lactate_max
+  * MAP_min  
+  * Na_min and Na_max 
+  * NISysABP_min and NISysABP_max 
+  * Platelets_min
+  * FiO2_max and PaO2_min - included as PFratio: PaO2_min/ FiO2_max
+  * pH_min and pH_max
+  * RespRate_min and RespRate_max
+  * Temp_min and Temp_max
+  * TroponinI_max
+  * TroponinT_max
+  * Urine_min 
+  * WBC_min and WBC_max
+
 ``` {r task1.1}
 summary(icu_patients_df1)
 head(icu_patients_df1)
-
-# Initial variables used to predict in-hospital death
-# Based on background knowledge
-
-# Albumin_min : low albumin assoc with malnutrition 
-# Bilirubin_max: may indicate liver failure and also is included in SOFA scoring
-# BUN_max : high urea assoc with renal impairment
-# Creatinine_max : high creatinine assoc with renal impairment
-# FiO2_max : high oxygen requirements indicate lung pathology
-# GCS_min : low GCS indicates head pathology
-# Glucose_min : both hypo and hyperglycaemia can contribute to mortality
-# Glucose_max
-# HCT_min : HCT or haemoglobin assoc with mortality
-# HR_min : too high or too low HR can cause cardiac issues
-# HR_max
-# K_min : both hypo and hyperkalaemia can indicate pathology
-# K_max
-# Lactate_max : high lactate is a marker of inadequate organ perfusion
-# Mg_min : low magnesium could result in arrhythmias
-# MAP_min : hypoperfusion leads to morbidity
-# MAP_max : hyperperfusion / dysregulation of circulation could lead to morbidity
-# MAP_diff
-# MechVent : mech vent associated with mortality
-# Na_min : both hypo and hypernatremia can lead to brain oedema / damage / seizures
-# Na_max
-# PaCO2_min 
-# PaCO2_max : hypercapnia can result from ventilatory failure
-# PaO2_min : because oxygen is important
-# pH_min : both acidaemia and alkaemia indicates systemic or renal pathology
-# pH_max
-# Platelets_min : low platelets indicate higher risk of bleeding
-# RespRate_max : high RR is related to mortality
-# SaO2_min : because oxygen is important
-# Temp_min : hypothermia / hyperthermia may lead to morbiditiy
-# Temp_max
-# TropT_max : indicates myocardial injury
-# Urine_min : low urine output indicates renal impairment
-# WBC_max : presence of infection
-# Weight : whether obesity has any contributing factors
-
-# Non clinical variables:
-# age
-# gender
-# height (and therefore BMI)
-# ICUType
-# Length_of_stay
-# SAPS1
-# ICUType
-
-# Variables I am unsure of clinical significant:
-# ALP / ALT / AST
-# HCO3
 
 ```
 
 2. Conduct basic exploratory data analysis on your variables of choice.
 
 ``` {r task1.2}
+library(ggplot2)
 
-# add in BMI variable
-# icu_patients_df1$BMI <- (icu_patients_df1$Weight_min) / (0.01*icu_patients_df1$Height)^2
-# summary(icu_patients_df1$Weight_min)
-# summary(icu_patients_df1$Height) #max height is 426.7cm!?
-# summary(icu_patients_df1$BMI)
-# BMI actually gives no meaningful data - remove this code!
+#################################################################################
+### CODE COPIED FROM TASK 2
+# create new variable PF ratio as part of our list of variables to include
+icu_patients_df1$PFratio<-icu_patients_df1$PaO2_min/icu_patients_df1$FiO2_max
+### CODE COPIED FROM TASK 2
+#################################################################################
+
+summary(icu_patients_df1$Height) #max height is 426.7cm!? and min is 13.0cm - seems wrong
+
 
 # Basic EDA for each variable
-library(ggplot2)
+
 table(icu_patients_df1$in_hospital_death) #297 deaths out of 2016 observations = 14.4%
 
 
@@ -252,117 +299,88 @@ boxplot_eda <- function(variable){
 }
 
 # test function
-boxplot_eda('Albumin_min')
-
-## planning to remove code below and use the function for continuous variables to tidy up the code
+# boxplot_eda('Albumin_min')
 
 
-# Patients who died had lower albumin
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Albumin_min))+ geom_boxplot()
+### Continuous variables EDA and their interpretation ###
 
-# Patients who died had higher bilirubin
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Bilirubin_max))+ geom_boxplot()
+#################################################################################
+### CODE COPIED FROM TASK 2
+# continuous variables from the list of initial subset of explanatory variables
+cont_vars <- c('Age', 'Height', 'Weight_max', 'Albumin_min', 'Bilirubin_max',
+               'BUN_max', 'Creatinine_max', 'GCS_min', 'Glucose_min',
+               'Glucose_max', 'HCO3_min', 'HR_min', 'HR_max', 'K_min', 'K_max',
+               'Lactate_max', 'MAP_min', 'Na_min', 'Na_max', 'NISysABP_min',
+               'NISysABP_max', 'Platelets_min', 'PFratio', 'pH_min', 'pH_max',
+               'RespRate_min', 'RespRate_max', 'Temp_min', 'Temp_max',
+               'TroponinI_max', 'TroponinT_max', 'Urine_min', 'WBC_min', 'WBC_max')
+### CODE COPIED FROM TASK 2
+#################################################################################
 
-# Patients who died had higher urea
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = BUN_max))+ geom_boxplot()
+par(mfrow=c(12,3)) # set the layout of the histograms in 12 row x 3 column grid
+for(i in 1:length(cont_vars)){
+  print(boxplot_eda(cont_vars[i]))
+}
 
-# Patients who died had higher creatinine
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Creatinine_max))+ geom_boxplot()
-
-# No difference
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = FiO2_max))+ geom_boxplot()
-
-# Patients who died had lower GCS
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = GCS_min))+ geom_boxplot()
-
-# Little to no difference
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Glucose_min))+ geom_boxplot()
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Glucose_max))+ geom_boxplot()
-
-# Patients who died had slightly lower HCT
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = HCT_min))+ geom_boxplot()
-
-# Patients who died had slightly higher HR_min and HR_max
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = HR_min))+ geom_boxplot()
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = HR_max))+ geom_boxplot()
-
-# Little to no difference
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = K_min))+ geom_boxplot()
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = K_max))+ geom_boxplot()
-
-# Patients who died had slightly higher lactate
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Lactate_max))+ geom_boxplot()
-
-# No difference
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Mg_min))+ geom_boxplot()
-
-# No difference
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = MAP_min))+ geom_boxplot()
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = MAP_max))+ geom_boxplot()
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = MAP_diff))+ geom_boxplot()
-
-# MechVent row was deleted from the data
-# ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = MechVent))+ geom_boxplot()
-
-# No difference
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Na_min))+ geom_boxplot()
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Na_max))+ geom_boxplot()
-
-# No difference
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = PaCO2_min))+ geom_boxplot()
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = PaCO2_max))+ geom_boxplot()
-
-# No difference
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = PaO2_min))+ geom_boxplot()
-
-# No difference
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = pH_min))+ geom_boxplot()
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = pH_max))+ geom_boxplot()
-
-# No difference
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Platelets_min))+ geom_boxplot()
-
-# Patients who died had higher RR
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = RespRate_max))+ geom_boxplot()
-
-# More outliers in patients who survived with low saturations
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = SaO2_min))+ geom_boxplot()
-
-# Patients who died had slightly lower tempeatures
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Temp_min))+ geom_boxplot()
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Temp_max))+ geom_boxplot()
-
-# Patients who died possibly slightly higher tropT
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = TroponinT_max))+ geom_boxplot()
-
-# Patients who died had slightly less urine output
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Urine_min))+ geom_boxplot()
-
-# Patients who died had slightly higher WBC
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = WBC_max))+ geom_boxplot()
-
-# Not uninterpretable data
-# ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = BMI))+ geom_boxplot()
-
-# Using weight instead, roughly the same
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Weight_min))+ geom_boxplot()
-
-# Patients who died had older age
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Age))+ geom_boxplot()
-
-# No difference
-ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Length_of_stay))+ geom_boxplot()
+# Higher age in those that died
+# Some extreme illogical outliers in height variable
+# Similar weight median / IQR in both groups, but more high outliers in the alive group
+# Higher min albumin in those that died
+# Slightly higher max bilirubin in those that died
+# Higher max urea in those that died
+# Higher max creatinine in those that died
+# Lower GCS min in those that died
+# Similar min glucose in both groups
+# Slightly higher max glucose in those that died
+# Lower min HCO3 in those that died
+# Similar min HR in both groups
+# Slightly higher max HR in those that died
+# Similar min K in both groups
+# Similar max K in both groups
+# Slightly higher max lactate in those that died
+# Similar min MAP in both groups
+# Similar min Na in both groups
+# Similar max Na in both groups
+# Slightly lower min NISysABP in those that died
+# Similar max NISysABP in both groups
+# Similar min platelets in both groups
+# Similar PF ratio in both groups
+# Similar min pH in both groups - one extreme outlier
+# Similar pH max in both groups
+# Higher min RR in those that died
+# Higher max RR in those that died
+# Similar min temp in both groups
+# Similar max temp in both groups
+# Similar max troponinI in both groups
+# Similar max troponinT in both groups
+# Similar min urine in both groups
+# Slightly higher min WBC in those that died
+# Slightly higher max WBC in those that died
 
 # Patients who died had higher SAPS1 and SOFA scores
 ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = SAPS1))+ geom_boxplot()
 ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = SOFA))+ geom_boxplot()
 
+### Categorical variables EDA and their interpretation ###
 
 # cardiac surgery recovery unit have a smaller death circle compared to the other 3 ICU units
 # ie less proportion of in hospital deaths compared to alive
 ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = ICUType)) + 
   geom_count(aes(size = after_stat(prop), group = ICUType)) + 
-  scale_size_area(max_size = 50)
+  scale_size_area(max_size = 10)
+
+# difficult to say, roughly same amount of men/women died as a proportion of the alive group
+ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = Gender)) + 
+  geom_count(aes(size = after_stat(prop), group = ICUType)) + 
+  scale_size_area(max_size = 20)
+
+
+
+
+
+
+
+
 
 ```
 
@@ -371,215 +389,313 @@ ggplot(data=icu_patients_df1, mapping = aes(x = in_hospital_death=="1", y = ICUT
 ``` {r task1.3}
 # univariate comparisons above
 # removed: Mg_min, Na_min, Na_max, MAP_diff, MAP_max
+# now in order as per above list
 
-### significant variables ###
-minAlbumin_glm <- glm(in_hospital_death ~ Albumin_min, data=icu_patients_df1, family="binomial")
-summary(minAlbumin_glm)
-
-maxBili_glm <- glm(in_hospital_death ~ Bilirubin_max, data=icu_patients_df1, family="binomial")
-summary(maxBili_glm)
-
-maxUrea_glm <- glm(in_hospital_death ~ BUN_max, data=icu_patients_df1, family="binomial")
-summary(maxUrea_glm)
-
-maxCr_glm <- glm(in_hospital_death ~ Creatinine_max, data=icu_patients_df1, family="binomial")
-summary(maxCr_glm)
-
-minGCS_glm <- glm(in_hospital_death ~ GCS_min, data=icu_patients_df1, family="binomial")
-summary(minGCS_glm)
-
-maxGlu_glm <- glm(in_hospital_death ~ Glucose_max, data=icu_patients_df1, family="binomial")
-summary(maxGlu_glm)
-
-maxHR_glm <- glm(in_hospital_death ~ HR_max, data=icu_patients_df1, family="binomial")
-summary(maxHR_glm)
-
-maxLactate_glm <- glm(in_hospital_death ~ Lactate_max, data=icu_patients_df1, family="binomial")
-summary(maxLactate_glm)
-
-minPaCO2_glm <- glm(in_hospital_death ~ PaCO2_min, data=icu_patients_df1, family="binomial")
-summary(minPaCO2_glm)
-
-minpH_glm <- glm(in_hospital_death ~ pH_min, data=icu_patients_df1, family="binomial")
-summary(minpH_glm)
-
-maxRR_glm <- glm(in_hospital_death ~ RespRate_max, data=icu_patients_df1, family="binomial")
-summary(maxRR_glm)
-
-minTemp_glm <- glm(in_hospital_death ~ Temp_min, data=icu_patients_df1, family="binomial")
-summary(minTemp_glm)
-
-maxTropT_glm <- glm(in_hospital_death ~ TroponinT_max, data=icu_patients_df1, family="binomial")
-summary(maxTropT_glm)
-
-minUrine_glm <- glm(in_hospital_death ~ Urine_min, data=icu_patients_df1, family="binomial")
-summary(minUrine_glm)
-
-maxWBC_glm <- glm(in_hospital_death ~ WBC_max, data=icu_patients_df1, family="binomial")
-summary(maxWBC_glm)
 
 age_glm <- glm(in_hospital_death ~ Age, data=icu_patients_df1, family="binomial")
-summary(age_glm)
+summary(age_glm) # is significant
 
 gender_glm <- glm(in_hospital_death ~ Gender, data=icu_patients_df1, family="binomial")
-summary(gender_glm)
+summary(gender_glm) # NOT significant
 
 icuType_glm <- glm(in_hospital_death ~ ICUType, data=icu_patients_df1, family="binomial")
-summary(icuType_glm)
+summary(icuType_glm) # cardiac surgery recovery unit is significant
 
-SAPS_glm <- glm(in_hospital_death ~ SAPS1, data=icu_patients_df1, family="binomial")
-summary(SAPS_glm)
+# height variable not used
 
-SOFA_glm <- glm(in_hospital_death ~ SOFA, data=icu_patients_df1, family="binomial")
-summary(SOFA_glm)
+maxWeight_glm <- glm(in_hospital_death ~ Weight_max, data=icu_patients_df1, family="binomial")
+summary(maxWeight_glm) # is significant
 
+minAlbumin_glm <- glm(in_hospital_death ~ Albumin_min, data=icu_patients_df1, family="binomial")
+summary(minAlbumin_glm) # is significant
 
-### not significant variables but clinically relevant ###
-maxFiO2_glm <- glm(in_hospital_death ~ FiO2_max, data=icu_patients_df1, family="binomial")
-summary(maxFiO2_glm)
+maxBili_glm <- glm(in_hospital_death ~ Bilirubin_max, data=icu_patients_df1, family="binomial")
+summary(maxBili_glm) # is significant
 
-minHCT_glm <- minGlu_glm <- glm(in_hospital_death ~ HCT_min, data=icu_patients_df1, family="binomial")
-summary(minHCT_glm)
+maxUrea_glm <- glm(in_hospital_death ~ BUN_max, data=icu_patients_df1, family="binomial")
+summary(maxUrea_glm) # is significant
 
-maxK_glm <- glm(in_hospital_death ~ K_max, data=icu_patients_df1, family="binomial")
-summary(maxK_glm) # not sigifnicant but has been included in the SAPS
+maxCr_glm <- glm(in_hospital_death ~ Creatinine_max, data=icu_patients_df1, family="binomial")
+summary(maxCr_glm) # is significant
 
-minMAP_glm <- glm(in_hospital_death ~ MAP_min, data=icu_patients_df1, family="binomial")
-summary(minMAP_glm)
+minGCS_glm <- glm(in_hospital_death ~ GCS_min, data=icu_patients_df1, family="binomial")
+summary(minGCS_glm) # is significant
 
-maxPaCO2_glm <- glm(in_hospital_death ~ PaCO2_max, data=icu_patients_df1, family="binomial")
-summary(maxPaCO2_glm)
-
-minPaO2_glm <- glm(in_hospital_death ~ PaO2_min, data=icu_patients_df1, family="binomial")
-summary(minPaO2_glm)
-
-minPlt_glm <- glm(in_hospital_death ~ Platelets_min, data=icu_patients_df1, family="binomial")
-summary(minPlt_glm) # not significant but has been included in the SOFA score
-
-minSaO2_glm <- glm(in_hospital_death ~ SaO2_min, data=icu_patients_df1, family="binomial")
-summary(minSaO2_glm)
-
-minWeight_glm <- glm(in_hospital_death ~ Weight_min, data=icu_patients_df1, family="binomial")
-summary(minWeight_glm)
-
-LOS_glm <- glm(in_hospital_death ~ Length_of_stay, data=icu_patients_df1, family="binomial")
-summary(LOS_glm)
-
-
-### not significant and may not be clinically relevant ###
 minGlu_glm <- glm(in_hospital_death ~ Glucose_min, data=icu_patients_df1, family="binomial")
-summary(minGlu_glm)
+summary(minGlu_glm) # NOT significant
+
+maxGlu_glm <- glm(in_hospital_death ~ Glucose_max, data=icu_patients_df1, family="binomial")
+summary(maxGlu_glm) # is significant
+
+minHCO3_glm <- glm(in_hospital_death ~ HCO3_min, data=icu_patients_df1, family="binomial")
+summary(minHCO3_glm) # is significant
 
 minHR_glm <- glm(in_hospital_death ~ HR_min, data=icu_patients_df1, family="binomial")
-summary(minHR_glm)
+summary(minHR_glm) # NOT significant
+
+maxHR_glm <- glm(in_hospital_death ~ HR_max, data=icu_patients_df1, family="binomial")
+summary(maxHR_glm) # is significant
 
 minK_glm <- glm(in_hospital_death ~ K_min, data=icu_patients_df1, family="binomial")
-summary(minK_glm)
+summary(minK_glm) # NOT significant
+
+maxK_glm <- glm(in_hospital_death ~ K_max, data=icu_patients_df1, family="binomial")
+summary(maxK_glm) # NOT significant
+
+maxLactate_glm <- glm(in_hospital_death ~ Lactate_max, data=icu_patients_df1, family="binomial")
+summary(maxLactate_glm) # is significant
+
+minMAP_glm <- glm(in_hospital_death ~ MAP_min, data=icu_patients_df1, family="binomial")
+summary(minMAP_glm) # NOT significant
+
+minNa_glm <- glm(in_hospital_death ~ Na_min, data=icu_patients_df1, family="binomial")
+summary(minNa_glm) # is significant
+
+maxNa_glm <- glm(in_hospital_death ~ Na_max, data=icu_patients_df1, family="binomial")
+summary(maxNa_glm) # NOT significant
+
+minNISys_ABP_glm <- glm(in_hospital_death ~ NISysABP_min, data=icu_patients_df1, family="binomial")
+summary(minNISys_ABP_glm) # is significant
+
+maxNISys_ABP_glm <- glm(in_hospital_death ~ NISysABP_max, data=icu_patients_df1, family="binomial")
+summary(maxNISys_ABP_glm) # NOT significant
+
+minPlt_glm <- glm(in_hospital_death ~ Platelets_min, data=icu_patients_df1, family="binomial")
+summary(minPlt_glm) # NOT significant
+
+maxPFratio_glm <- glm(in_hospital_death ~ PFratio, data=icu_patients_df1, family="binomial")
+summary(maxPFratio_glm) # NOT significant
+
+minpH_glm <- glm(in_hospital_death ~ pH_min, data=icu_patients_df1, family="binomial")
+summary(minpH_glm) # is significant
 
 maxpH_glm <- glm(in_hospital_death ~ pH_max, data=icu_patients_df1, family="binomial")
-summary(maxpH_glm)
+summary(maxpH_glm) # NOT significant
+
+minRR_glm <- glm(in_hospital_death ~ RespRate_min, data=icu_patients_df1, family="binomial")
+summary(minRR_glm) # is significant
+
+maxRR_glm <- glm(in_hospital_death ~ RespRate_max, data=icu_patients_df1, family="binomial")
+summary(maxRR_glm) # is significant
+
+minTemp_glm <- glm(in_hospital_death ~ Temp_min, data=icu_patients_df1, family="binomial")
+summary(minTemp_glm) # is significant
 
 maxTemp_glm <- glm(in_hospital_death ~ Temp_max, data=icu_patients_df1, family="binomial")
-summary(maxTemp_glm)
+summary(maxTemp_glm) # NOT significant
+
+maxTropI_glm <- glm(in_hospital_death ~ TroponinI_max, data=icu_patients_df1, family="binomial")
+summary(maxTropI_glm) # NOT significant
+
+maxTropT_glm <- glm(in_hospital_death ~ TroponinT_max, data=icu_patients_df1, family="binomial")
+summary(maxTropT_glm) # is significant
+
+minUrine_glm <- glm(in_hospital_death ~ Urine_min, data=icu_patients_df1, family="binomial")
+summary(minUrine_glm) # is significant
+
+minWBC_glm <- glm(in_hospital_death ~ WBC_min, data=icu_patients_df1, family="binomial")
+summary(minWBC_glm) # is significant
+
+maxWBC_glm <- glm(in_hospital_death ~ WBC_max, data=icu_patients_df1, family="binomial")
+summary(maxWBC_glm) # is significant
 
 
-# IN SUMMARY:
-# Variables that are significant on univariate and clinically relevant are:
-# minAlbumin, maxBili, maxUrea, maxCr, minGCS, maxGlu, maxHR, maxLactate, minPaCO2
-# minpH, maxRR, minTemp, maxTropT, minUrine, maxWBC
-# age, gender, icuType, SAPS, SOFA
 
-# Variables not significant but still clinically relevant are:
-# maxFiO2, minHCT, maxK, minMAP, maxPaCO2, minPaO2, minPlt, minSaO2, minWeight, LOS
+### IN SUMMARY:
+# significant variables were:
+  # age
+  # ICUType
+  # Weight_max
+  # Albumin_min
+  # Bilirubin_max
+  # BUN_max
+  # Creatinine_max
+  # GCS_min
+  # Glucose_max
+  # HCO3_min
+  # HR_max
+  # Lactate_max
+  # Na_min
+  # NISysABP_min
+  # pH_min
+  # RespRate_min
+  # RespRate_max
+  # Temp_min
+  # TroponinT_max
+  # Urine_min
+  # WBC_min
+  # WBC_max
 
-# Variables not significant and may not be relevant are:
-# minGlu, minHR, minK, maxpH, maxTemp
+# non-significant variables were:
+  # Glucose_min
+  # HR_min
+  # K_min
+  # K_max
+  # MAP_min
+  # Na_max
+  # NISysABP_max
+  # Platelets_min
+  # PFratio
+  # pH_max
+  # Temp_max
+  # TroponinI_max
+
+
 ```
 
 4. Fit an appropriate series of multivariable logistic regression models, justifying your approach. Assess each model you consider for goodness of fit and other relevant statistics.
 
 ``` {r task1.4}
 
-# Considering ALL variables:
-# column 1 is record id
-# column 2 is Length_of_stay
-# column 3 is SAPS1
-# column 4 is SOFA
-# column 5 is survival
-# column 7 is days
-# column 8 is status
-# column 9 is age
-# column 43 is gender
-# column 53 is Height
-# column 57 is ICUType
-# these columns should be excluded - the relevant ones will be reincluded in future models
+#################################################################################
+### CODE COPIED FROM TASK 2
+## Create a dataset without missing or invalid data to use to build the model ##
+## in order to remain consistent and allow comparisons between models to be made ##
 
 
-# Split looking at all the variables by min,max,diff
-# If trying to look at all variables at the same time, leads to linearity error
+# Check counts of missing data in each variable
+for(i in 1:length(colnames(icu_patients_df1))){
+  print(c(i,colnames(icu_patients_df1[i]), sum(is.na(icu_patients_df1[i]))))
+}
+## Result: of the variables chosen to explore for the survival model, large amounts of missing data in:
+##         Height (992), NISysABP_min (453), NISysABP_max (453), Weight_max (146)
 
-### min ICU data ###
-
-minICUdata <- icu_patients_df1[, -c(1,2,3,4,5,7,8,9,43,53,57)] # remove columns as above
-minICUdata <- minICUdata[, c(1, seq(from=4, to=109, by = 3))] # every third column starting from a min column
-
-minICU_glm <- glm(in_hospital_death ~ . ,data=minICUdata, family="binomial")
-summary(minICU_glm)
-# Bilirubin_min, BUN_min, HCT_min, Lactate_min, Temp_min, Na_min, PaO2_min, Urine_min were statistically significant
+## Decision: include Weight_max; remove Height, NISysABP_min, NISysABP_max
 
 
-###  max ICU data ### 
-maxICUdata <- icu_patients_df1[, -c(1,2,3,4,5,7,8,9,43,53,57)] # remove columns as above
-maxICUdata <- maxICUdata[, c(1, seq(from=3, to=109, by = 3))] # every third column starting from a max column
+# Check counts of negative data (noted some -1 values) in each variable
+for(i in 1:length(colnames(icu_patients_df1))){
+  print(c(i,colnames(icu_patients_df1[i]), sum(icu_patients_df1[i] < 0)))
+}
+## Result: negative values in Length_of_stay and SOFA (not listed in initial choice of variables anyway)
 
-maxICU_glm <- glm(in_hospital_death ~ . ,data=maxICUdata, family="binomial")
-summary(maxICU_glm)
-# BUN_max, Creatinine_max, GCS_max, Platelet_max, Temp_max, Urine_max were statistically significant
+# Create a new dataset with the only non-missing data from list of initial variables chosen
+# (excluding those with very high missingness i.e. Height, NISysABP_min, NISysABP_max)
+nm_icu_model_df1 <- na.omit(subset(icu_patients_df1, 
+                                   select=c(Days, Status, # the survival object variables
+                                            RecordID, # keep record id for reference if needed
+                                            in_hospital_death, # for task 1
+                                            Age, Gender, ICUType, Weight_max,
+                                            Albumin_min, Bilirubin_max,
+                                            BUN_max, Creatinine_max, 
+                                            GCS_max, Glucose_min, Glucose_max, 
+                                            HCO3_min, HR_min, HR_max, K_min, 
+                                            K_max, Lactate_max, MAP_min, Na_min,
+                                            Na_max, Platelets_min, PFratio, pH_min,
+                                            pH_max, RespRate_min, RespRate_max,
+                                            Temp_min, Temp_max, TroponinT_max, 
+                                            TroponinI_max, Urine_min, WBC_min, WBC_max)))
+### CODE COPIED FROM TASK 2
+#################################################################################
 
-### diff ICU data ### 
-diffICUdata <- icu_patients_df1[, -c(1,2,3,4,5,7,8,9,43,53,57)] # remove columns as above
-diffICUdata <- diffICUdata[, c(1, seq(from=2, to=109, by = 3))] # every third column starting from a diff column
-
-diffICU_glm <- glm(in_hospital_death ~ . ,data=diffICUdata, family="binomial")
-summary(diffICU_glm)
-# Albumin_diff, Bilirubin_diff, BUN_diff, Mg_diff, NISysABP_diff, Urine_diff were statistically significant
-
-sum(is.na(icu_patients_df1$NISysABP_diff)) # there are 453 missing values from NISysABP_diff column! removed
-
-
-
-### if you built a model that used the min/max/diff significant variables:
-
-minmaxdiffICU_glm <- glm(in_hospital_death ~ Age + Length_of_stay + SOFA + SAPS1 + ICUType + Gender +
-                           #min variables that were significant
-                           Bilirubin_min + BUN_min + HCT_min + Lactate_min + Temp_min + Na_min + PaO2_min + Urine_min + 
-                           #max variables that were significant
-                           BUN_max + Creatinine_max + GCS_max + Platelets_max + Temp_max + Urine_max +
-                           #diff variables that were significant
-                           Albumin_diff + Bilirubin_diff + BUN_diff + Mg_diff + Urine_diff # NISysABP_diff removed because of missing values
-                           ,data=icu_patients_df1, family="binomial")
-
-summary(minmaxdiffICU_glm)
-
-step_minmaxdiffICU_glm <- step(minmaxdiffICU_glm, trace=1)
-summary(step_minmaxdiffICU_glm)
-
-# predictors left behind after step() are:
-# Age, SAPS1, ICUType
-# Albumin_diff
-# Bilirubin_min, Bilirubin_diff
-# BUN_min, BUN_diff
-# Creatinine_max
-# GCS_max
-# Lactate_min
-# Na_min
-# Platelets_max
-# Temp_min
-# Urine_max, Urine_diff
+# all variables from initially selected predictors
+full_glm <- glm(in_hospital_death ~ 
+                  Age + 
+                  Gender + 
+                  ICUType + 
+                  Weight_max +
+                  Albumin_min +
+                  Bilirubin_max + 
+                  BUN_max + 
+                  Creatinine_max + 
+                  GCS_max + 
+                  Glucose_min + 
+                  Glucose_max + 
+                  HCO3_min +
+                  HR_min + 
+                  HR_max + 
+                  K_min + 
+                  K_max + 
+                  Lactate_max + 
+                  MAP_min + 
+                  Na_min +
+                  Na_max +
+                  Platelets_min +
+                  PFratio +
+                  pH_min +
+                  pH_max +
+                  RespRate_min +
+                  RespRate_max + 
+                  Temp_min + 
+                  Temp_max +
+                  TroponinT_max +
+                  TroponinI_max + 
+                  Urine_min + 
+                  WBC_min + 
+                  WBC_max
+                ,data=nm_icu_model_df1, family="binomial")
+summary(full_glm) #AIC 1332.1
 
 
 
+###
+# variables that were significant on univariate comparisons
+signifUni_glm <- glm(in_hospital_death ~
+                       Age + 
+                       ICUType + 
+                       Weight_max +
+                       Albumin_min + 
+                       Bilirubin_max + 
+                       BUN_max + 
+                       Creatinine_max +
+                       GCS_max + 
+                       Glucose_max + 
+                       HCO3_min + 
+                       HR_max +
+                       Lactate_max +
+                       Na_min +
+                       # NISysABP_min + this was removed from the na.omit part anyway
+                       pH_min + 
+                       RespRate_min +
+                       RespRate_max +
+                       Temp_min + 
+                       TroponinT_max +
+                       Urine_min +
+                       WBC_min +
+                       WBC_max
+                     ,data=nm_icu_model_df1, family="binomial")
+summary(signifUni_glm) #AIC 1320.9
 
+
+
+###
+# variables that were significant in the full_glm
+signifFull_glm <- glm(in_hospital_death ~
+                        Age + 
+                        ICUType +
+                        Albumin_min + 
+                        Bilirubin_max + 
+                        BUN_max + 
+                        GCS_max + 
+                        Temp_min + 
+                        Urine_min + 
+                        WBC_min + 
+                        WBC_max
+                      ,data=nm_icu_model_df1, family="binomial")
+summary(signifFull_glm) #AIC 1330.2
+# no missing data removed due to missingness
+
+# anova doesn't work because different missing data between the models
+anova(full_glm, signifUni_glm, test="Chisq") # the parameters different between the models are not significant
+anova(full_glm, signifFull_glm, test="Chisq") # the dropped parameters between the two models do matter
+
+
+###
+# using the model with the lowest AIC
+# reduce it even further
+reduced_signifUni_glm <- step(signifUni_glm, trace=1)
+# removed variables were:
+  # Glucose_max
+  # TroponinT_max
+  # HCO3_min
+  # RespRate_min
+  # Weight_max
+  # RespRate_max
+  # Creatinine_max
+summary(reduced_signifUni_glm) # AIC 1311.1
+
+anova(reduced_signifUni_glm,signifUni_glm, test="Chisq") 
+# p value not significant, the dropped parameters are not significant
 
 
 
@@ -588,39 +704,95 @@ summary(step_minmaxdiffICU_glm)
 5. Present your final model. Your final model should **not** include all the predictor variables, just a small subset of them, which you have selected based on statistical significance and/or background knowledge.
 ```{r task1.5}
 
+# same as model above: reduced_signifUni_glm
 finalICU_glm <- glm(in_hospital_death ~ 
-                      # significant predictors from step()
-                      Age + SAPS1 + ICUType + Albumin_diff + Bilirubin_min + 
-                      Bilirubin_diff + BUN_min + BUN_diff + Creatinine_max + 
-                      GCS_max + Lactate_min + Na_min + Platelets_max + 
-                      Temp_min + Urine_max + Urine_diff +
+                      Age +
+                      ICUType + 
+                      Albumin_min + 
+                      Bilirubin_max +
+                      BUN_max + 
+                      GCS_max + 
+                      HR_max + 
+                      Lactate_max + 
+                      Na_min + 
+                      pH_min + 
+                      Temp_min + 
+                      Urine_min + 
+                      WBC_min + 
+                      WBC_max
+                    ,data=nm_icu_model_df1, family="binomial")
+summary(finalICU_glm) # AIC 1311.1
+
+
+### testing interactions
+
+# finalICU_glm_AgeCr = finalICU_glm + Age:Creatinine_max
+finalICU_glm_AgeCr <- glm(in_hospital_death ~ 
+                      Age +
+                      ICUType + 
+                      Albumin_min + 
+                      Bilirubin_max +
+                      BUN_max + 
+                      GCS_max + 
+                      HR_max + 
+                      Lactate_max + 
+                      Na_min + 
+                      pH_min + 
+                      Temp_min + 
+                      Urine_min + 
+                      WBC_min + 
+                      WBC_max +
                       
-                      # predictors that are clinically relevant but not included in above
+                        # interaction term  
+                      + Age:Creatinine_max # creatinine generally increases with age
+                    ,data=nm_icu_model_df1, family="binomial")
+summary(finalICU_glm_AgeCr) # AIC 1311.6
+
+# finalICU_glm_AgeTemp = finalICU_glm + Age:Temp_min
+finalICU_glm_AgeTemp <- glm(in_hospital_death ~ 
+                      Age +
+                      ICUType + 
+                      Albumin_min + 
+                      Bilirubin_max +
+                      BUN_max + 
+                      GCS_max + 
+                      HR_max + 
+                      Lactate_max + 
+                      Na_min + 
+                      pH_min + 
+                      Temp_min + 
+                      Urine_min + 
+                      WBC_min + 
+                      WBC_max +
                       
-                      # baseline demographics should be included even if not significant
-                      Gender + Length_of_stay + Weight_min + 
-                      SOFA + # an indicator of how well SOFA score determines mortality independent to its components
-                      
-                      # other clinical relevance
-                      Albumin_min + # low albumin indicates malnutrition or liver failure
-                      Glucose_max + # hyperglycaemia is a stress response
-                      HCT_min + # low HCT = anaemia
-                      HR_max + # tachycardia may indicate septic shock / inflammation
-                      PaO2_min + # hypoxia = inadequate organ perfusion/oxygenation
-                      PaCO2_min + #hypercapnia = respiratory / ventilation failure
-                      pH_min + # indicates acidaemia / inadequate organ perfusion
-                      RespRate_max + # indicates respiratory failure
-                      TroponinT_max + # indicates myocardial damage
-                      WBC_max # indicates infection
-                      
-                    ,data=icu_patients_df1, family="binomial")
-summary(finalICU_glm)
+                        # interaction term  
+                      + Age:Temp_min # low temp more often associated with illness in the elderly e.g. cold sepsis
+                    ,data=nm_icu_model_df1, family="binomial")
+summary(finalICU_glm_AgeTemp) # AIC 1313.1
+
+# finalICU_glm_AgeWeight = finalICU_glm + Age:Weight_max (rather than using Weight_min previously)
+
+# finalICU_glm_AgeAlbumin = finalICU_glm + Age:Albumin_min
+
+# finalICU_glm_AgeICUType = finalICU_glm + Age:ICUType
+
+# Code from previous attempt at task 1
+# Gender:HCT, PaO2:RespRate not tested because they are not in the final model
+
+# Anova testing for the new models
+
 ```
 
 
 Test some interaction terms based on clinical knowledge
 
 ```{r testing-interactions}
+
+#################################################################################
+# TO BE DELETED FROM HERE
+
+
+
 # based on clinical knowledge, test some interaction terms
 # add one new term on top of finalICU_glm per model
 # then compare models with interactions with baseline model
@@ -805,6 +977,9 @@ summary(finalICU_glm_9)
 options(scipen=999)
 exp(coef(finalICU_glm_9))
 exp(confint(finalICU_glm_9))
+
+# TO BE DELETD FROM ABOVE TO HERE
+#################################################################################
 ```
 
 Testing the modified poisson regression, as the outcome is 14% in this data (>10% - common)
@@ -864,12 +1039,15 @@ exp(coef(finalICU_glm))-exp(coef(finalICU_glm_poisson))
 library(magrittr)
 library(dplyr)
 
+# icu_patients_df1
 # lots of missing data in:
 # Survival, ABP, NIBP variables
 # some missing data in SAPS1 and Weight - correlates with GLM full model missing data
 for(i in 1:length(colnames(icu_patients_df1))){
   print(c(i,colnames(icu_patients_df1[i]), sum(is.na(icu_patients_df1[i]))))
 }
+
+
 
 # remove observations with missing values from the data frame, 
 # because they are automatically dropped by glm()
@@ -879,7 +1057,7 @@ icu_patients_df1_nm <- icu_patients_df1[, -c(5,34:36,53,73:81, 100:102)]
 icu_patients_df1_nm <- na.omit(icu_patients_df1_nm)
 
 
-### Goodness of fit using bins ###
+### Goodness of fit using bins df1 ###
 
 # add predicted probabilities to the data frame
 icu_patients_df1_nm %>% mutate(predprob=predict(finalICU_glm, type="response"),
@@ -931,6 +1109,26 @@ get_brier(minmaxdiffICU_glm)
 get_brier(step_minmaxdiffICU_glm)
 
 # the final model has the lowest brier score -> lower score is better fit
+
+
+
+### trying to fit our model to icu_patients_df0 data ###
+
+# icu_patients_df0
+# alot of missing data here also!
+for(i in 1:length(colnames(icu_patients_df0))){
+  print(c(i,colnames(icu_patients_df0[i]), sum(is.na(icu_patients_df0[i]))))
+}
+
+# remove columns with too much missing data
+# arbitrary selection of >200
+# albumin, ALP, ALT, AST, bilirubin, cholesterol, diasABP, FiO2, lactate, MAP, NIDiasABP, NIMAP, NISSysABP
+# pH, RespRate, SaO2, Troponin
+
+icu_patients_df0_nm <- icu_patients_df0[, -c(10:24, 28:30, 34:39, 61:66, 73:90, 94:102, 106:111 )]
+icu_patients_df0_nm <- na.omit(icu_patients_df0_nm)
+
+# ***haven't worked out how to fit our model into df0 data!!!***
 
 ```
 
@@ -1091,9 +1289,12 @@ table(icu_patients_df1$ICUType)
 
 # Display counts, histograms, median and IQRs for continuous explanatory variables
 
+#################################################################################
+### CODE COPIED TO TASK 1
 # Create PFratio variable:
-icu_patients_df1$PFratio<-icu_patients_df1$PaO2_min/icu_patients_df1$FiO2_max
-
+# icu_patients_df1$PFratio<-icu_patients_df1$PaO2_min/icu_patients_df1$FiO2_max
+### CODE COPIED TO TASK 1
+#################################################################################
 
 # Write a function for continuous variable EDA output
 cont_eda <- function(variable){
@@ -1107,15 +1308,18 @@ cont_eda <- function(variable){
     hist(icu_patients_df1[,variable], breaks=20, xlab=variable, main=paste('Histogram of',variable))
 }
 
-
+#################################################################################
+### CODE COPIED TO TASK 1
 # Loop through the continuous variables from the chosen list of variables to explore and pass them to the EDA function
-cont_vars <- c('Age', 'Height', 'Weight_max', 'Albumin_min', 'Bilirubin_max', 
-               'BUN_max', 'Creatinine_max', 'GCS_min', 'Glucose_min', 
-               'Glucose_max', 'HCO3_min', 'HR_min', 'HR_max', 'K_min', 'K_max', 
-               'Lactate_max', 'MAP_min', 'Na_min', 'Na_max', 'NISysABP_min', 
-               'NISysABP_max', 'Platelets_min', 'PFratio', 'pH_min', 'pH_max', 
-               'RespRate_min', 'RespRate_max', 'Temp_min', 'Temp_max', 
-               'TroponinI_max', 'TroponinT_max', 'Urine_min', 'WBC_min', 'WBC_max')
+# cont_vars <- c('Age', 'Height', 'Weight_max', 'Albumin_min', 'Bilirubin_max', 
+#                'BUN_max', 'Creatinine_max', 'GCS_min', 'Glucose_min', 
+#                'Glucose_max', 'HCO3_min', 'HR_min', 'HR_max', 'K_min', 'K_max', 
+#                'Lactate_max', 'MAP_min', 'Na_min', 'Na_max', 'NISysABP_min', 
+#                'NISysABP_max', 'Platelets_min', 'PFratio', 'pH_min', 'pH_max', 
+#                'RespRate_min', 'RespRate_max', 'Temp_min', 'Temp_max', 
+#                'TroponinI_max', 'TroponinT_max', 'Urine_min', 'WBC_min', 'WBC_max')
+### CODE COPIED TO TASK 1
+#################################################################################
 
 par(mfrow=c(12,3)) # set the layout of the histograms in 12 row x 3 column grid
 for(i in 1:length(cont_vars)){
@@ -1329,42 +1533,48 @@ ICUType, Age, Weight_max, Albumin_min, Bilirubin_max, BUN_max, Creatinine_max, G
 4. Fit an appropriate series of multivariable Cox proportional hazards models, justifying your approach. Assess each model you consider for goodness of fit and other relevant statistics.
 ```{r task 2.4.1}
 
+#################################################################################
+### CODE COPIED TO TASK 1
 ## Create a dataset without missing or invalid data to use to build the model ##
 ## in order to remain consistent and allow comparisons between models to be made ##
 
 
-# Check counts of missing data in each variable
-for(i in 1:length(colnames(icu_patients_df1))){
-  print(c(i,colnames(icu_patients_df1[i]), sum(is.na(icu_patients_df1[i]))))
-}
-## Result: of the variables chosen to explore for the survival model, large amounts of missing data in:
-##         Height (992), NISysABP_min (453), NISysABP_max (453), Weight_max (146)
+# # Check counts of missing data in each variable
+# for(i in 1:length(colnames(icu_patients_df1))){
+#   print(c(i,colnames(icu_patients_df1[i]), sum(is.na(icu_patients_df1[i]))))
+# }
+# ## Result: of the variables chosen to explore for the survival model, large amounts of missing data in:
+# ##         Height (992), NISysABP_min (453), NISysABP_max (453), Weight_max (146)
+# 
+# ## Decision: include Weight_max; remove Height, NISysABP_min, NISysABP_max
+# 
+# 
+# # Check counts of negative data (noted some -1 values) in each variable
+# for(i in 1:length(colnames(icu_patients_df1))){
+#   print(c(i,colnames(icu_patients_df1[i]), sum(icu_patients_df1[i] < 0)))
+# }
+# ## Result: negative values in Length_of_stay and SOFA (not listed in initial choice of variables anyway)
 
-## Decision: include Weight_max; remove Height, NISysABP_min, NISysABP_max
 
+# # Create a new dataset with the only non-missing data from list of initial variables chosen
+# # (excluding those with very high missingness i.e. Height, NISysABP_min, NISysABP_max)
+# nm_icu_model_df1 <- na.omit(subset(icu_patients_df1, 
+#                                    select=c(Days, Status, # the survival object variables
+#                                             RecordID, # keep record id for reference if needed
+#                                             in_hospital_death, # for task 1
+#                                             Age, Gender, ICUType, Weight_max,
+#                                             Albumin_min, Bilirubin_max,
+#                                             BUN_max, Creatinine_max, 
+#                                             GCS_max, Glucose_min, Glucose_max, 
+#                                             HCO3_min, HR_min, HR_max, K_min, 
+#                                             K_max, Lactate_max, MAP_min, Na_min,
+#                                             Na_max, Platelets_min, PFratio, pH_min,
+#                                             pH_max, RespRate_min, RespRate_max,
+#                                             Temp_min, Temp_max, TroponinT_max, 
+#                                             TroponinI_max, Urine_min, WBC_min, WBC_max)))
 
-# Check counts of negative data (noted some -1 values) in each variable
-for(i in 1:length(colnames(icu_patients_df1))){
-  print(c(i,colnames(icu_patients_df1[i]), sum(icu_patients_df1[i] < 0)))
-}
-## Result: negative values in Length_of_stay and SOFA (not listed in initial choice of variables anyway)
-
-
-# Create a new dataset with the only non-missing data from list of initial variables chosen
-# (excluding those with very high missingness i.e. Height, NISysABP_min, NISysABP_max)
-nm_icu_model_df1 <- na.omit(subset(icu_patients_df1, 
-                                   select=c(Days, Status, # the survival object variables
-                                            RecordID, # keep record id for reference if needed
-                                            Age, Gender, ICUType, Weight_max,
-                                            Albumin_min, Bilirubin_max,
-                                            BUN_max, Creatinine_max, 
-                                            GCS_max, Glucose_min, Glucose_max, 
-                                            HCO3_min, HR_min, HR_max, K_min, 
-                                            K_max, Lactate_max, MAP_min, Na_min,
-                                            Na_max, Platelets_min, PFratio, pH_min,
-                                            pH_max, RespRate_min, RespRate_max,
-                                            Temp_min, Temp_max, TroponinT_max, 
-                                            TroponinI_max, Urine_min, WBC_min, WBC_max)))
+### CODE COPIED TO TASK 1
+#################################################################################
 
 ```
 
