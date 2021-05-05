@@ -967,97 +967,102 @@ head(icu_patients_df1)
 
 **Selecting an initial subset of explanatory variables:
 
-* `Length_of_stay` - number of days being in hospital can be an indicator of how sick a person is person, the longer a stay can also give rise to hospital acquired infections increasing the risk of mortality.  
+To select a subset of explanatory variables our group of investigators will examine the SAPS1 score and the SOFA score included in the dataset in more detail to ascertain the variables that might be logically associated with increased mortality and poor survival. We will also assess the APACHE score which is commonly used in ICU risk predcition models.
 
-* `Age` - risk of mortality increases with age (included in SAPS1)
+`SAPS1` - Simplified Acute Physiology Score is a measure of the severity of disease for patients admitted to ICU. The following measures increases the SAPS1 score:
 
-* `Gender` - risk of mortality is generally higher for males than females
-
-* `ICUType` - as noted earlier, risk of mortality in the cardiac surgery recover unit is lesser than other types.
-
-* `Height` and `Weight` - height and weight are indicators of obesity or malnutrition which can complicate underlying medical conditions leading to greater risk of mortality 
-
-* `SAPS1` - Simplified Acute Physiology Score is a measure of the severity of disease for patients admitted to ICU and incorporates the following clinical measures:
-  * Age
-  * Heart Rate
-  * Systolic Blood Pressure
-  * Temperature
-  * Glasgow Coma Scale
+  * Advanced Age
+  * Low and high Heart Rate
+  * Low and high Systolic Blood Pressure
+  * High Temperature
+  * Low Glasgow Coma Scale (However it is most meaningful to use the highest GCS score available for prognostication)
   * Mechanical Ventilation or CPAP
-  * PaO2
-  * FiO2
-  * Urine Output
-  * Blood Urea Nitrogen
-  * Sodium
-  * Potassium
-  * Bicarbonate
-  * Bilirubin
-  * White Blood Cell
+  * High PaO2/ FiO2 ratio (It is likely that highes FiO2 is administered during lowest PaO2)
+  * Low Urine Output
+  * High Blood Urea Nitrogen
+  * Low or High Sodium
+  * Low or high Potassium
+  * Low Bicarbonate
+  * High Bilirubin
+  * Low or High White Blood Cell
   * Chronic diseases
-  * Type of admission
+  * Type of admission (ie ICU Type)
 
-*`SOFA` - sequential organ failure assessment is a predictor of ICU mortality and incorporates the following clinical measures:
-  * PaO2- Respiratory system
-  * FiO2 - Respiratory system
-  * GCS - Nervous system
-  * MAP - Cardiovascular system
-  * administration of vasopressors - Cardiovascular system
-  * Bilirubin - Liver
-  * Platelets - Coagulation
-  * Creatinine - Kidneys
-  * Urine - Kidneys
+*`SOFA` - sequential organ failure assessment is a predictor of ICU mortality. The following measures increase the SOFA score:
+  * Elevated PaO2/ FiO2 ratio- 
+  * Reduced GCS - Nervous system
+  * Reduced MAP - Cardiovascular system
+  * Administration of vasopressors - Cardiovascular system
+  * High Bilirubin - Liver
+  * Low Platelets - Coagulation
+  * High Creatinine - Kidneys
+  * Low Urine - Kidneys
+  
+  
+*The `APACHE` score is commonly used validated risk score for ICU risk prediction. The variables that increase the APACHE score include:
 
-* For our analysis, we will include the minimum, maximum and difference values of the clinical measures used to calculate  the SOFA and SAPS1 scores as they are a comprehensive set of measures of the main functions of the human body.
-
-  * Bilirubin (mg/dL)
-  * Creatinine [Serum creatinine (mg/dL)]
-  * FiO2 [Fractional inspired O2 (0-1)]
-  * GCS [Glasgow Coma Score (3-15)]
-  * HCO3 [Serum bicarbonate (mmol/L)]
-  * HR [Heart rate (bpm)]
-  * K [Serum potassium (mEq/L)]
-  * MAP [Invasive mean arterial blood pressure (mmHg)]
-  * MechVent [Mechanical ventilation respiration (0:false, or 1:true)]
-  * Na [Serum sodium (mEq/L)]
-  * NISysABP [Non-invasive systolic arterial blood pressure (mmHg)]
-  * PaO2 [Partial pressure of arterial O2 (mmHg)]
-  * Platelets (cells/nL)
-  * SysABP [Invasive systolic arterial blood pressure (mmHg)]
-  * Temp [Temperature (°C)]
-  * Urine [Urine output (mL)]
-  * WBC [White blood cell count (cells/nL)]
+  * Advanced Age
+  * High or Low Temperature
+  * High or Low MAP
+  * High or Low HR
+  * High or Low Respiratory Rate
+  * High PaO2/FiO2 ratio
+  * High or Low pH
+  * High or Low Na
+  * High or Low K
+  * High Creatinine
+  * High or low HCT
+  * High or Low WBC
 
 
-* The following variables may be associated with mortality risk (as noted in Task 1) but are not included in our initial analysis for parsimony.
-
-  * Albumin (g/dL)
-  * ALP [Alkaline phosphatase (IU/L)]
-  * ALT [Alanine transaminase (IU/L)]
-  * AST [Aspartate transaminase (IU/L)]
-  * BUN [Blood urea nitrogen (mg/dL)]
-  * Cholesterol (mg/dL)
-  * DiasABP [Invasive diastolic arterial blood pressure (mmHg)]
-  * Glucose [Serum glucose (mg/dL)]
-  * HCO3 [Serum bicarbonate (mmol/L)]
-  * HCT [Hematocrit (%)]
-  * Lactate (mmol/L)
-  * Mg [Serum magnesium (mmol/L)]
-  * NIDiasABP [Non-invasive diastolic arterial blood pressure (mmHg)]
-  * NIMAP [Non-invasive mean arterial blood pressure (mmHg)]
-  * NISysABP [Non-invasive systolic arterial blood pressure (mmHg)]
-  * PaCO2 [partial pressure of arterial CO2 (mmHg)]
-  * pH [Arterial pH (0-14)]
-  * RespRate [Respiration rate (bpm)]
-  * SaO2 [O2 saturation in hemoglobin (%)]
-  * TropI [Troponin-I (μg/L)]
-  * TropT [Troponin-T (μg/L)]
+* For our analysis, we will include variables that will increase SOFA, SAPS or APACHE scores. 
+        eg: increased BUN and reduced HCO3 will increase the SAPS score, therfore we will include BUN max(but not BUN_min and BUN_diff) and 
+        HCO3_min (but not HCO3_max and HCO3_diff). Where both extremes of a variable will increase the risk score, both min and max variables will 
+        be included.
+        
+* Other factors known to be associated with morbidity/ mortality not included in risk scores: 
+  * Height/ weight - Body composition/ BMI is associated with mortality and survival
+  * Gender - Male gender associated with worse outcomes
+  * Glucose - high and low Glucose levels are associated with pathology
+  * Troponin T and I - high troponin results(cardiac biomarkers) associated with morbidity and mortality
+  * Lactate - elevated lactate is associated with poor organ perfusion and ICU morbidity/ mortality
+  * Albumin - reduced albumin is associated with poor clinical outcomes
+        
+***BELOW IS A LIST OF THE VARIABLES TO BE INCLUDED:***
+DEMOGRAPHIC VARAIBLES:
+  * Age
+  * Gender
+  * ICU Type
+  * Height 
+  * Weight_max
+  
+CLINICAL VARIABLES:
+  * Albumin_min
+  * Bilirubin_max 
+  * BUN_max
+  * Creatinine_max  
+  * GCS_min
+  * Glucose_min and Glucose_max
+  * HCO3_min
+  * HR_min and HR_max 
+  * K_min K_max
+  * Lactate_max
+  * MAP_min  
+  * Na_min and Na_max 
+  * NISysABP_min and NISysABP_max 
+  * Platelets_min
+  * FiO2_max and PaO2_min - included as PFratio: PaO2_min/ FiO2_max
+  * pH_min and pH_max
+  * RespRate_min and RespRate_max
+  * Temp_min and Temp_max
+  * TroponinI_max
+  * TroponinT_max
+  * Urine_min 
+  * WBC_min and WBC_max
 
 
 2. Conduct basic exploratory data analysis on your variables of choice.
 ```{r task2.2.1}
-
-# replace values of -1 with missing variables
-icu_patients_df1$est[df$b == 0] <- (df$a[df$b == 0] - 5)/2.533 
 
 # Outcome variables
 unique_icu = unique(subset(icu_patients_df1, select = c(RecordID)))
@@ -1077,7 +1082,7 @@ plot(ICU.fit, fun="cumhaz", main = "Nelson-Aalen estimate of cumulative hazard f
 
 There were 773 deaths (out of 2061 participants) during follow-up.The median follow-up time cannot be determined as the survival rate has not yet dropped to 50% survival at the end of the available data. The cumulative hazard rate (as shown in the Nelson Aalen plot)  reaches 47% by the end of the available data.
 
-```{r-EDA function}
+```{r EDA function}
 # write a function for continuous variable EDA output
 cont_eda <- function(variable){
     print(paste(variable,'EDA:'))
@@ -1104,11 +1109,6 @@ table(icu_patients_df1$ICUType)
 
 # Median and IQ Ranges for continuous explanatory variables
 
-#Length of stay
-length(icu_patients_df1$Length_of_stay[icu_patients_df1$Length_of_stay<0])
-quantile(icu_patients_df1$Length_of_stay[icu_patients_df1$Length_of_stay>=0])
-hist(icu_patients_df1$Length_of_stay[icu_patients_df1$Length_of_stay>=0])
-
 #Age
 length(icu_patients_df1$Age[icu_patients_df1$Age<0])
 quantile(icu_patients_df1$Age[icu_patients_df1$Age>=0])
@@ -1120,46 +1120,15 @@ length(Height_narm)
 quantile(icu_patients_df1$Height[icu_patients_df1$Height>=0],na.rm=TRUE)
 hist(icu_patients_df1$Height[icu_patients_df1$Height>=0])
 
-#Weight_min
-Weightmin_narm<-na.omit(icu_patients_df1$Weight_min[icu_patients_df1$Weight_min>=0])
-length(icu_patients_df1$Weightmin_narm)
-quantile(icu_patients_df1$Weight_min[icu_patients_df1$Weight_min>=0],na.rm=TRUE)
-hist(icu_patients_df1$Weight_min[icu_patients_df1$Weight_min>=0])
-
 #Weight_max
 Weightmax_narm<-na.omit(icu_patients_df1$Weight_max[icu_patients_df1$Weight_max>=0])
 length(icu_patients_df1$Weightmax_narm)
 quantile(icu_patients_df1$Weight_max[icu_patients_df1$Weight_max>=0],na.rm=TRUE)
 hist(icu_patients_df1$Weight_max[icu_patients_df1$Weight_max>=0])
 
-#Weight_diff
-Weightdiff_narm<-na.omit(icu_patients_df1$Weight_diff[icu_patients_df1$Weight_mdiff>=0])
-length(icu_patients_df1$Weightmdiff_narm)
-quantile(icu_patients_df1$Weight_diff[icu_patients_df1$Weight_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$Weight_diff[icu_patients_df1$Weight_diff>=0])
-
-#SAPS1
-SAPS1_narm<-na.omit(icu_patients_df1$SAPS1[icu_patients_df1$SAPS1>=0])
-length(SAPS1_narm)
-quantile(icu_patients_df1$SAPS1[icu_patients_df1$SAPS1>=0],na.rm=TRUE)
-hist(icu_patients_df1$SAPS1[icu_patients_df1$SAPS1>=0])
-
-#SOFA
-SOFA_narm<-na.omit(icu_patients_df1$SOFA[icu_patients_df1$SOFA>=0])
-length(SOFA_narm)
-quantile(icu_patients_df1$SOFA[icu_patients_df1$SOFA>=0],na.rm=TRUE)
-hist(icu_patients_df1$SOFA[icu_patients_df1$SOFA>=0])
-
 
 ##Clinical Measures
-
-
-
-#Bilirubin_min
-Bilirubinmin_narm<-na.omit(icu_patients_df1$Bilirubin_min[icu_patients_df1$Bilirubin_min>=0])
-length(icu_patients_df1$Bilirubinmin_narm)
-quantile(icu_patients_df1$Bilirubin_min[icu_patients_df1$Bilirubin_min>=0],na.rm=TRUE)
-hist(icu_patients_df1$Bilirubin_min[icu_patients_df1$Bilirubin_min>=0])
+##Clinical Measures
 
 #Bilirubin_max
 Bilirubinmax_narm<-na.omit(icu_patients_df1$Bilirubin_max[icu_patients_df1$Bilirubin_max>=0])
@@ -1167,19 +1136,11 @@ length(icu_patients_df1$Bilirubinmax_narm)
 quantile(icu_patients_df1$Bilirubin_max[icu_patients_df1$Bilirubin_max>=0],na.rm=TRUE)
 hist(icu_patients_df1$Bilirubin_max[icu_patients_df1$Bilirubin_max>=0])
 
-#Bilirubin_diff
-Bilirubindiff_narm<-na.omit(icu_patients_df1$Bilirubin_diff[icu_patients_df1$Bilirubin_mdiff>=0])
-length(icu_patients_df1$Bilirubinmdiff_narm)
-quantile(icu_patients_df1$Bilirubin_diff[icu_patients_df1$Bilirubin_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$Bilirubin_diff[icu_patients_df1$Bilirubin_diff>=0])
-
-
-
-#Creatinine_min
-Creatininemin_narm<-na.omit(icu_patients_df1$Creatinine_min[icu_patients_df1$Creatinine_min>=0])
-length(icu_patients_df1$Creatininemin_narm)
-quantile(icu_patients_df1$Creatinine_min[icu_patients_df1$Creatinine_min>=0],na.rm=TRUE)
-hist(icu_patients_df1$Creatinine_min[icu_patients_df1$Creatinine_min>=0])
+#BUN_max
+BUNmax_narm<-na.omit(icu_patients_df1$BUN_max[icu_patients_df1$BUN_max>=0])
+length(icu_patients_df1$BUNmax_narm)
+quantile(icu_patients_df1$BUN_max[icu_patients_df1$BUN_max>=0],na.rm=TRUE)
+hist(icu_patients_df1$BUN_max[icu_patients_df1$BUN_max>=0])
 
 #Creatinine_max
 Creatininemax_narm<-na.omit(icu_patients_df1$Creatinine_max[icu_patients_df1$Creatinine_max>=0])
@@ -1187,69 +1148,29 @@ length(icu_patients_df1$Creatininemax_narm)
 quantile(icu_patients_df1$Creatinine_max[icu_patients_df1$Creatinine_max>=0],na.rm=TRUE)
 hist(icu_patients_df1$Creatinine_max[icu_patients_df1$Creatinine_max>=0])
 
-#Creatinine_diff
-Creatininediff_narm<-na.omit(icu_patients_df1$Creatinine_diff[icu_patients_df1$Creatinine_mdiff>=0])
-length(icu_patients_df1$Creatininemdiff_narm)
-quantile(icu_patients_df1$Creatinine_diff[icu_patients_df1$Creatinine_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$Creatinine_diff[icu_patients_df1$Creatinine_diff>=0])
-
-
-#FiO2_min
-FiO2min_narm<-na.omit(icu_patients_df1$FiO2_min[icu_patients_df1$FiO2_min>=0])
-length(icu_patients_df1$FiO2min_narm)
-quantile(icu_patients_df1$FiO2_min[icu_patients_df1$FiO2_min>=0],na.rm=TRUE)
-hist(icu_patients_df1$FiO2_min[icu_patients_df1$FiO2_min>=0])
-
-#FiO2_max
-FiO2max_narm<-na.omit(icu_patients_df1$FiO2_max[icu_patients_df1$FiO2_max>=0])
-length(icu_patients_df1$FiO2max_narm)
-quantile(icu_patients_df1$FiO2_max[icu_patients_df1$FiO2_max>=0],na.rm=TRUE)
-hist(icu_patients_df1$FiO2_max[icu_patients_df1$FiO2_max>=0])
-
-#FiO2_diff
-FiO2diff_narm<-na.omit(icu_patients_df1$FiO2_diff[icu_patients_df1$FiO2_mdiff>=0])
-length(icu_patients_df1$FiO2mdiff_narm)
-quantile(icu_patients_df1$FiO2_diff[icu_patients_df1$FiO2_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$FiO2_diff[icu_patients_df1$FiO2_diff>=0])
-
-
-#GCS_min
-GCSmin_narm<-na.omit(icu_patients_df1$GCS_min[icu_patients_df1$GCS_min>=0])
-length(icu_patients_df1$GCSmin_narm)
-quantile(icu_patients_df1$GCS_min[icu_patients_df1$GCS_min>=0],na.rm=TRUE)
-hist(icu_patients_df1$GCS_min[icu_patients_df1$GCS_min>=0])
-
 #GCS_max
 GCSmax_narm<-na.omit(icu_patients_df1$GCS_max[icu_patients_df1$GCS_max>=0])
 length(icu_patients_df1$GCSmax_narm)
 quantile(icu_patients_df1$GCS_max[icu_patients_df1$GCS_max>=0],na.rm=TRUE)
 hist(icu_patients_df1$GCS_max[icu_patients_df1$GCS_max>=0])
 
-#GCS_diff
-GCSdiff_narm<-na.omit(icu_patients_df1$GCS_diff[icu_patients_df1$GCS_mdiff>=0])
-length(icu_patients_df1$GCSmdiff_narm)
-quantile(icu_patients_df1$GCS_diff[icu_patients_df1$GCS_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$GCS_diff[icu_patients_df1$GCS_diff>=0])
+#Glucosemin
+Glucosemin_narm<-na.omit(icu_patients_df1$Glucose_min[icu_patients_df1$Glucose_min>=0])
+length(icu_patients_df1$Glucosemin_narm)
+quantile(icu_patients_df1$Glucose_min[icu_patients_df1$Glucose_min>=0],na.rm=TRUE)
+hist(icu_patients_df1$Glucose_min[icu_patients_df1$Glucose_min>=0])
 
+#Glucosemax
+Glucosemax_narm<-na.omit(icu_patients_df1$Glucose_max[icu_patients_df1$Glucose_max>=0])
+length(icu_patients_df1$Glucosemax_narm)
+quantile(icu_patients_df1$Glucose_max[icu_patients_df1$Glucose_max>=0],na.rm=TRUE)
+hist(icu_patients_df1$Glucose_max[icu_patients_df1$Glucose_max>=0])
 
 #HCO3_min
 HCO3min_narm<-na.omit(icu_patients_df1$HCO3_min[icu_patients_df1$HCO3_min>=0])
 length(icu_patients_df1$HCO3min_narm)
 quantile(icu_patients_df1$HCO3_min[icu_patients_df1$HCO3_min>=0],na.rm=TRUE)
 hist(icu_patients_df1$HCO3_min[icu_patients_df1$HCO3_min>=0])
-
-#HCO3_max
-HCO3max_narm<-na.omit(icu_patients_df1$HCO3_max[icu_patients_df1$HCO3_max>=0])
-length(icu_patients_df1$HCO3max_narm)
-quantile(icu_patients_df1$HCO3_max[icu_patients_df1$HCO3_max>=0],na.rm=TRUE)
-hist(icu_patients_df1$HCO3_max[icu_patients_df1$HCO3_max>=0])
-
-#HCO3_diff
-HCO3diff_narm<-na.omit(icu_patients_df1$HCO3_diff[icu_patients_df1$HCO3_mdiff>=0])
-length(icu_patients_df1$HCO3mdiff_narm)
-quantile(icu_patients_df1$HCO3_diff[icu_patients_df1$HCO3_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$HCO3_diff[icu_patients_df1$HCO3_diff>=0])
-
 
 #HR_min
 HRmin_narm<-na.omit(icu_patients_df1$HR_min[icu_patients_df1$HR_min>=0])
@@ -1263,13 +1184,6 @@ length(icu_patients_df1$HRmax_narm)
 quantile(icu_patients_df1$HR_max[icu_patients_df1$HR_max>=0],na.rm=TRUE)
 hist(icu_patients_df1$HR_max[icu_patients_df1$HR_max>=0])
 
-#HR_diff
-HRdiff_narm<-na.omit(icu_patients_df1$HR_diff[icu_patients_df1$HR_mdiff>=0])
-length(icu_patients_df1$HRmdiff_narm)
-quantile(icu_patients_df1$HR_diff[icu_patients_df1$HR_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$HR_diff[icu_patients_df1$HR_diff>=0])
-
-
 #K_min
 Kmin_narm<-na.omit(icu_patients_df1$K_min[icu_patients_df1$K_min>=0])
 length(icu_patients_df1$Kmin_narm)
@@ -1282,31 +1196,17 @@ length(icu_patients_df1$Kmax_narm)
 quantile(icu_patients_df1$K_max[icu_patients_df1$K_max>=0],na.rm=TRUE)
 hist(icu_patients_df1$K_max[icu_patients_df1$K_max>=0])
 
-#K_diff
-Kdiff_narm<-na.omit(icu_patients_df1$K_diff[icu_patients_df1$K_mdiff>=0])
-length(icu_patients_df1$Kmdiff_narm)
-quantile(icu_patients_df1$K_diff[icu_patients_df1$K_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$K_diff[icu_patients_df1$K_diff>=0])
-
-
+ #Lactate_max
+Lactate_max_narm<-na.omit(icu_patients_df1$Lactate_max_max[icu_patients_df1$Lactate_max>=0])
+length(icu_patients_df1$Lactate_max_narm)
+quantile(icu_patients_df1$Lactate_max[icu_patients_df1$Lactate_max>=0],na.rm=TRUE)
+hist(icu_patients_df1$Lactate_max[icu_patients_df1$Lactate_max>=0])
+ 
 #MAP_min
 MAPmin_narm<-na.omit(icu_patients_df1$MAP_min[icu_patients_df1$MAP_min>=0])
 length(icu_patients_df1$MAPmin_narm)
 quantile(icu_patients_df1$MAP_min[icu_patients_df1$MAP_min>=0],na.rm=TRUE)
 hist(icu_patients_df1$MAP_min[icu_patients_df1$MAP_min>=0])
-
-#MAP_max
-MAPmax_narm<-na.omit(icu_patients_df1$MAP_max[icu_patients_df1$MAP_max>=0])
-length(icu_patients_df1$MAPmax_narm)
-quantile(icu_patients_df1$MAP_max[icu_patients_df1$MAP_max>=0],na.rm=TRUE)
-hist(icu_patients_df1$MAP_max[icu_patients_df1$MAP_max>=0])
-
-#MAP_diff
-MAPdiff_narm<-na.omit(icu_patients_df1$MAP_diff[icu_patients_df1$MAP_mdiff>=0])
-length(icu_patients_df1$MAPmdiff_narm)
-quantile(icu_patients_df1$MAP_diff[icu_patients_df1$MAP_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$MAP_diff[icu_patients_df1$MAP_diff>=0])
-
 
 #Na_min
 Namin_narm<-na.omit(icu_patients_df1$Na_min[icu_patients_df1$Na_min>=0])
@@ -1320,13 +1220,6 @@ length(icu_patients_df1$Namax_narm)
 quantile(icu_patients_df1$Na_max[icu_patients_df1$Na_max>=0],na.rm=TRUE)
 hist(icu_patients_df1$Na_max[icu_patients_df1$Na_max>=0])
 
-#Na_diff
-Nadiff_narm<-na.omit(icu_patients_df1$Na_diff[icu_patients_df1$Na_mdiff>=0])
-length(icu_patients_df1$Namdiff_narm)
-quantile(icu_patients_df1$Na_diff[icu_patients_df1$Na_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$Na_diff[icu_patients_df1$Na_diff>=0])
-
-
 #NISysABP_min
 NISysABPmin_narm<-na.omit(icu_patients_df1$NISysABP_min[icu_patients_df1$NISysABP_min>=0])
 length(icu_patients_df1$NISysABPmin_narm)
@@ -1339,87 +1232,38 @@ length(icu_patients_df1$NISysABPmax_narm)
 quantile(icu_patients_df1$NISysABP_max[icu_patients_df1$NISysABP_max>=0],na.rm=TRUE)
 hist(icu_patients_df1$NISysABP_max[icu_patients_df1$NISysABP_max>=0])
 
-#NISysABP_diff
-NISysABPdiff_narm<-na.omit(icu_patients_df1$NISysABP_diff[icu_patients_df1$NISysABP_mdiff>=0])
-length(icu_patients_df1$NISysABPmdiff_narm)
-quantile(icu_patients_df1$NISysABP_diff[icu_patients_df1$NISysABP_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$NISysABP_diff[icu_patients_df1$NISysABP_diff>=0])
-
-
-#PaO2_min
-PaO2min_narm<-na.omit(icu_patients_df1$PaO2_min[icu_patients_df1$PaO2_min>=0])
-length(icu_patients_df1$PaO2min_narm)
-quantile(icu_patients_df1$PaO2_min[icu_patients_df1$PaO2_min>=0],na.rm=TRUE)
-hist(icu_patients_df1$PaO2_min[icu_patients_df1$PaO2_min>=0])
-
-#PaO2_max
-PaO2max_narm<-na.omit(icu_patients_df1$PaO2_max[icu_patients_df1$PaO2_max>=0])
-length(icu_patients_df1$PaO2max_narm)
-quantile(icu_patients_df1$PaO2_max[icu_patients_df1$PaO2_max>=0],na.rm=TRUE)
-hist(icu_patients_df1$PaO2_max[icu_patients_df1$PaO2_max>=0])
-
-#PaO2_diff
-PaO2diff_narm<-na.omit(icu_patients_df1$PaO2_diff[icu_patients_df1$PaO2_mdiff>=0])
-length(icu_patients_df1$PaO2mdiff_narm)
-quantile(icu_patients_df1$PaO2_diff[icu_patients_df1$PaO2_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$PaO2_diff[icu_patients_df1$PaO2_diff>=0])
-
-
-#PaO2_min
-PaO2min_narm<-na.omit(icu_patients_df1$PaO2_min[icu_patients_df1$PaO2_min>=0])
-length(icu_patients_df1$PaO2min_narm)
-quantile(icu_patients_df1$PaO2_min[icu_patients_df1$PaO2_min>=0],na.rm=TRUE)
-hist(icu_patients_df1$PaO2_min[icu_patients_df1$PaO2_min>=0])
-
-#PaO2_max
-PaO2max_narm<-na.omit(icu_patients_df1$PaO2_max[icu_patients_df1$PaO2_max>=0])
-length(icu_patients_df1$PaO2max_narm)
-quantile(icu_patients_df1$PaO2_max[icu_patients_df1$PaO2_max>=0],na.rm=TRUE)
-hist(icu_patients_df1$PaO2_max[icu_patients_df1$PaO2_max>=0])
-
-#PaO2_diff
-PaO2diff_narm<-na.omit(icu_patients_df1$PaO2_diff[icu_patients_df1$PaO2_mdiff>=0])
-length(icu_patients_df1$PaO2mdiff_narm)
-quantile(icu_patients_df1$PaO2_diff[icu_patients_df1$PaO2_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$PaO2_diff[icu_patients_df1$PaO2_diff>=0])
-
-
 #Platelets_min
 Plateletsmin_narm<-na.omit(icu_patients_df1$Platelets_min[icu_patients_df1$Platelets_min>=0])
 length(icu_patients_df1$Plateletsmin_narm)
 quantile(icu_patients_df1$Platelets_min[icu_patients_df1$Platelets_min>=0],na.rm=TRUE)
 hist(icu_patients_df1$Platelets_min[icu_patients_df1$Platelets_min>=0])
 
-#Platelets_max
-Plateletsmax_narm<-na.omit(icu_patients_df1$Platelets_max[icu_patients_df1$Platelets_max>=0])
-length(icu_patients_df1$Plateletsmax_narm)
-quantile(icu_patients_df1$Platelets_max[icu_patients_df1$Platelets_max>=0],na.rm=TRUE)
-hist(icu_patients_df1$Platelets_max[icu_patients_df1$Platelets_max>=0])
+#CreatePFratio variable:
+icu_patients_df1$PFratio<-icu_patients_df1$PaO2_min/icu_patients_df1$FiO2_max
 
-#Platelets_diff
-Plateletsdiff_narm<-na.omit(icu_patients_df1$Platelets_diff[icu_patients_df1$Platelets_mdiff>=0])
-length(icu_patients_df1$Plateletsmdiff_narm)
-quantile(icu_patients_df1$Platelets_diff[icu_patients_df1$Platelets_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$Platelets_diff[icu_patients_df1$Platelets_diff>=0])
+#PF ratio (PaO2_min/ FiO2_max)
+PFratio_narm<-na.omit(icu_patients_df1$PFratio[icu_patients_df1$PFratio>=0])
+length(icu_patients_df1$PFratio_narm)
+quantile(icu_patients_df1$PFratio[icu_patients_df1$PFratio>=0],na.rm=TRUE)
+hist(icu_patients_df1$FiO2_min[icu_patients_df1$FiO2_min>=0])
 
+#pHmin
+pHmin_narm<-na.omit(icu_patients_df1$pH_min[icu_patients_df1$pH_min>=0])
+length(icu_patients_df1$pHmin_narm)
+quantile(icu_patients_df1$pH_min[icu_patients_df1$pH_min>=0],na.rm=TRUE)
+hist(icu_patients_df1$pH_min[icu_patients_df1$pH_min>=0])
 
-#SysABP_min
-SysABPmin_narm<-na.omit(icu_patients_df1$SysABP_min[icu_patients_df1$SysABP_min>=0])
-length(icu_patients_df1$SysABPmin_narm)
-quantile(icu_patients_df1$SysABP_min[icu_patients_df1$SysABP_min>=0],na.rm=TRUE)
-hist(icu_patients_df1$SysABP_min[icu_patients_df1$SysABP_min>=0])
+#pHmax
+pHmax_narm<-na.omit(icu_patients_df1$pH_max[icu_patients_df1$pH_max>=0])
+length(icu_patients_df1$pHmax_narm)
+quantile(icu_patients_df1$pH_max[icu_patients_df1$pH_max>=0],na.rm=TRUE)
+hist(icu_patients_df1$pH_max[icu_patients_df1$pH_max>=0])
 
-#SysABP_max
-SysABPmax_narm<-na.omit(icu_patients_df1$SysABP_max[icu_patients_df1$SysABP_max>=0])
-length(icu_patients_df1$SysABPmax_narm)
-quantile(icu_patients_df1$SysABP_max[icu_patients_df1$SysABP_max>=0],na.rm=TRUE)
-hist(icu_patients_df1$SysABP_max[icu_patients_df1$SysABP_max>=0])
-
-#SysABP_diff
-SysABPdiff_narm<-na.omit(icu_patients_df1$SysABP_diff[icu_patients_df1$SysABP_mdiff>=0])
-length(icu_patients_df1$SysABPmdiff_narm)
-quantile(icu_patients_df1$SysABP_diff[icu_patients_df1$SysABP_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$SysABP_diff[icu_patients_df1$SysABP_diff>=0])
+#RespRatemin
+RespRatemin_narm<-na.omit(icu_patients_df1$RespRate_min[icu_patients_df1$RespRate_min>=0])
+length(icu_patients_df1$RespRatemin_narm)
+quantile(icu_patients_df1$RespRate_min[icu_patients_df1$RespRate_min>=0],na.rm=TRUE)
+hist(icu_patients_df1$RespRate_min[icu_patients_df1$RespRate_min>=0])
 
 
 #Temp_min
@@ -1434,31 +1278,23 @@ length(icu_patients_df1$Tempmax_narm)
 quantile(icu_patients_df1$Temp_max[icu_patients_df1$Temp_max>=0],na.rm=TRUE)
 hist(icu_patients_df1$Temp_max[icu_patients_df1$Temp_max>=0])
 
-#Temp_diff
-Tempdiff_narm<-na.omit(icu_patients_df1$Temp_diff[icu_patients_df1$Temp_mdiff>=0])
-length(icu_patients_df1$Tempmdiff_narm)
-quantile(icu_patients_df1$Temp_diff[icu_patients_df1$Temp_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$Temp_diff[icu_patients_df1$Temp_diff>=0])
+#TropI_max
+TroponinI_max_narm<-na.omit(icu_patients_df1$TroponinI_max[icu_patients_df1$TroponinI_max>=0])
+length(icu_patients_df1$TroponinI_max_narm)
+quantile(icu_patients_df1$TroponinI_max[icu_patients_df1$TroponinI_max>=0],na.rm=TRUE)
+hist(icu_patients_df1$TroponinI_max[icu_patients_df1$TroponinI_max>=0])
 
+#TropT_max
+TroponinT_max_narm<-na.omit(icu_patients_df1$TroponinT_max[icu_patients_df1$TroponinT_max>=0])
+length(icu_patients_df1$TropT_max_narm)
+quantile(icu_patients_df1$TroponinT_max[icu_patients_df1$TroponinT_max>=0],na.rm=TRUE)
+hist(icu_patients_df1$TroponinT_max[icu_patients_df1$TroponinT_max>=0])
 
 #Urine_min
 Urinemin_narm<-na.omit(icu_patients_df1$Urine_min[icu_patients_df1$Urine_min>=0])
 length(icu_patients_df1$Urinemin_narm)
 quantile(icu_patients_df1$Urine_min[icu_patients_df1$Urine_min>=0],na.rm=TRUE)
 hist(icu_patients_df1$Urine_min[icu_patients_df1$Urine_min>=0])
-
-#Urine_max
-Urinemax_narm<-na.omit(icu_patients_df1$Urine_max[icu_patients_df1$Urine_max>=0])
-length(icu_patients_df1$Urinemax_narm)
-quantile(icu_patients_df1$Urine_max[icu_patients_df1$Urine_max>=0],na.rm=TRUE)
-hist(icu_patients_df1$Urine_max[icu_patients_df1$Urine_max>=0])
-
-#Urine_diff
-Urinediff_narm<-na.omit(icu_patients_df1$Urine_diff[icu_patients_df1$Urine_mdiff>=0])
-length(icu_patients_df1$Urinemdiff_narm)
-quantile(icu_patients_df1$Urine_diff[icu_patients_df1$Urine_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$Urine_diff[icu_patients_df1$Urine_diff>=0])
-
 
 #WBC_min
 WBCmin_narm<-na.omit(icu_patients_df1$WBC_min[icu_patients_df1$WBC_min>=0])
@@ -1472,12 +1308,6 @@ length(icu_patients_df1$WBCmax_narm)
 quantile(icu_patients_df1$WBC_max[icu_patients_df1$WBC_max>=0],na.rm=TRUE)
 hist(icu_patients_df1$WBC_max[icu_patients_df1$WBC_max>=0])
 
-#WBC_diff
-WBCdiff_narm<-na.omit(icu_patients_df1$WBC_diff[icu_patients_df1$WBC_mdiff>=0])
-length(icu_patients_df1$WBCmdiff_narm)
-quantile(icu_patients_df1$WBC_diff[icu_patients_df1$WBC_diff>=0],na.rm=TRUE)
-hist(icu_patients_df1$WBC_diff[icu_patients_df1$WBC_diff>=0])
-
 ```
 ** EDA Findings
 
@@ -1487,8 +1317,8 @@ hist(icu_patients_df1$WBC_diff[icu_patients_df1$WBC_diff>=0])
 * The median age is 67 with an IQ range of 26.
 * The median height is 170.2 cm with IQ range of 15.2cm. There are 1069 (52%) with a valid measurements.
 * The median minimum weight is 77.7 kg with a IQ range of 26.95. The median maximum weight is 80kg (slightly higher) with an IQ range of 28.55. The median difference in weight (max to mean over 24 hrs) is 14.7 kg with an IQ range of 17.2 kg. Some outliers or measurement error looks present with a max difference on 149kg.
-* There are 1965 valid SAPS1 measures (95% of observations).The median SAPS1 score is 15 and the IQ range is 8.
-* There are 1996 valid SOFA scores (97% ofobservations). The median SOFA score is 7 and teh IQ range is 6.
+
+*************************
 * The median minimum Bilirubin is 0.6 with an IQ range of 0.7. The median maximum Bilirubin is 0.7 with an IQ range of 0.9. The median difference in Bilirubin is 1.36 with an IQ range of 0.4.
 * The median minimum Creatinine is 0.9 with an IQ range of 0.6. The median maximum Creatinine is 1.0 with an IQ range of 0.7. The median difference in Creatinine is 0.53 with an IQ range of 0.4.
 
@@ -1516,9 +1346,6 @@ Risk of mortality is different by both Gender and ICU Type - the hazard rates al
 3. Fit appropriate univariate Cox proportional hazards models.
 ```{r task2.3.1}
 
-# Remove missing variables 
-icu_patients_df1_n
-
 #Cox proportional models and Log Rank tests
 
 ICU.fitbyGender <- coxph( Surv(Days, Status) ~ as.factor(Gender), data = icu_patients_df1) 
@@ -1527,143 +1354,108 @@ summary(ICU.fitbyGender)
 ICU.fitbytype <- coxph( Surv(Days, Status) ~ as.factor(ICUType), data = icu_patients_df1) 
 summary(ICU.fitbytype)
 
-ICU.fitbystay <- coxph( Surv(Days, Status) ~ Length_of_stay, data = icu_patients_df1) 
-summary(ICU.fitbystay)
-
 ICU.fitbyage <- coxph( Surv(Days, Status) ~ Age, data = icu_patients_df1) 
 summary(ICU.fitbyage)
 
 ICU.fitbyheight <- coxph( Surv(Days, Status) ~ Height, data = icu_patients_df1) 
 summary(ICU.fitbyheight)
 
-ICU.fitbyweightmin <- coxph( Surv(Days, Status) ~ Weight_min, data = icu_patients_df1) 
-summary(ICU.fitbyweightmin)
 ICU.fitbyweightmax <- coxph( Surv(Days, Status) ~ Weight_max, data = icu_patients_df1) 
 summary(ICU.fitbyweightmax)
-ICU.fitbyweightdiff <- coxph( Surv(Days, Status) ~ Weight_diff, data = icu_patients_df1) 
-summary(ICU.fitbyweightdiff)
 
-ICU.fitbySAPS1 <- coxph( Surv(Days, Status) ~ SAPS1, data = icu_patients_df1) 
-summary(ICU.fitbySAPS1)
-
-ICU.fitbySOFA <- coxph( Surv(Days, Status) ~ SOFA, data = icu_patients_df1) 
-summary(ICU.fitbySOFA)
 
 #Other Clinical Measures
 
-ICU.fitbyBilirubinmin <- coxph( Surv(Days, Status) ~ Bilirubin_min, data = icu_patients_df1) 
-summary(ICU.fitbyBilirubinmin)
+ICU.fitbyAlbuminmin <- coxph( Surv(Days, Status) ~ Albumin_min, data = icu_patients_df1) 
+summary(ICU.fitbyAlbuminmin)
+
 ICU.fitbyBilirubinmax <- coxph( Surv(Days, Status) ~ Bilirubin_max, data = icu_patients_df1) 
 summary(ICU.fitbyBilirubinmax)
-ICU.fitbyBilirubindiff <- coxph( Surv(Days, Status) ~ Bilirubin_diff, data = icu_patients_df1) 
-summary(ICU.fitbyBilirubindiff)
 
-ICU.fitbyCreatininemin <- coxph( Surv(Days, Status) ~ Creatinine_min, data = icu_patients_df1) 
-summary(ICU.fitbyCreatininemin)
+ICU.fitbyBUNmax <- coxph( Surv(Days, Status) ~ BUN_max, data = icu_patients_df1) 
+summary(ICU.fitbyBUNmax)
+
 ICU.fitbyCreatininemax <- coxph( Surv(Days, Status) ~ Creatinine_max, data = icu_patients_df1) 
 summary(ICU.fitbyCreatininemax)
-ICU.fitbyCreatininediff <- coxph( Surv(Days, Status) ~ Creatinine_diff, data = icu_patients_df1) 
-summary(ICU.fitbyCreatininediff)
-
-ICU.fitbyFiO2min <- coxph( Surv(Days, Status) ~ FiO2_min, data = icu_patients_df1) 
-summary(ICU.fitbyFiO2min)
-ICU.fitbyFiO2max <- coxph( Surv(Days, Status) ~ FiO2_max, data = icu_patients_df1) 
-summary(ICU.fitbyFiO2max)
-ICU.fitbyFiO2diff <- coxph( Surv(Days, Status) ~ FiO2_diff, data = icu_patients_df1) 
-summary(ICU.fitbyFiO2diff)
 
 ICU.fitbyGCSmin <- coxph( Surv(Days, Status) ~ GCS_min, data = icu_patients_df1) 
 summary(ICU.fitbyGCSmin)
-ICU.fitbyGCSmax <- coxph( Surv(Days, Status) ~ GCS_max, data = icu_patients_df1) 
-summary(ICU.fitbyGCSmax)
-ICU.fitbyGCSdiff <- coxph( Surv(Days, Status) ~ GCS_diff, data = icu_patients_df1) 
-summary(ICU.fitbyGCSdiff)
+
+ICU.fitbyGlucosemin <- coxph( Surv(Days, Status) ~ Glucose_min, data = icu_patients_df1) 
+summary(ICU.fitbyGlucosemin)
+
+ICU.fitbyGlucosemax <- coxph( Surv(Days, Status) ~ Glucose_max, data = icu_patients_df1) 
+summary(ICU.fitbyGlucosemax)
 
 ICU.fitbyHCO3min <- coxph( Surv(Days, Status) ~ HCO3_min, data = icu_patients_df1) 
 summary(ICU.fitbyHCO3min)
-ICU.fitbyHCO3max <- coxph( Surv(Days, Status) ~ HCO3_max, data = icu_patients_df1) 
-summary(ICU.fitbyHCO3max)
-ICU.fitbyHCO3diff <- coxph( Surv(Days, Status) ~ HCO3_diff, data = icu_patients_df1) 
-summary(ICU.fitbyHCO3diff)
 
 ICU.fitbyHRmin <- coxph( Surv(Days, Status) ~ HR_min, data = icu_patients_df1) 
 summary(ICU.fitbyHRmin)
 ICU.fitbyHRmax <- coxph( Surv(Days, Status) ~ HR_max, data = icu_patients_df1) 
 summary(ICU.fitbyHRmax)
-ICU.fitbyHRdiff <- coxph( Surv(Days, Status) ~ HR_diff, data = icu_patients_df1) 
-summary(ICU.fitbyHRdiff)
 
 ICU.fitbyKmin <- coxph( Surv(Days, Status) ~ K_min, data = icu_patients_df1) 
 summary(ICU.fitbyKmin)
+
 ICU.fitbyKmax <- coxph( Surv(Days, Status) ~ K_max, data = icu_patients_df1) 
 summary(ICU.fitbyKmax)
-ICU.fitbyKdiff <- coxph( Surv(Days, Status) ~ K_diff, data = icu_patients_df1) 
-summary(ICU.fitbyKdiff)
+
+ICU.fitbyLactatemax <- coxph( Surv(Days, Status) ~ Lactate_max, data = icu_patients_df1) 
+summary(ICU.fitbyLactatemax)
 
 ICU.fitbyMAPmin <- coxph( Surv(Days, Status) ~ MAP_min, data = icu_patients_df1) 
 summary(ICU.fitbyMAPmin)
-ICU.fitbyMAPmax <- coxph( Surv(Days, Status) ~ MAP_max, data = icu_patients_df1) 
-summary(ICU.fitbyMAPmax)
-ICU.fitbyMAPdiff <- coxph( Surv(Days, Status) ~ MAP_diff, data = icu_patients_df1) 
-summary(ICU.fitbyMAPdiff)
 
 ICU.fitbyNamin <- coxph( Surv(Days, Status) ~ Na_min, data = icu_patients_df1) 
 summary(ICU.fitbyNamin)
+
 ICU.fitbyNamax <- coxph( Surv(Days, Status) ~ Na_max, data = icu_patients_df1) 
 summary(ICU.fitbyNamax)
-ICU.fitbyNadiff <- coxph( Surv(Days, Status) ~ Na_diff, data = icu_patients_df1) 
-summary(ICU.fitbyNadiff)
 
 ICU.fitbyNISysABPmin <- coxph( Surv(Days, Status) ~ NISysABP_min, data = icu_patients_df1) 
 summary(ICU.fitbyNISysABPmin)
+
 ICU.fitbyNISysABPmax <- coxph( Surv(Days, Status) ~ NISysABP_max, data = icu_patients_df1) 
 summary(ICU.fitbyNISysABPmax)
-ICU.fitbyNISysABPdiff <- coxph( Surv(Days, Status) ~ NISysABP_diff, data = icu_patients_df1) 
-summary(ICU.fitbyNISysABPdiff)
-
-ICU.fitbyPaO2min <- coxph( Surv(Days, Status) ~ PaO2_min, data = icu_patients_df1) 
-summary(ICU.fitbyPaO2min)
-ICU.fitbyPaO2max <- coxph( Surv(Days, Status) ~ PaO2_max, data = icu_patients_df1) 
-summary(ICU.fitbyPaO2max)
-ICU.fitbyPaO2diff <- coxph( Surv(Days, Status) ~ PaO2_diff, data = icu_patients_df1) 
-summary(ICU.fitbyPaO2diff)
 
 ICU.fitbyPlateletsmin <- coxph( Surv(Days, Status) ~ Platelets_min, data = icu_patients_df1) 
 summary(ICU.fitbyPlateletsmin)
-ICU.fitbyPlateletsmax <- coxph( Surv(Days, Status) ~ Platelets_max, data = icu_patients_df1) 
-summary(ICU.fitbyPlateletsmax)
-ICU.fitbyPlateletsdiff <- coxph( Surv(Days, Status) ~ Platelets_diff, data = icu_patients_df1) 
-summary(ICU.fitbyPlateletsdiff)
 
-ICU.fitbySysABPmin <- coxph( Surv(Days, Status) ~ SysABP_min, data = icu_patients_df1) 
-summary(ICU.fitbySysABPmin)
-ICU.fitbySysABPmax <- coxph( Surv(Days, Status) ~ SysABP_max, data = icu_patients_df1) 
-summary(ICU.fitbySysABPmax)
-ICU.fitbySysABPdiff <- coxph( Surv(Days, Status) ~ SysABP_diff, data = icu_patients_df1) 
-summary(ICU.fitbySysABPdiff)
+ICU.fitbyPFratio <- coxph( Surv(Days, Status) ~ PFratio, data = icu_patients_df1) 
+summary(ICU.fitbyPFratio)
+
+ICU.fitbypHmin <- coxph( Surv(Days, Status) ~ pH_min, data = icu_patients_df1) 
+summary(ICU.fitbypHmin)
+ICU.fitbypHmax <- coxph( Surv(Days, Status) ~ pH_max, data = icu_patients_df1) 
+summary(ICU.fitbypHmax)
+
+ICU.fitbyRespRatemin <- coxph( Surv(Days, Status) ~ RespRate_min, data = icu_patients_df1) 
+summary(ICU.fitbyRespRatemin)
+
+ICU.fitbyRespRatemax <- coxph( Surv(Days, Status) ~ RespRate_max, data = icu_patients_df1) 
+summary(ICU.fitbyRespRatemax)
 
 ICU.fitbyTempmin <- coxph( Surv(Days, Status) ~ Temp_min, data = icu_patients_df1) 
 summary(ICU.fitbyTempmin)
+
 ICU.fitbyTempmax <- coxph( Surv(Days, Status) ~ Temp_max, data = icu_patients_df1) 
 summary(ICU.fitbyTempmax)
-ICU.fitbyTempdiff <- coxph( Surv(Days, Status) ~ Temp_diff, data = icu_patients_df1) 
-summary(ICU.fitbyTempdiff)
+
+ICU.fitbyTroponinImax <- coxph( Surv(Days, Status) ~ TroponinI_max, data = icu_patients_df1) 
+summary(ICU.fitbyTroponinImax)
+
+ICU.fitbyTroponinTmax <- coxph( Surv(Days, Status) ~ TroponinT_max, data = icu_patients_df1) 
+summary(ICU.fitbyTroponinTmax)
 
 ICU.fitbyUrinemin <- coxph( Surv(Days, Status) ~ Urine_min, data = icu_patients_df1) 
 summary(ICU.fitbyUrinemin)
-ICU.fitbyUrinemax <- coxph( Surv(Days, Status) ~ Urine_max, data = icu_patients_df1) 
-summary(ICU.fitbyUrinemax)
-ICU.fitbyUrinediff <- coxph( Surv(Days, Status) ~ Urine_diff, data = icu_patients_df1) 
-summary(ICU.fitbyUrinediff)
 
 ICU.fitbyWBCmin <- coxph( Surv(Days, Status) ~ WBC_min, data = icu_patients_df1) 
 summary(ICU.fitbyWBCmin)
+
 ICU.fitbyWBCmax <- coxph( Surv(Days, Status) ~ WBC_max, data = icu_patients_df1) 
 summary(ICU.fitbyWBCmax)
-ICU.fitbyWBCdiff <- coxph( Surv(Days, Status) ~ WBC_diff, data = icu_patients_df1) 
-summary(ICU.fitbyWBCdiff)
-
-
 
 
 ```
@@ -1698,6 +1490,7 @@ summary(ICU.fitbyWBCdiff)
 4. Fit an appropriate series of multivariable Cox proportional hazards models, justifying your approach. Assess each model you consider for goodness of fit and other relevant statistics.
 ```{r task2.4}
 
+
 # Data - remove missing variables
 
 sum(is.na(icu_patients_df1$Height)) # there are 992 missing values ! removed
@@ -1705,8 +1498,12 @@ sum(is.na(icu_patients_df1$NISysABP_min)) # there are 453 missing values! remove
 sum(is.na(icu_patients_df1$SysABP_min)) # there are 715 missing values! removed
 sum(is.na(icu_patients_df1$Weight_min)) # there are 146 missing values but not removed
 
+
+#DATA SET AS PER ORIGINAL PLAN
+
 data<- na.omit(subset(icu_patients_df1, select = c(Days, Status, Gender, ICUType , Length_of_stay , Age , SAPS1 , SOFA ,          Weight_min , Weight_max , Weight_diff,
                 Bilirubin_min , Bilirubin_max , Bilirubin_diff,
+                BUN_max,
                 Creatinine_min , Creatinine_max , Creatinine_diff,
                 FiO2_min , FiO2_max , FiO2_diff,
                 GCS_min , GCS_max , GCS_diff,
@@ -1715,19 +1512,47 @@ data<- na.omit(subset(icu_patients_df1, select = c(Days, Status, Gender, ICUType
                 K_min , K_max , K_diff,
                 MAP_min , MAP_max , MAP_diff,
                 Na_min , Na_max , Na_diff,
+                NISysABP_max,
                 PaO2_min , PaO2_max , PaO2_diff,
+                pH_min, pH_max,
                 Platelets_min , Platelets_max , Platelets_diff,
+                RespRate_min, RespRate_max, 
                 Temp_min , Temp_max , Temp_diff,
                 Urine_min , Urine_max , Urine_diff,
-                WBC_min , WBC_max , WBC_diff
+                WBC_min , WBC_max , WBC_diff,
+                Glucose_min, Glucose_max, 
+                  TroponinT_max, TroponinI_max, 
+                  Lactate_max,
+                  Albumin_min,
+                PFratio
 )))
 dim(data)
+
+#LIMITED DATA SET
+data2<- na.omit(subset(icu_patients_df1, select = c(Days, Status, Gender, ICUType, Age, Weight_max,Length_of_stay,
+                Albumin_min, Bilirubin_max,BUN_max,
+                Creatinine_max, 
+                GCS_max ,Glucose_min, Glucose_max, 
+                HCO3_min , 
+                HR_min , HR_max, 
+                K_min , K_max, 
+                Lactate_max,
+                MAP_min , 
+                Na_min , Na_max ,
+                Platelets_min , Platelets_max ,PFratio,pH_min, pH_max,
+                RespRate_min, RespRate_max, 
+                Temp_min , Temp_max ,TroponinT_max, TroponinI_max,
+               Urine_min , 
+                WBC_min , WBC_max
+)))
 
 ```
 
 ```{r task2.4.1}
 
-# Full Model  - fitting multivariable Cox model with all variables
+#USING DATA= DATA
+# FULL MODEL BASED ON SAPS + SOFA   - fitting multivariable Cox model with all variables
+
 ICU.mvfull <- coxph( Surv(Days, Status) ~ as.factor(Gender) + as.factor(ICUType) + Length_of_stay + Age + SAPS1 + SOFA + 
                 Weight_min + Weight_max + Weight_diff+
                 Bilirubin_min + Bilirubin_max + Bilirubin_diff+
@@ -1746,9 +1571,9 @@ ICU.mvfull <- coxph( Surv(Days, Status) ~ as.factor(Gender) + as.factor(ICUType)
                 WBC_min + WBC_max + WBC_diff
                        , data = data) 
 summary(ICU.mvfull)
-AIC.mvfull=2*50-2*ICU.mvfull$loglik[2]
+AIC.mvfull=2*53-2*ICU.mvfull$loglik[2]
 AIC.mvfull 
-#AIC 9675.966
+#AIC 7824
 
 # Model 1  - fitting multivariable Cox model with significant variables from univariate analysis
 
@@ -1766,12 +1591,11 @@ ICU.mv1 <- coxph( Surv(Days, Status) ~ as.factor(ICUType) + Length_of_stay + Age
                 PaO2_min + PaO2_max + PaO2_diff+
                 Temp_min + Temp_max + Temp_diff+
                 Urine_min + Urine_max + Urine_diff+
-                WBC_diff
-                       , data = data) 
+                WBC_diff, data = data) 
 summary(ICU.mv1)
 AIC.mv1=2*40-2*ICU.mv1$loglik[2]
 AIC.mv1
-# AIC 9712.025
+# AIC 10153
 
 # Model 2  - fitting multivariable Cox model with significant variables from Model 1
 
@@ -1781,15 +1605,7 @@ summary(ICU.mv2)
 
 AIC.mv2=2*16-2*ICU.mv2$loglik[2]
 AIC.mv2
-# AIC 9692.408
-
-# Compare models - using AIC FUll is lowest. using LRT
-anova(ICU.mvfull,ICU.mv1) 
-# reject the null that additional variables from Full model are not significant -   Full model is better mv1.
-
-anova(ICU.mvfull,ICU.mv2)
-# reject the null that additional variables from Full model are not significant -   Full model is better than mv2.
-
+# AIC 7848
 
 # Model 3  - Search the space using Step to reduce model
 
@@ -1802,20 +1618,194 @@ ICU.mv3 <- coxph(Surv(Days, Status) ~ as.factor(Gender) + as.factor(ICUType) +
     GCS_min + GCS_max + HCO3_diff + HR_min + Na_max + PaO2_max + 
     Platelets_min + Platelets_max + Temp_max + Urine_max + WBC_min + 
     WBC_max + WBC_diff, data = data)
-summary(ICU.mv3)
 
-AIC.mv3=2*27-2*ICU.mv3$loglik[2]
+
+AIC.mv3=2*31-2*ICU.mv3$loglik[2]
 AIC.mv3
-# 9644.208
+# 7818
 
-#Compare model using LRT
-anova(ICU.mvfull, ICU.mv3) 
 
-#P-vlaue of 0.9 - accept the null that Model 3 is better
 
-#Check using drop1 function
-print(drop1(ICU.mv3, test="Chisq"))
-#Weight_min, Creatinine_min, Creatinine_diffare not significant but AIC increases when not included.
+#MODEL 4 - MODEL BASED ON CLINICALLY RELEVANT VARIABLES
+ICU.mv4 <- coxph( Surv(Days, Status) ~ as.factor(ICUType) + as.factor(Gender)+ Age +Length_of_stay +
+                 Albumin_min+
+                   Bilirubin_max + BUN_max+
+                 Creatinine_max + 
+                GCS_max +Glucose_min + Glucose_max +
+                HCO3_min +
+                HR_min+ HR_max +
+                K_min + K_max +
+                Lactate_max +
+                MAP_min + 
+                Na_min + Na_max +
+               Platelets_min +PFratio +pH_min +pH_max +
+                 RespRate_min + RespRate_max +
+                 Temp_max + Temp_min +TroponinT_max + TroponinI_max+
+                Urine_min + 
+                WBC_min+ WBC_max, data = data) 
+summary(ICU.mv4)
+AIC.mv4=2*35-2*ICU.mv4$loglik[2]
+AIC.mv4
+AIC=7877
+
+# MODEL 5  - fitting MODEL 4 with significant variables from univariate analysis
+
+ICU.mv5 <- coxph( Surv(Days, Status) ~ as.factor(ICUType) + Length_of_stay + Age + Weight_max +
+                   Bilirubin_max + 
+                 Creatinine_max + 
+                GCS_max +
+                HCO3_min +
+                K_max +
+                Na_min + 
+               Temp_max + Temp_min +
+                Urine_min + 
+                  BUN_max+
+                  pH_min +pH_max +
+                  RespRate_min + 
+                   Glucose_max +
+                  Lactate_max +
+                  Albumin_min
+                
+                       , data = data) 
+summary(ICU.mv5)
+AIC.mv5= 2*22-2*ICU.mv5$loglik[2]
+AIC.mv5
+#AIC 7874
+
+# MODEL 6 fitting multivariable Cox model with significant variables from Model 5
+
+ICU.mv6 <- coxph( Surv(Days, Status) ~ as.factor(ICUType) +  Age + 
+                   Bilirubin_max + 
+                GCS_max +
+                HCO3_min +
+                Na_min + 
+                Urine_min + 
+                  BUN_max+
+                  pH_min +
+                  RespRate_min + 
+                  Lactate_max , data = data) 
+summary(ICU.mv6)
+AIC.mv6= 2*13-2*ICU.mv6$loglik[2]
+AIC.mv6
+#AIC=7871
+
+
+# MODEL7 - Search the space using Step to reduce model 
+
+step_modelmv4 <- step(ICU.mv4, trace=1)
+summary(step_modelmv4)
+
+ICU.mv7<-coxph(formula = Surv(Days, Status) ~ as.factor(ICUType) + Age + 
+    Weight_max + Bilirubin_max + Creatinine_max + GCS_max + HCO3_min + 
+    HR_min + K_min + NISysABP_max + Na_max + Temp_max + Urine_min + 
+    BUN_max + pH_min + RespRate_min + RespRate_max + TroponinI_max + 
+    Lactate_max + Albumin_min, data = data2)
+
+summary(ICU.mv7)
+AIC.mv7= 2*22-2*ICU.mv7$loglik[2]
+AIC.mv7
+AIC=7854
+
+
+#USING DATA=DATA2
+
+#MODEL 4 - MODEL BASED ON CLINICALLY RELEVANT VARIABLES
+ICU.mv8 <- coxph( Surv(Days, Status) ~ as.factor(ICUType) + as.factor(Gender)+ Age +Length_of_stay +
+                 Albumin_min+
+                   Bilirubin_max + BUN_max+
+                 Creatinine_max + 
+                GCS_max +Glucose_min + Glucose_max +
+                HCO3_min +
+                HR_min+ HR_max +
+                K_min + K_max +
+                Lactate_max +
+                MAP_min + 
+                Na_min + Na_max +
+               Platelets_min +PFratio +pH_min +pH_max +
+                 RespRate_min + RespRate_max +
+                 Temp_max + Temp_min +TroponinT_max + TroponinI_max+
+                Urine_min + 
+                WBC_min+ WBC_max, data = data2) 
+summary(ICU.mv8)
+AIC.mv8=2*35-2*ICU.mv4$loglik[2]
+AIC.mv8
+AIC= 10112
+
+# MODEL 9  - fitting MODEL 4 with significant variables from univariate analysis
+
+ICU.mv9 <- coxph( Surv(Days, Status) ~ as.factor(ICUType) + Length_of_stay + Age + Weight_max +
+                   Bilirubin_max + 
+                 Creatinine_max + 
+                GCS_max +
+                HCO3_min +
+                K_max +
+                Na_min + 
+               Temp_max + Temp_min +
+                Urine_min + 
+                  BUN_max+
+                  pH_min +pH_max +
+                  RespRate_min + 
+                   Glucose_max +
+                  Lactate_max +
+                  Albumin_min
+                
+                       , data = data2) 
+summary(ICU.mv9)
+AIC.mv9= 2*22-2*ICU.mv5$loglik[2]
+AIC.mv9
+#AIC 10106
+
+# MODEL 10 fitting multivariable Cox model with significant variables from Model 5
+
+ICU.mv10 <- coxph( Surv(Days, Status) ~ as.factor(ICUType) + Age + 
+                   Bilirubin_max + 
+                GCS_max +
+                HCO3_min +
+                Na_min + 
+               Temp_max + 
+                Urine_min + 
+                  BUN_max+
+                  pH_min +
+                  RespRate_min + 
+                  Lactate_max +
+                  Albumin_min, data = data2)
+summary(ICU.mv10)               
+AIC.mv10= 2*-2*ICU.mv10$loglik[2]
+AIC.mv10
+
+#AIC=
+
+
+# MODEL11 - Search the space using Step to reduce model 
+
+step_modelmv8 <- step(ICU.mv8, trace=1)
+summary(step_modelmv8)
+
+ICU.mv11<-coxph(formula = Surv(Days, Status) ~ as.factor(ICUType) + Age + 
+    Albumin_min + Bilirubin_max + BUN_max + GCS_max + Glucose_max + 
+    HCO3_min + HR_max + Lactate_max + Na_max + pH_min + RespRate_min + 
+    RespRate_max + Temp_max + Urine_min + WBC_min + WBC_max, 
+    data = data2)
+
+summary(ICU.mv11)
+AIC.mv11= 2*20-2*ICU.mv11$loglik[2]
+AIC.mv11
+#AIC=10089
+
+
+
+# Compare models - using AIC Model4  is lowest. using LRT
+anova(ICU.mvfull, ICU.mv4)
+
+anova(ICU.mvfull, ICU.mv2) #p<-.05
+
+anova(ICU.mvfull, ICU.mv3) #p=0.06
+
+anova(ICU.mv4,ICU.mv6) #p <0.05
+
+anova(ICU.mv4,ICU.mv7) # p =0.81 - accept the null that model 7 is better
+
+anova(ICU.mv8,ICU.mv11) #p=0.9
 
 
 ```
@@ -1861,33 +1851,33 @@ sum(is.na(icu_patients_df1$DiasABP_diff)) # there are 715 missing values from NI
 
 
 #Remove na
-data<- na.omit(subset(icu_patients_df1, select = c(Days, Status, Age, Length_of_stay, SOFA, SAPS1, ICUType, Gender, Bilirubin_min, BUN_min, HCT_min, Lactate_min, RespRate_min, Urine_min, ALP_max, BUN_max, Creatinine_max, GCS_max, K_max, MAP_max, Mg_max, PaO2_max, Platelets_max, Temp_max, TroponinT_max, Urine_max,BUN_diff, Cholesterol_diff, HCT_diff, Lactate_diff, Mg_diff, Na_diff, PaCO2_diff, Platelets_diff, Urine_diff)))
-
-#Fit model with significant variables
-ICU.maxmindiff <- coxph( Surv(Days, Status) ~ Age + Length_of_stay + SOFA + SAPS1 + ICUType + Gender +
-                           #min variables that were significant
-Bilirubin_min + BUN_min+ HCT_min+ Lactate_min+ RespRate_min+ Urine_min + 
-                           #max variables that were significant
-ALP_max+ BUN_max+ Creatinine_max+ GCS_max+ K_max+ MAP_max+ Mg_max+ PaO2_max+ Platelets_max+ Temp_max+ TroponinT_max+ Urine_max+
-                          #diff variables that were significant
-BUN_diff+ Cholesterol_diff+ HCT_diff+ Lactate_diff+ Mg_diff+ Na_diff+ PaCO2_diff+ Platelets_diff + Urine_diff
-                           ,data=data)
-
-summary(ICU.maxmindiff)
-
-head(icu_patients_df1)
-
-#Use step function to simplify
-step_ICU.maxmindiff <- step(ICU.maxmindiff, trace=1)
-summary(step_ICU.maxmindiff)
+# data<- na.omit(subset(icu_patients_df1, select = c(Days, Status, Age, Length_of_stay, SOFA, SAPS1, ICUType, Gender, Bilirubin_min, BUN_min, HCT_min, Lactate_min, RespRate_min, Urine_min, ALP_max, BUN_max, Creatinine_max, GCS_max, K_max, MAP_max, Mg_max, PaO2_max, Platelets_max, Temp_max, TroponinT_max, Urine_max,BUN_diff, Cholesterol_diff, HCT_diff, Lactate_diff, Mg_diff, Na_diff, PaCO2_diff, Platelets_diff, Urine_diff)))
+# 
+# #Fit model with significant variables
+# ICU.maxmindiff <- coxph( Surv(Days, Status) ~ Age + Length_of_stay + SOFA + SAPS1 + ICUType + Gender +
+#                            #min variables that were significant
+# Bilirubin_min + BUN_min+ HCT_min+ Lactate_min+ RespRate_min+ Urine_min + 
+#                            #max variables that were significant
+# ALP_max+ BUN_max+ Creatinine_max+ GCS_max+ K_max+ MAP_max+ Mg_max+ PaO2_max+ Platelets_max+ Temp_max+ TroponinT_max+ Urine_max+
+#                           #diff variables that were significant
+# BUN_diff+ Cholesterol_diff+ HCT_diff+ Lactate_diff+ Mg_diff+ Na_diff+ PaCO2_diff+ Platelets_diff + Urine_diff
+#                            ,data=data)
+# 
+# summary(ICU.maxmindiff)
+# 
+# head(icu_patients_df1)
+# 
+# #Use step function to simplify
+# step_ICU.maxmindiff <- step(ICU.maxmindiff, trace=1)
+# summary(step_ICU.maxmindiff)
 
 #15 steps later - we arrive at 
-Age + SAPS1 + ICUType + 
-    Bilirubin_min + BUN_min + ALP_max + Creatinine_max + GCS_max + 
-    Mg_max + PaO2_max + Platelets_max + Temp_max + Urine_max + 
-    HCT_diff + Lactate_diff + Mg_diff + PaCO2_diff + Urine_diff
+# Age + SAPS1 + ICUType + 
+#     Bilirubin_min + BUN_min + ALP_max + Creatinine_max + GCS_max + 
+#     Mg_max + PaO2_max + Platelets_max + Temp_max + Urine_max + 
+#     HCT_diff + Lactate_diff + Mg_diff + PaCO2_diff + Urine_diff
 
-ICU.mvfinal<- coxph( Surv(Days, Status) ~ Age+SAPS1 + ICUType + Bilirubin_min + BUN_min + ALP_max + Creatinine_max + GCS_max + Mg_max + PaO2_max + Platelets_max + Temp_max + Urine_max + HCT_diff + Lactate_diff + Mg_diff + PaCO2_diff + Urine_diff, data=data)
+# ICU.mvfinal<- coxph( Surv(Days, Status) ~ Age+SAPS1 + ICUType + Bilirubin_min + BUN_min + ALP_max + Creatinine_max + GCS_max + Mg_max + PaO2_max + Platelets_max + Temp_max + Urine_max + HCT_diff + Lactate_diff + Mg_diff + PaCO2_diff + Urine_diff, data=data)
 
 # Include medical explanation...
 
