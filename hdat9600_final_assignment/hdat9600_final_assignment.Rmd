@@ -1,7 +1,7 @@
 ---
 title: "HDAT9600 Final Assignment"
 subtitle: "Please see course outline / 'Announcements' for submission deadline"
-author: "insert your team name here"
+author: "Meg Stevens, Maathumai Ranjan, Haran Nathan, Victor Hui"
 date: "insert date of completion here"
 output: html_document
 ---
@@ -231,37 +231,38 @@ To select a subset of explanatory variables our group of investigators will exam
   * Lactate - elevated lactate is associated with poor organ perfusion and ICU morbidity/ mortality
   * Albumin - reduced albumin is associated with poor clinical outcomes
         
-***BELOW IS A LIST OF THE VARIABLES TO BE INCLUDED:***
-DEMOGRAPHIC VARAIBLES:
-  * Age
-  * Gender
-  * ICU Type
-  * Height 
-  * Weight_max
+***BELOW IS A LIST OF THE VARIABLES TO BE INCLUDED:***<br>
+
+DEMOGRAPHIC VARIABLES:<br>
+  * Age<br>
+  * Gender<br>
+  * ICU Type<br>
+  * Height<br>
+  * Weight_max<br><br>
   
-CLINICAL VARIABLES:
-  * Albumin_min
-  * Bilirubin_max 
-  * BUN_max
-  * Creatinine_max  
-  * GCS_min
-  * Glucose_min and Glucose_max
-  * HCO3_min
-  * HR_min and HR_max 
-  * K_min K_max
-  * Lactate_max
-  * MAP_min  
-  * Na_min and Na_max 
-  * NISysABP_min and NISysABP_max 
-  * Platelets_min
-  * FiO2_max and PaO2_min - included as PFratio: PaO2_min/ FiO2_max
-  * pH_min and pH_max
-  * RespRate_min and RespRate_max
-  * Temp_min and Temp_max
-  * TroponinI_max
-  * TroponinT_max
-  * Urine_min 
-  * WBC_min and WBC_max
+CLINICAL VARIABLES:<br>
+  * Albumin_min<br>
+  * Bilirubin_max<br>
+  * BUN_max<br>
+  * Creatinine_max<br>  
+  * GCS_min<br>
+  * Glucose_min and Glucose_max<br>
+  * HCO3_min<br>
+  * HR_min and HR_max<br>
+  * K_min K_max<br>
+  * Lactate_max<br>
+  * MAP_min<br>
+  * Na_min and Na_max<br> 
+  * NISysABP_min and NISysABP_max<br> 
+  * Platelets_min<br>
+  * FiO2_max and PaO2_min - included as PFratio: PaO2_min/ FiO2_max<br>
+  * pH_min and pH_max<br>
+  * RespRate_min and RespRate_max<br>
+  * Temp_min and Temp_max<br>
+  * TroponinI_max<br>
+  * TroponinT_max<br>
+  * Urine_min<br>
+  * WBC_min and WBC_max<br>
 
 ``` {r task1.1}
 summary(icu_patients_df1)
@@ -279,6 +280,7 @@ library(gridExtra)
 ### CODE COPIED FROM TASK 2
 # create new variable PF ratio as part of our list of variables to include
 icu_patients_df1$PFratio<-icu_patients_df1$PaO2_min/icu_patients_df1$FiO2_max
+icu_patients_df0$PFratio<-icu_patients_df0$PaO2_min/icu_patients_df0$FiO2_max
 ### CODE COPIED FROM TASK 2
 #################################################################################
 
@@ -604,6 +606,8 @@ nm_icu_model_df1 <- na.omit(subset(icu_patients_df1,
 ### CODE COPIED FROM TASK 2
 #################################################################################
 
+
+
 # all variables from initially selected predictors
 full_glm <- glm(in_hospital_death ~ 
                   Age + 
@@ -891,203 +895,7 @@ summary(finalICU_glm_interactions) # AIC 1305 (lowest so far - lower than just i
 ```
 
 
-Test some interaction terms based on clinical knowledge
 
-```{r testing-interactions}
-# 
-# #################################################################################
-# # TO BE DELETED FROM HERE
-# 
-# 
-# 
-# # based on clinical knowledge, test some interaction terms
-# # add one new term on top of finalICU_glm per model
-# # then compare models with interactions with baseline model
-# 
-# # finalICU_glm_2 = finalICU_glm + Age:Creatinine_max
-# finalICU_glm_2 <- glm(in_hospital_death ~ 
-#                       # significant predictors from step()
-#                       Age + SAPS1 + ICUType + Albumin_diff + Bilirubin_min + 
-#                       Bilirubin_diff + BUN_min + BUN_diff + Creatinine_max + 
-#                       GCS_max + Lactate_min + Na_min + Platelets_max + 
-#                       Temp_min + Urine_max + Urine_diff +
-#                       
-#                       # baseline demographics 
-#                       Gender + Length_of_stay + Weight_min + SOFA + 
-#                       
-#                       # other clinical relevance
-#                       Albumin_min + Glucose_max + HCT_min + HR_max +  PaO2_min +
-#                       PaCO2_min + pH_min + RespRate_max + TroponinT_max + 
-#                       WBC_max +
-#                       
-#                       # interaction term
-#                       + Age:Creatinine_max # creatinine generally increases with age
-#                      , data=icu_patients_df1, family="binomial")
-# 
-# # finalICU_glm_3 = finalICU_glm + Age:Temp_min
-# finalICU_glm_3 <- glm(in_hospital_death ~ 
-#                       # significant predictors from step()
-#                       Age + SAPS1 + ICUType + Albumin_diff + Bilirubin_min + 
-#                       Bilirubin_diff + BUN_min + BUN_diff + Creatinine_max + 
-#                       GCS_max + Lactate_min + Na_min + Platelets_max + 
-#                       Temp_min + Urine_max + Urine_diff +
-#                       
-#                       # baseline demographics 
-#                       Gender + Length_of_stay + Weight_min + SOFA + 
-#                       
-#                       # other clinical relevance
-#                       Albumin_min + Glucose_max + HCT_min + HR_max +  PaO2_min +
-#                       PaCO2_min + pH_min + RespRate_max + TroponinT_max + 
-#                       WBC_max +
-#                       
-#                       # interaction term
-#                       + Age:Temp_min # low temp more often associated with illness in the elderly e.g. cold sepsis
-#                      , data=icu_patients_df1, family="binomial")
-# 
-# # finalICU_glm_4 = finalICU_glm + Age:Weight_min
-# finalICU_glm_4 <- glm(in_hospital_death ~ 
-#                       # significant predictors from step()
-#                       Age + SAPS1 + ICUType + Albumin_diff + Bilirubin_min + 
-#                       Bilirubin_diff + BUN_min + BUN_diff + Creatinine_max + 
-#                       GCS_max + Lactate_min + Na_min + Platelets_max + 
-#                       Temp_min + Urine_max + Urine_diff +
-#                       
-#                       # baseline demographics 
-#                       Gender + Length_of_stay + Weight_min + SOFA + 
-#                       
-#                       # other clinical relevance
-#                       Albumin_min + Glucose_max + HCT_min + HR_max +  PaO2_min +
-#                       PaCO2_min + pH_min + RespRate_max + TroponinT_max + 
-#                       WBC_max +
-#                       
-#                       # interaction term
-#                       + Age:Weight_min # weight generally decreases with age
-#                      , data=icu_patients_df1, family="binomial")
-# 
-# # finalICU_glm_5 = finalICU_glm + Age:Albumin_min
-# finalICU_glm_5 <- glm(in_hospital_death ~ 
-#                       # significant predictors from step()
-#                       Age + SAPS1 + ICUType + Albumin_diff + Bilirubin_min + 
-#                       Bilirubin_diff + BUN_min + BUN_diff + Creatinine_max + 
-#                       GCS_max + Lactate_min + Na_min + Platelets_max + 
-#                       Temp_min + Urine_max + Urine_diff +
-#                       
-#                       # baseline demographics 
-#                       Gender + Length_of_stay + Weight_min + SOFA + 
-#                       
-#                       # other clinical relevance
-#                       Albumin_min + Glucose_max + HCT_min + HR_max +  PaO2_min +
-#                       PaCO2_min + pH_min + RespRate_max + TroponinT_max + 
-#                       WBC_max +
-#                       
-#                       # interaction term
-#                       Age:Albumin_min # albumin can decrease with age
-#                     , data=icu_patients_df1, family="binomial")
-# 
-# # finalICU_glm_6 = finalICU_glm + Gender:HCT_min
-# finalICU_glm_6 <- glm(in_hospital_death ~ 
-#                       # significant predictors from step()
-#                       Age + SAPS1 + ICUType + Albumin_diff + Bilirubin_min + 
-#                       Bilirubin_diff + BUN_min + BUN_diff + Creatinine_max + 
-#                       GCS_max + Lactate_min + Na_min + Platelets_max + 
-#                       Temp_min + Urine_max + Urine_diff +
-#                       
-#                       # baseline demographics 
-#                       Gender + Length_of_stay + Weight_min + SOFA + 
-#                       
-#                       # other clinical relevance
-#                       Albumin_min + Glucose_max + HCT_min + HR_max +  PaO2_min +
-#                       PaCO2_min + pH_min + RespRate_max + TroponinT_max + 
-#                       WBC_max +
-#                       
-#                       # interaction term
-#                       Gender:HCT_min # HCT can be lower in females than males
-#                     , data=icu_patients_df1, family="binomial")
-# 
-# # finalICU_glm_7 = finalICU_glm + PaO2_min:RespRate_max
-# finalICU_glm_7 <- glm(in_hospital_death ~ 
-#                       # significant predictors from step()
-#                       Age + SAPS1 + ICUType + Albumin_diff + Bilirubin_min + 
-#                       Bilirubin_diff + BUN_min + BUN_diff + Creatinine_max + 
-#                       GCS_max + Lactate_min + Na_min + Platelets_max + 
-#                       Temp_min + Urine_max + Urine_diff +
-#                       
-#                       # baseline demographics 
-#                       Gender + Length_of_stay + Weight_min + SOFA + 
-#                       
-#                       # other clinical relevance
-#                       Albumin_min + Glucose_max + HCT_min + HR_max +  PaO2_min +
-#                       PaCO2_min + pH_min + RespRate_max + TroponinT_max + 
-#                       WBC_max +
-#                       
-#                       # interaction term
-#                       PaO2_min:RespRate_max # PaO2 and resp rate are intrinsically related physiologically
-#                     , data=icu_patients_df1, family="binomial")
-# 
-# # finalICU_glm_8 = finalICU_glm + Age:ICUType
-# finalICU_glm_8 <- glm(in_hospital_death ~ 
-#                       # significant predictors from step()
-#                       Age + SAPS1 + ICUType + Albumin_diff + Bilirubin_min + 
-#                       Bilirubin_diff + BUN_min + BUN_diff + Creatinine_max + 
-#                       GCS_max + Lactate_min + Na_min + Platelets_max + 
-#                       Temp_min + Urine_max + Urine_diff +
-#                       
-#                       # baseline demographics 
-#                       Gender + Length_of_stay + Weight_min + SOFA + 
-#                       
-#                       # other clinical relevance
-#                       Albumin_min + Glucose_max + HCT_min + HR_max +  PaO2_min +
-#                       PaCO2_min + pH_min + RespRate_max + TroponinT_max + 
-#                       WBC_max +
-#                       
-#                       # interaction term
-#                       Age:ICUType # age is likely to be related to ICU type 
-#                                   # e.g. elderly more likely to have poor outcome after surgery requiring post-op ICU support
-#                     , data=icu_patients_df1, family="binomial")
-# 
-# 
-# # comparing models with anova
-# lapply(list(finalICU_glm_2, finalICU_glm_3, finalICU_glm_4, finalICU_glm_5,
-#             finalICU_glm_6, finalICU_glm_7, finalICU_glm_8), 
-#        function(x) {print(anova(finalICU_glm, x, test="Chisq"))} )
-#   # the effect of weight_min varied with age
-#   # the effect of ICUType varied with age
-#   # borderline -- the effect of resprate_max varied with PaO2_min
-# 
-# ## feel free to add other interactions to test
-# 
-# 
-# # input the significant interaction terms into a model and examine output
-# finalICU_glm_9 <- glm(in_hospital_death ~ 
-#                       # significant predictors from step()
-#                       Age + SAPS1 + ICUType + Albumin_diff + Bilirubin_min + 
-#                       Bilirubin_diff + BUN_min + BUN_diff + Creatinine_max + 
-#                       GCS_max + Lactate_min + Na_min + Platelets_max + 
-#                       Temp_min + Urine_max + Urine_diff +
-#                       
-#                       # baseline demographics 
-#                       Gender + Length_of_stay + Weight_min + SOFA + 
-#                       
-#                       # other clinical relevance
-#                       Albumin_min + Glucose_max + HCT_min + HR_max +  PaO2_min +
-#                       PaCO2_min + pH_min + RespRate_max + TroponinT_max + 
-#                       WBC_max +
-#                       
-#                       # interaction terms
-#                       Age:Weight_min + Age:ICUType # effects that had a significant effect on the model with anova
-#                     , data=icu_patients_df1, family="binomial")
-# 
-# summary(finalICU_glm_9)
-# # the AIC is slightly lower than finalICU_glm
-# 
-# ## the effects of the interactions have significance but the ORs are close to 1 with narrow CIs -- perhaps not very clinically informative (i.e. the odds are essentially 1 i.e. equal)
-# options(scipen=999)
-# exp(coef(finalICU_glm_9))
-# exp(confint(finalICU_glm_9))
-
-# TO BE DELETD FROM ABOVE TO HERE
-#################################################################################
-```
 
 Testing the modified poisson regression, as the outcome is 14% in this data (>10% - common)
 
@@ -1098,31 +906,25 @@ Testing the modified poisson regression, as the outcome is 14% in this data (>10
 # test using modified poisson regression for more common outcomes on the same covariates as above
 
 finalICU_glm_poisson <- glm(in_hospital_death ~ 
-                      # significant predictors from step()
-                      Age + SAPS1 + ICUType + Albumin_diff + Bilirubin_min + 
-                      Bilirubin_diff + BUN_min + BUN_diff + Creatinine_max + 
-                      GCS_max + Lactate_min + Na_min + Platelets_max + 
-                      Temp_min + Urine_max + Urine_diff +
-                        
-                      # baseline demographics should be included even if not significant
-                      Gender + Length_of_stay + Weight_min + 
-                      SOFA + # an indicator of how well SOFA score determines mortality independent to its components
+                      Age +
+                      ICUType + 
+                      Albumin_min + 
+                      Bilirubin_max +
+                      BUN_max + 
+                      GCS_max + 
+                      HR_max + 
+                      Lactate_max + 
+                      Na_min + 
+                      pH_min + 
+                      Temp_min + 
+                      Urine_min + 
+                      WBC_min + 
+                      WBC_max
                       
-                      # other clinical relevance
-                      Albumin_min + # low albumin indicates malnutrition or liver failure
-                      Glucose_max + # hyperglycaemia is a stress response
-                      HCT_min + # low HCT = anaemia
-                      HR_max + # tachycardia may indicate septic shock / inflammation
-                      PaO2_min + # hypoxia = inadequate organ perfusion/oxygenation
-                      PaCO2_min + #hypercapnia = respiratory / ventilation failure
-                      pH_min + # indicates acidaemia / inadequate organ perfusion
-                      RespRate_max + # indicates respiratory failure
-                      TroponinT_max + # indicates myocardial damage
-                      WBC_max # indicates infection
-                      
-                    , data=icu_patients_df1, family="poisson"(link="log"))
+                      # changed dataset to fit what we use for rest of task 1
+                    , data=nm_icu_model_df1, family="poisson"(link="log")) 
 
-summary(finalICU_glm_poisson)
+summary(finalICU_glm_poisson) # AIC 1432.5
 
 # fewer significant variables (likely as CI can be wider in poisson)
 # but the variables that are significant were also significant in the logistic model
@@ -1136,7 +938,7 @@ exp(coef(finalICU_glm_poisson))
 
 # the ORs and RRs appear very similar --> check the actual differences
 exp(coef(finalICU_glm_interactions))-exp(coef(finalICU_glm_poisson))
-# the intercept is very different (by 82000!) - not sure how to interpret that. the other estimates are very similar
+# the intercept is very different (by 1141036498?!) - not sure how to interpret that. the other estimates are very similar
 
 # perhaps the logistic model is therefore justified? just need to be careful in interpretation using 'odds' rather than 'risk'
 
@@ -1204,25 +1006,72 @@ get_brier(finalICU_glm_interactions)
 
 
 
+#### re-fit your final model to the unimputed data frame 
+# (`icu_patients_df0.rds`) and comment on any differences you find 
+# compared to the same model fitted to the data without imputation, 
 
-### trying to fit our model to icu_patients_df0 data ###
-### Commented out for now, in order to test knitting the file ###
+df0_finalICU_glm_interactions <- glm(in_hospital_death ~ 
+                      Age +
+                      ICUType + 
+                      Albumin_min + 
+                      Bilirubin_max +
+                      BUN_max + 
+                      GCS_max + 
+                      HR_max + 
+                      Lactate_max + 
+                      Na_min + 
+                      pH_min + 
+                      Temp_min + 
+                      Urine_min + 
+                      WBC_min + 
+                      WBC_max +
+                      
+                      # significant interaction terms
+                      Age:ICUType + Age:Albumin_min
+                    , data=icu_patients_df0, family="binomial")
+summary(df0_finalICU_glm_interactions) 
+# when using the predictors from our final df1 model with interactions onto df0 data
+# 1762 observations of data is removed due to missingness
+# the AIC is very low 253 - less data = easier to predict?
 
-# icu_patients_df0
-# alot of missing data here also!
-# for(i in 1:length(colnames(icu_patients_df0))){
-#   print(c(i,colnames(icu_patients_df0[i]), sum(is.na(icu_patients_df0[i]))))
-# }
-# 
-# # remove columns with too much missing data
-# # arbitrary selection of >200
-# # albumin, ALP, ALT, AST, bilirubin, cholesterol, diasABP, FiO2, lactate, MAP, NIDiasABP, NIMAP, NISSysABP
-# # pH, RespRate, SaO2, Troponin
-# 
-# icu_patients_df0_nm <- icu_patients_df0[, -c(10:24, 28:30, 34:39, 61:66, 73:90, 94:102, 106:111 )]
-# icu_patients_df0_nm <- na.omit(icu_patients_df0_nm)
+summary(finalICU_glm)
+summary(finalICU_glm_interactions)
+# variables significant in finalICU_glm
+  # Age
+  # ICUTypeCardiac Surgery Recovery unit
+  # Albumin_min
+  # Bilirubin_max
+  # BUN_max
+  # GCS_max
+  # HR_max
+  # Na_min
+  # Temp_min
+  # Urine_min
+  # WBC_min
+  # WBC_max
 
-# ***haven't worked out how to fit our model into df0 data!!!***
+# variables significant in finalICU_glm_interactions
+  # Albumin_min
+  # Bilirubin_max
+  # BUN_max
+  # GCS_max
+  # HR_max
+  # Na_min
+  # Temp_min
+  # Urine_min
+  # WBC_min
+  # WBC_max
+  # Age:ICUTypeSurgicalICU
+
+# variables significant in df0_finalICU_glm_interactions
+  # BUN_max
+  # GCS_max
+  # WBC_min
+  # WBC_max
+
+# many of the variables that were significant in the imputed data model, are not significant when fitted to the df0 unimputated data
+# more missing variables = less power to produce a statistically significant result
+
 
 ```
 
@@ -1320,37 +1169,38 @@ To select a subset of explanatory variables our group of investigators will exam
   * Lactate - elevated lactate is associated with poor organ perfusion and ICU morbidity/ mortality
   * Albumin - reduced albumin is associated with poor clinical outcomes
         
-***BELOW IS A LIST OF THE VARIABLES TO BE INCLUDED:***
-DEMOGRAPHIC VARAIBLES:
-  * Age
-  * Gender
-  * ICU Type
-  * Height 
-  * Weight_max
+***BELOW IS A LIST OF THE VARIABLES TO BE INCLUDED:***<br>
+
+DEMOGRAPHIC VARIABLES:<br>
+  * Age<br>
+  * Gender<br>
+  * ICU Type<br>
+  * Height<br>
+  * Weight_max<br><br>
   
-CLINICAL VARIABLES:
-  * Albumin_min
-  * Bilirubin_max 
-  * BUN_max
-  * Creatinine_max  
-  * GCS_min
-  * Glucose_min and Glucose_max
-  * HCO3_min
-  * HR_min and HR_max 
-  * K_min K_max
-  * Lactate_max
-  * MAP_min  
-  * Na_min and Na_max 
-  * NISysABP_min and NISysABP_max 
-  * Platelets_min
-  * FiO2_max and PaO2_min - included as PFratio: PaO2_min/ FiO2_max
-  * pH_min and pH_max
-  * RespRate_min and RespRate_max
-  * Temp_min and Temp_max
-  * TroponinI_max
-  * TroponinT_max
-  * Urine_min 
-  * WBC_min and WBC_max
+CLINICAL VARIABLES:<br>
+  * Albumin_min<br>
+  * Bilirubin_max<br>
+  * BUN_max<br>
+  * Creatinine_max<br>  
+  * GCS_min<br>
+  * Glucose_min and Glucose_max<br>
+  * HCO3_min<br>
+  * HR_min and HR_max<br>
+  * K_min K_max<br>
+  * Lactate_max<br>
+  * MAP_min<br>
+  * Na_min and Na_max<br> 
+  * NISysABP_min and NISysABP_max<br> 
+  * Platelets_min<br>
+  * FiO2_max and PaO2_min - included as PFratio: PaO2_min/ FiO2_max<br>
+  * pH_min and pH_max<br>
+  * RespRate_min and RespRate_max<br>
+  * Temp_min and Temp_max<br>
+  * TroponinI_max<br>
+  * TroponinT_max<br>
+  * Urine_min<br>
+  * WBC_min and WBC_max<br>
 
 
 2. Conduct basic exploratory data analysis on your variables of choice.
