@@ -1,7 +1,7 @@
 ---
 title: "HDAT9600 Final Assignment"
 subtitle: "Please see course outline / 'Announcements' for submission deadline"
-author: "Meg Stevens, Maathumai Ranjan, Haran Nathan, Victor Hui"
+author: "Meg Stevens, Maathumai Ranjan, Victor Hui, Haran Nathan"
 date: "insert date of completion here"
 output: html_document
 ---
@@ -170,7 +170,9 @@ In this task, you are required to develop a logistic regression model using the 
 
 **Selecting an initial subset of explanatory variables:
 
-To select a subset of explanatory variables our group of investigators will examine the SAPS1 score and the SOFA score included in the dataset in more detail to ascertain the variables that might be logically associated with increased mortality and poor survival. We will also assess the APACHE score which is commonly used in ICU risk predcition models.
+The purpose of this task is to use information collected during the first 24 hours of an ICU stay to predict which patients survive their hospitalizations, and which patients do not.
+
+To select a subset of explanatory variables our group of investigators will examine the SAPS1 score and the SOFA score included in the dataset in more detail to ascertain the variables that might be logically associated with increased mortality and poor survival. We will also assess the APACHE score which is commonly used in ICU risk prediction models.
 
 `SAPS1` - Simplified Acute Physiology Score is a measure of the severity of disease for patients admitted to ICU. The following measures increases the SAPS1 score:
 
@@ -1108,7 +1110,11 @@ head(icu_patients_df1)
 
 **Selecting an initial subset of explanatory variables:
 
-To select a subset of explanatory variables our group of investigators will examine the SAPS1 score and the SOFA score included in the dataset in more detail to ascertain the variables that might be logically associated with increased mortality and poor survival. We will also assess the APACHE score which is commonly used in ICU risk predcition models.
+The purpose of this task is to understand the impact of information collected during the first 24 hours of an ICU stay on the survival times of the ICU population.
+
+
+
+To select a subset of explanatory variables, we have examined the SAPS1 score and the SOFA scores included in the dataset in more detail to ascertain which variables could be logically associated with increased mortality and poor survival. We have also assessed the clinical measures used to calculate the APACHE score which is another commonly used measure in ICU risk prediction models.
 
 `SAPS1` - Simplified Acute Physiology Score is a measure of the severity of disease for patients admitted to ICU. The following measures increases the SAPS1 score:
 
@@ -1130,6 +1136,7 @@ To select a subset of explanatory variables our group of investigators will exam
   * Type of admission (ie ICU Type)
 
 *`SOFA` - sequential organ failure assessment is a predictor of ICU mortality. The following measures increase the SOFA score:
+
   * Elevated PaO2/ FiO2 ratio- 
   * Reduced GCS - Nervous system
   * Reduced MAP - Cardiovascular system
@@ -1156,16 +1163,16 @@ To select a subset of explanatory variables our group of investigators will exam
   * High or Low WBC
 
 
-* For our analysis, we will include variables that will increase SOFA, SAPS or APACHE scores. 
-        eg: increased BUN and reduced HCO3 will increase the SAPS score, therfore we will include BUN max(but not BUN_min and BUN_diff) and 
+* In the exploratory analysis, we include variables that will increase SOFA, SAPS or APACHE scores (note that higher SOFA, SAPS and APACHE scores are associated with higher risk of mortality). 
+        eg: increased BUN and reduced HCO3 will increase the SAPS score, therefore we will include BUN max (but not BUN_min and BUN_diff) and 
         HCO3_min (but not HCO3_max and HCO3_diff). Where both extremes of a variable will increase the risk score, both min and max variables will 
         be included.
         
 * Other factors known to be associated with morbidity/ mortality not included in risk scores: 
   * Height/ weight - Body composition/ BMI is associated with mortality and survival
-  * Gender - Male gender associated with worse outcomes
+  * Gender - Males are typically associated with high risk of mortality
   * Glucose - high and low Glucose levels are associated with pathology
-  * Troponin T and I - high troponin results(cardiac biomarkers) associated with morbidity and mortality
+  * Troponin T and I - high troponin results (cardiac biomarkers) associated with morbidity and mortality
   * Lactate - elevated lactate is associated with poor organ perfusion and ICU morbidity/ mortality
   * Albumin - reduced albumin is associated with poor clinical outcomes
         
@@ -1214,7 +1221,7 @@ table(icu_patients_df1$Status) #773 censored out of 2061 observations
 # Plot KM survival curve (non-parametric)
 ICU.fit <- survfit( Surv(Days, Status) ~ 1, data = icu_patients_df1) 
 print(ICU.fit, print.rmean = TRUE)
-summary(ICU.fit)
+#summary(ICU.fit)
 plot(ICU.fit, main = 'Kaplan-Meier estimate of survival function', xlab = 'Length of survival (in days)')
 
 # plotting Nelson-Aalen estimate (non-parametric)
@@ -1233,12 +1240,8 @@ table(icu_patients_df1$ICUType)
 
 # Display counts, histograms, median and IQRs for continuous explanatory variables
 
-#################################################################################
-### CODE COPIED TO TASK 1
 # Create PFratio variable:
-# icu_patients_df1$PFratio<-icu_patients_df1$PaO2_min/icu_patients_df1$FiO2_max
-### CODE COPIED TO TASK 1
-#################################################################################
+icu_patients_df1$PFratio<-icu_patients_df1$PaO2_min/icu_patients_df1$FiO2_max
 
 # Write a function for continuous variable EDA output
 cont_eda <- function(variable){
@@ -1252,18 +1255,14 @@ cont_eda <- function(variable){
     hist(icu_patients_df1[,variable], breaks=20, xlab=variable, main=paste('Histogram of',variable))
 }
 
-#################################################################################
-### CODE COPIED TO TASK 1
 # Loop through the continuous variables from the chosen list of variables to explore and pass them to the EDA function
-# cont_vars <- c('Age', 'Height', 'Weight_max', 'Albumin_min', 'Bilirubin_max', 
-#                'BUN_max', 'Creatinine_max', 'GCS_min', 'Glucose_min', 
-#                'Glucose_max', 'HCO3_min', 'HR_min', 'HR_max', 'K_min', 'K_max', 
-#                'Lactate_max', 'MAP_min', 'Na_min', 'Na_max', 'NISysABP_min', 
-#                'NISysABP_max', 'Platelets_min', 'PFratio', 'pH_min', 'pH_max', 
-#                'RespRate_min', 'RespRate_max', 'Temp_min', 'Temp_max', 
-#                'TroponinI_max', 'TroponinT_max', 'Urine_min', 'WBC_min', 'WBC_max')
-### CODE COPIED TO TASK 1
-#################################################################################
+ cont_vars <- c('Age', 'Height', 'Weight_max', 'Albumin_min', 'Bilirubin_max', 
+                'BUN_max', 'Creatinine_max', 'GCS_min', 'Glucose_min', 
+                'Glucose_max', 'HCO3_min', 'HR_min', 'HR_max', 'K_min', 'K_max', 
+                'Lactate_max', 'MAP_min', 'Na_min', 'Na_max', 'NISysABP_min', 
+                'NISysABP_max', 'Platelets_min', 'PFratio', 'pH_min', 'pH_max', 
+                'RespRate_min', 'RespRate_max', 'Temp_min', 'Temp_max', 
+                'TroponinI_max', 'TroponinT_max', 'Urine_min', 'WBC_min', 'WBC_max')
 
 par(mfrow=c(12,3)) # set the layout of the histograms in 12 row x 3 column grid
 for(i in 1:length(cont_vars)){
@@ -1271,27 +1270,47 @@ for(i in 1:length(cont_vars)){
 }
 
 ```
-*** 
-needs to be updated: 
-***
 
 ** EDA Findings
 
 * There are 2061 unique individuals in the dataset. Of these, 913 are female (44%) and 1148 are male (56%).
 * Medical ICU accounted for 38% of individuals, 26% in Surgical ICU, 24% in Cardiac Surgery recovery Unit and 14% in the Coronary Care unit.
-* The median length of stay in hospital is 10 days with an IQ range of 11 days. There are 25 missing values.
-* The median age is 67 with an IQ range of 26.
+* The following variables have a large proportion of missing observations:
+    * Weight_max - 146 missing observations
+    * Height - 992 missing observations
+    * NISysABP_min & NISysABP_max - 453 missing observations
+* The median age is 67 with an interquartile (IQ) range of 26.
 * The median height is 170.2 cm with IQ range of 15.2cm. There are 1069 (52%) with a valid measurements.
-* The median minimum weight is 77.7 kg with a IQ range of 26.95. The median maximum weight is 80kg (slightly higher) with an IQ range of 28.55. The median difference in weight (max to mean over 24 hrs) is 14.7 kg with an IQ range of 17.2 kg. Some outliers or measurement error looks present with a max difference on 149kg.
+* The median maximum weight is 80kg with an IQ range of 28.55.
+* The median Albumin_min score is 3.0 with an IQ range of 0.9.
+* The median Albumin_min score is 3.0 with an IQ range of 0.9.
+* The median Bilirubin_max score is 0.7 with an IQ range of 0.9.
+* The median BUN_max score is 20 with an IQ range of 19.
+* The median Creatinine_max score is 1.0 with an IQ range of 0.7.
+* The median GCS_min score is 8 with an IQ range of 11.
+* The median Glucose_min score is 117 with an IQ range of 43.The median Glucose_max score is 141 with an IQ range of 63.
+* The median HCO3_min score is 23 with an IQ range of 5.
+* The median HR_min score is 71 with an IQ range of 20. The median HR_max score is 104 with an IQ range of 28.
+* The median K_min score is 3.9 with an IQ range of 0.8.The median K_max score is 4.3 with an IQ range of 0.7.
+* The median Lactate_max score is 2.2 with an IQ range of 1.7.
+* The median MAP_min score is 61 with an IQ range of 15.
+* The median Na_min score is 138 with an IQ range of 5. The median Na_max score is 140 with an IQ range of 5.
+* The median NISysABP_min score is 95 with an IQ range of 25. The median NISysABP_max score is 138 with an IQ range of 35.
+* The median Platelets_min score is 184 with an IQ range of 120.
+* The median PFratio_min score is 122 with an IQ range of 103.
+* The median pH_min score is 7.34 with an IQ range of 0.11. The median pH_max score is 7.42 with an IQ range of 0.08.
+* The median RespRate_min score is 14 with an IQ range of 5. The median Resprate_max score is 27 with an IQ range of 9.
+* The median Temp_min score is 36.1 with an IQ range of 1.0. The median Temp_max score is 37.6 with an IQ range of 1.1.
+* The median TroponinI_max score is 7.8 with an IQ range of 15.
+* The median TroponinT_max score is 0.17 with an IQ range of 0.74.
+* The median Urine_min score is 20 with an IQ range of 36.
+* The median WBC_min score is 10.4 with an IQ range of 6.5. The median WBC_max score is 12.3 with an IQ range of 7.6.
 
-*************************
-* The median minimum Bilirubin is 0.6 with an IQ range of 0.7. The median maximum Bilirubin is 0.7 with an IQ range of 0.9. The median difference in Bilirubin is 1.36 with an IQ range of 0.4.
-* The median minimum Creatinine is 0.9 with an IQ range of 0.6. The median maximum Creatinine is 1.0 with an IQ range of 0.7. The median difference in Creatinine is 0.53 with an IQ range of 0.4.
+****Meg/Haran: Is there any medical significance to the median clinical measures?? Otherwise, should we delete from commentary, since its just regurgitating what we can see in the code output.
 
-... fill out the rest....
 
 ```{r task 2.2.3}
-#Plot the Kaplan-Meier survival curves by all categorical variables in the data
+#Plot the Kaplan-Meier survival curves by categorical variables in the data
 
 #Gender
 ICU.gender.fit <- survfit( Surv(Days, Status) ~ as.factor(Gender), data = icu_patients_df1) 
@@ -1306,7 +1325,7 @@ plot(ICU.type.fit, col=c("blue", "red","purple","green"), main = 'Kaplan-Meier e
 legend("bottomleft", legend=c("Coronary Care Unit", "Cardiac Surgery Recovery Unit", "Medical ICU", "Surgical ICU"),col=c("blue","red","purple","green"), lty=1:1,cex=1)
 
 ```
-Risk of mortality is different by both Gender and ICU Type - the hazard rates also look proportional.
+The survival curves above show that risk of mortality is greater for the ICU population that is female than those that are male. Furthermore, ICU population mortality by ICU Type is different - those in Medical ICU have the highest risk of mortality whereas those in Cardiac Surgery Recovery Unit have the lowest. Interestingly, the survival curves look parallel for each category indicating Cox proportional hazards model is an appropriate model for ICU related survival.
 
 
 3. Fit appropriate univariate Cox proportional hazards models.
@@ -1442,85 +1461,77 @@ summary(ICU.fitbyWBCmax)
 
 ```
 **Univariable Cox model interpretation by Variable**
+
 * `Gender` - non-significant log-rank test (p-value = 0.06), means that the null hypothesis of no difference in survival between genders is not rejected with a conclusion that survival does not significantly differ by gender.
 * `ICUType` - significant log-rank test (p-value close to 0), means that the null hypothesis is rejected with a conclusion that survival significantly differs by each ICU Type. Note that, hazard rate for those in Medical ICU is not statistically significantly different for those in Coronary Care Unit.
-* `Length_of_stay` - significant log-rank test (p-value close to 0), means that the null hypothesis is rejected with a conclusion that survival significantly differs by length of stay in hospital.For every additional day in hospital, the risk of mortality increases by approximately 1%.
-* `Age` - significant log-rank test (p-value close to 0), means that the null hypothesis is rejected with a conclusion that survival significantly differs by individual's age. For every year older in age, the risk ofmortality increases by approcimately 3%.
+* `Age` - significant log-rank test (p-value close to 0), means that the null hypothesis is rejected with a conclusion that survival significantly differs by individual's age. For every year older in age, the risk of mortality increases by approximately 3%.
 * `Height` - non-significant log-rank test (p-value = 0.1), means that the null hypothesis of no difference in survival for varying heights is not rejected with a conclusion that survival does not significantly differ by height.
-* Weight - the minimum, maximum and difference in weights as predictors result in significant log-rank tests indicating that the null hypothesis is rejected with a conclusion that survival significantly differs by weight. For every additional kilogram, the risk of mortality reduces by approximately 0.5-1%. Perhaps the use of a centred variable may make it easier to interpret.
-* `SAPS1` - significant log-rank test (p-value close to 0), means that the null hypothesis is rejected with a conclusion that survival significantly differs by SAPS1 score. For every additional SAPS1 score, the risk of mortality increases by approximately 7%.
-* `SOFA` - significant log-rank test (p-value close to 0), means that the null hypothesis is rejected with a conclusion that survival significantly differs by SOFA score. For every additional SOFA score, the risk of mortality increases by approximately 6%.
-* Significant clinical measures are:
-  * Bilirubin
+* `Weight_max` - significant log-rank test (p-value = 0.00004) indicating that the null hypothesis is rejected with a conclusion that survival significantly differs by weight. For every additional kilogram, the risk of mortality reduces by approximately 1%. The use of a centered variable may make it easier to interpret.
+* Clinical measures where the log-rank test results in a rejection of the null hypothesis (p-value <0.05) arguing for the variables' significance in predicting survival times are:
+  * Albumin_min
+  * Bilirubin_max
   * Creatinine
-  * FiO2 - maximum and difference from mean are significant
-  * GCS - maximum and difference from mean are significant
-  * HCO3 - difference from mean is highly significant, maximum and mean also significant
-  * HR - difference from mean is significant
-  * K - maximum and difference from mean are significant
-  * MAP - minimum and difference from mean are significant
-  * Na - minimum and difference from mean are significant
-  * NISysABP  
-  * PaO2
-  * SysABP - maximum and difference from mean are significant
-  * Temp 
-  * Urine
-  * WBC - difference from mean is significant
-  
-  
-***
-Updated list of significant log-ranks (5 May):
-ICUType, Age, Weight_max, Albumin_min, Bilirubin_max, BUN_max, Creatinine_max, Glucose_max, HCO3_min, K_max, Lactate_max, MAP_min, Na_min, NISysABP_min, NISysABP_max, pH_min, pH_max, RespRate_min, RespRate_max, Temp_min, Temp_max, TroponinT_max, Urine_min
-***
+  * Bun_max
+  * Creatinine_max
+  * Glucose_max
+  * HCO3_min
+  * K_max
+  * Lactate_max
+  * MAP_min
+  * Na_min
+  * NISysABP_min &  NISysABP_max 
+  * pH_min &  pH_max 
+  * RespRate_min &  RespRate_max 
+  * Temp_min &  Temp_max 
+  * TroponinT_max
+  * Urine_min  
 
 
 4. Fit an appropriate series of multivariable Cox proportional hazards models, justifying your approach. Assess each model you consider for goodness of fit and other relevant statistics.
 ```{r task 2.4.1}
 
-#################################################################################
-### CODE COPIED TO TASK 1
 ## Create a dataset without missing or invalid data to use to build the model ##
 ## in order to remain consistent and allow comparisons between models to be made ##
 
 
-# # Check counts of missing data in each variable
-# for(i in 1:length(colnames(icu_patients_df1))){
-#   print(c(i,colnames(icu_patients_df1[i]), sum(is.na(icu_patients_df1[i]))))
-# }
-# ## Result: of the variables chosen to explore for the survival model, large amounts of missing data in:
-# ##         Height (992), NISysABP_min (453), NISysABP_max (453), Weight_max (146)
-# 
-# ## Decision: include Weight_max; remove Height, NISysABP_min, NISysABP_max
-# 
-# 
-# # Check counts of negative data (noted some -1 values) in each variable
-# for(i in 1:length(colnames(icu_patients_df1))){
-#   print(c(i,colnames(icu_patients_df1[i]), sum(icu_patients_df1[i] < 0)))
-# }
-# ## Result: negative values in Length_of_stay and SOFA (not listed in initial choice of variables anyway)
+ # Check counts of missing data in each variable
+ for(i in 1:length(colnames(icu_patients_df1))){
+   print(c(i,colnames(icu_patients_df1[i]), sum(is.na(icu_patients_df1[i]))))
+ }
+ ## Result: of the variables chosen to explore for the survival model, large amounts of missing data in:
+ ##         Height (992), NISysABP_min (453), NISysABP_max (453), Weight_max (146)
+ 
+ ## Decision: include Weight_max; remove Height, NISysABP_min, NISysABP_max
+ 
+ 
+ # Check counts of negative data (noted some -1 values) in each variable
+ for(i in 1:length(colnames(icu_patients_df1))){
+   print(c(i,colnames(icu_patients_df1[i]), sum(icu_patients_df1[i] < 0)))
+ }
+ ## Result: negative values in Length_of_stay and SOFA (not listed in initial choice of variables anyway)
 
 
-# # Create a new dataset with the only non-missing data from list of initial variables chosen
-# # (excluding those with very high missingness i.e. Height, NISysABP_min, NISysABP_max)
-# nm_icu_model_df1 <- na.omit(subset(icu_patients_df1, 
-#                                    select=c(Days, Status, # the survival object variables
-#                                             RecordID, # keep record id for reference if needed
-#                                             in_hospital_death, # for task 1
-#                                             Age, Gender, ICUType, Weight_max,
-#                                             Albumin_min, Bilirubin_max,
-#                                             BUN_max, Creatinine_max, 
-#                                             GCS_max, Glucose_min, Glucose_max, 
-#                                             HCO3_min, HR_min, HR_max, K_min, 
-#                                             K_max, Lactate_max, MAP_min, Na_min,
-#                                             Na_max, Platelets_min, PFratio, pH_min,
-#                                             pH_max, RespRate_min, RespRate_max,
-#                                             Temp_min, Temp_max, TroponinT_max, 
-#                                             TroponinI_max, Urine_min, WBC_min, WBC_max)))
+ # Create a new dataset with the only non-missing data from list of initial variables chosen
+ # (excluding those with very high missingness i.e. Height, NISysABP_min, NISysABP_max)
+ nm_icu_model_df1 <- na.omit(subset(icu_patients_df1, 
+                                    select=c(Days, Status, # the survival object variables
+                                             RecordID, # keep record id for reference if needed
+                                             Age, Gender, ICUType, Weight_max,
+                                             Albumin_min, Bilirubin_max,
+                                             BUN_max, Creatinine_max, 
+                                             GCS_max, Glucose_min, Glucose_max, 
+                                             HCO3_min, HR_min, HR_max, K_min, 
+                                             K_max, Lactate_max, MAP_min, Na_min,
+                                             Na_max, Platelets_min, PFratio, pH_min,
+                                             pH_max, RespRate_min, RespRate_max,
+                                             Temp_min, Temp_max, TroponinT_max, 
+                                             TroponinI_max, Urine_min, WBC_min, WBC_max)))
 
-### CODE COPIED TO TASK 1
-#################################################################################
-
+dim(nm_icu_model_df1)
+ 
 ```
+Due to the high degree of missingness, `NISysABP_min`,  `NISysABP_max` and `Height` variables will be excluded from the multivariate modelling. After removing missing values, the resulting dataset used to fit multivariable models has 1915 observations.
+
 
 ```{r task 2.4.2 }
 ## Fitting multivariable models ##
@@ -1528,7 +1539,6 @@ ICUType, Age, Weight_max, Albumin_min, Bilirubin_max, BUN_max, Creatinine_max, G
 
 # Create a function to calculate AIC
 calc_aic <- function(model){
-  # AIC = 2*k-2*logL (where k=df and df=number of coefficients in the model)
   AIC <- 2*length(model$coefficients)-2*model$loglik[2]
 }
 
@@ -1615,10 +1625,21 @@ names(aic_output) <- c('Full AIC', 'Reduced 1 AIC', 'Reduced 2 AIC', 'Reduced 3 
 print(aic_output)
 
 ## Decision: use ICU.mv_reduced4 as the provisional final model (lowest AIC and non-significant LRT)
-## Note: the full model still has the largest (best) maximised log-likelihood, but we choose the simplified model for parsimony
+## Note: the model 3 still has the better likelihood statistic than Model 4, but we choose model 4 for parsimony
+
 
 ```
-**commentary** ...
+**Selecting a Multivariable Cox models**
+
+1) *Full model* - a model with all selected variables (excluding those with high degree of missingness) has been fitted. In the resulting fitted model, Age, ICU type, BUN_max, GCS_max, are highly significant. Lactate_max, pH_min, Temp_max and urine_min are also significant at 5% significance level. Furthermore, Albumin_min, Bilirubin_max, HCO3_min, HR_min, WBC_min and WBC_max are significant at 10% significance level. The resulting model has a maximised likelihood of 518.5. The log rank test statistic is highly significant (p-value close to 0), indicating that the variables in the full model have significant explanatory power on ICU population survival.Note, the AIC of the full model is 10,136.
+
+2) *Reduced Model 1* - for parsimony, we look for a reduced model with fewer variables than can adequately explain survival rates for the ICU population. Our first attempt is to only include variables that resulted in a significant log rank test for the respective univariate models. Since the reduced model is nested in the full model, we use a likelihood ratio test to compare the two model. We reject the null hypothesis (p-value is 0.000000000152) and conclude that the full model is a better fit to the data. This conclusion is echoed when comparing the models' AICs - the reduced model has a higher AIC of 10,178. 
+
+3) *Reduced Model 2* - the second attempt, reduces the Reduced Model 1 by only including variables that were significant at a 10% significance level. We can again use a likelihood ratio test to compare this model with the full model as the models are nested. We reject the null hypothesis (p-value is 0.00000002043) and conclude that the full model is a better fit to the data. Whilst the AIC for Model 2 (10,171) is lower than for Model 1, it is higher than the Full Model, which leads to the same conclusion as the LRT test.
+
+4) *Reduced Model 3* - the third attempt starts with the full model and uses the step function to search the model space for a model with a better fit and fewer covariates. After 17 iterations, the reduced model includes 18 covariates. Interestingly, GCS_max, HR_min & Na_max are now being included in the model despite the non-significant log rank tests for the univariate models. When compared with the full model,  the null hypothesis of the LRT test (p-value = 0.95)is accepted and we can conclude that the reduced model is a better fit to the data than the full model. Furthermore, the AIC is reduced to 10,113.
+
+5) *Reduced Model 4* - in this model, we take Model 3 and only include the significant variables at 10% significance level (i.e. removed Weight_max, RespRate_min, respRate_max, WBC_min, WBC_max). When compared with the full model,  the null hypothesis of the LRT test (p-value = 0.66) is accepted and we can conclude that the reduced model is a better fit to the data than the full model. Furthermore, the AIC is reduced to 10,112 which is slightly lower than the AIC for Reduced Model 3.
 
 
 ```{r task 2.4.3}
@@ -1706,7 +1727,40 @@ AIC.mv_reduced4.split.noutliers #10057 -- improvement
 
 ## Decision: use the 4th reduced model, split at time 3 months (90 days) on the split dataset with the outliers removed as the final dataset
 
+# Difference in Coefficients
+ICU.mv_reduced4.split.noutliers$coefficients
+ICU.mv_reduced4$coefficients
+
 ```
+
+We need to test whether the chosen model satisfies the assumptions underlying the Cox Proportional Hazards model. 
+
+1) Testing for proportional hazards assumption
+
+* Proportional hazard assumption is supported by a non-significant relationship between residuals and time, while a significant relationship favours the null of non-constant hazards. 
+
+* The output from the proportional hazards test shows that the test is statistically significant (p-value < 0.05) for `ICUType`, `Albumin_min`, `Bilirubin_max`, `GCS_max`, `HCO3_min`, `HR_min` and `Lactate_max`. The global test is also statistically significant (p-value is very small = 1.0e-12). Therefore, there appears to be a violation of the proportional hazards model.
+
+* We choose to address the violations of the proportional hazards assumption by including time x covariate interactions in the model for the variables that violated the proportional hazards assumption. By looking at the survival curve and the asusmption that there may be systematic differences in patients who survive less than or greater than 3 months after ICU admission, we choose a post ICU survival time of 90 days.
+
+* The hazard rate increases at varying rates for the population who survived less than 90 days.  ***add inferences for coefficients, CI's and hazard rates ***
+
+* Allowing the regression coefficients to differ in the two time intervals (before 90 days and after) has helped address the violation of the PH assumption. The global test for our model is no longer significant (p-value =0.07).
+
+
+2) Check linearity by observing Martingale residuals for continuous variables
+
+* We observe a close to linear relationship for `Age`, `Albumin_min`, `Bilirubin_max`, `GCS_max`, `Lactate_max` and `Urine_min` variables.
+* There is a clear ly non-linear relationship for `BUN_max`, `HCO3_min`, `HR_min`, `Na-max`, `pH_min` and `Temp_max`.
+* Explanation - especially with laboratory values very far from the reference ranges (likely few observations in this range / potential outliers) ***Can someone explain this a bit better?***
+
+
+3) Checking linearity for the model as a whole
+
+* The overall model residuals appear reasonably linear around 0. However, we do observe 2 very large negative outliers (individuals whose actual survival time was significantly greater than estimated by the model.  On closer observation, these 2 individuals were relatively elderly with long lengths of stay in hospital. One had low GCS values, high SAPS1, high lactate whilst the other had high bilirubin, deranged LFTs and high lactate, all indicators of high risk of mortality.
+
+* We have removed these outliers observations and re-fit the model to the dataset excluding these observations. The model fit has improved (with AIC now 10,057 compared to 10,112). The resulting changes in coefficients include: ***add comparison to previous inferences on coefficients, CI's and hazard rates ***
+
 
 5. Present your final model. Your final model should **not** include all the predictor variables, just a small subset of them, which you have selected based on statistical significance and/or background knowledge.
 ```{r task2.5}
@@ -1723,16 +1777,39 @@ summary(ICU.final.cox)
 
 ```
 
+
+
 6. For your final model, present a set of diagnostic statistics and/or charts and comment on them. 
 ```{r task2.6}
 
+# PH test
+cox.zph(ICU.final.cox, terms=FALSE)
+
+# Graph of Schoenfeld residuals
+#ggcoxzph(cox.zph(ICU.final.cox, terms=FALSE))
+ggcoxdiagnostics(ICU.final.cox, type = "schoenfeld", title = "Diagnostic plot")
 
 ```
+**Final Model Diagnostics**
+
+1) Proportional Hazards Assumptions
+* Proportional hazard assumption is supported by a non-significant relationship between residuals and time, while a significant relationship favours the null of non-constant hazards. The global test on the final model is not statistically significant (p-value is 0.08). Therefore, there does not appear to be a violation of the proportional hazards assumption.
+
+* The output from the proportional hazards test shows that the test is statistically significant at a 5% significance level for `GCS_max`, `HCO3_min`, and `Lactate_max`, though improved from before incorporating time x covariate split.
+
+
+2) Schoenfeld Residuals
+
+The Schoenfeld residuals represent the difference between the observed covariates and expected value for the individuals who failed (i.e. did not survive). In the graphs of the scaled Schoenfeld residuals, the blue dotted line is a smoothing spline fit to the residuals (black dots), with the dashed red line representing the zero line. Systematic departures from the red horizontal line are indicative of non-proportional hazards, since proportional hazards assumes that estimates do not vary much over time. Graphical inspection does not show systematic departures from the zero line over time. 
+
 
 7. Write a very brief paragraph summarising the most important findings of your final model. Include the most important values from the statistical output, and a simple clinical interpretation. 
 
-####
-**Create your response to this task here, as a mixture of embedded (`knitr`) R code and any resulting outputs, and explanatory or commentary text.** 
+
+**Findings of Final Model**
+
+
+
 
 
 
