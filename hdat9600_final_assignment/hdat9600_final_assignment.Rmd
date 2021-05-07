@@ -170,9 +170,11 @@ In this task, you are required to develop a logistic regression model using the 
 
 **Selecting an initial subset of explanatory variables:
 
-The purpose of this task is to use information collected during the first 24 hours of an ICU stay to predict which patients survive their hospitalizations, and which patients do not.
+The purpose of this task is to understand the impact of information collected during the first 24 hours of an ICU stay on the survival times of the ICU population.
 
-To select a subset of explanatory variables our group of investigators will examine the SAPS1 score and the SOFA score included in the dataset in more detail to ascertain the variables that might be logically associated with increased mortality and poor survival. We will also assess the APACHE score which is commonly used in ICU risk prediction models.
+
+
+To select a subset of explanatory variables, we have examined the SAPS1 score and the SOFA scores included in the dataset in more detail to ascertain which variables could be logically associated with increased mortality and poor survival. We have also assessed the clinical measures used to calculate the APACHE score which is another commonly used measure in ICU risk prediction models.
 
 `SAPS1` - Simplified Acute Physiology Score is a measure of the severity of disease for patients admitted to ICU. The following measures increases the SAPS1 score:
 
@@ -194,6 +196,7 @@ To select a subset of explanatory variables our group of investigators will exam
   * Type of admission (ie ICU Type)
 
 *`SOFA` - sequential organ failure assessment is a predictor of ICU mortality. The following measures increase the SOFA score:
+
   * Elevated PaO2/ FiO2 ratio- 
   * Reduced GCS - Nervous system
   * Reduced MAP - Cardiovascular system
@@ -220,16 +223,16 @@ To select a subset of explanatory variables our group of investigators will exam
   * High or Low WBC
 
 
-* For our analysis, we will include variables that will increase SOFA, SAPS or APACHE scores. 
-        eg: increased BUN and reduced HCO3 will increase the SAPS score, therfore we will include BUN max(but not BUN_min and BUN_diff) and 
+* In the exploratory analysis, we include variables that will increase SOFA, SAPS or APACHE scores (note that higher SOFA, SAPS and APACHE scores are associated with higher risk of mortality). 
+        eg: increased BUN and reduced HCO3 will increase the SAPS score, therefore we will include BUN max (but not BUN_min and BUN_diff) and 
         HCO3_min (but not HCO3_max and HCO3_diff). Where both extremes of a variable will increase the risk score, both min and max variables will 
         be included.
         
 * Other factors known to be associated with morbidity/ mortality not included in risk scores: 
   * Height/ weight - Body composition/ BMI is associated with mortality and survival
-  * Gender - Male gender associated with worse outcomes
+  * Gender - Males are typically associated with high risk of mortality
   * Glucose - high and low Glucose levels are associated with pathology
-  * Troponin T and I - high troponin results(cardiac biomarkers) associated with morbidity and mortality
+  * Troponin T and I - high troponin results (cardiac biomarkers) associated with morbidity and mortality
   * Lactate - elevated lactate is associated with poor organ perfusion and ICU morbidity/ mortality
   * Albumin - reduced albumin is associated with poor clinical outcomes
         
@@ -266,6 +269,7 @@ CLINICAL VARIABLES:<br>
   * Urine_min<br>
   * WBC_min and WBC_max<br>
 
+
 ``` {r task1.1}
 summary(icu_patients_df1)
 head(icu_patients_df1)
@@ -278,20 +282,16 @@ head(icu_patients_df1)
 library(ggplot2)
 library(gridExtra)
 
-#################################################################################
-### CODE COPIED FROM TASK 2
 # create new variable PF ratio as part of our list of variables to include
 icu_patients_df1$PFratio<-icu_patients_df1$PaO2_min/icu_patients_df1$FiO2_max
 icu_patients_df0$PFratio<-icu_patients_df0$PaO2_min/icu_patients_df0$FiO2_max
-### CODE COPIED FROM TASK 2
-#################################################################################
 
 summary(icu_patients_df1$Height) #max height is 426.7cm!? and min is 13.0cm - seems wrong
 
 
 # Basic EDA for each variable
 
-table(icu_patients_df1$in_hospital_death) #297 deaths out of 2016 observations = 14.4%
+table(icu_patients_df1$in_hospital_death) #297 deaths out of 2061 observations = 14.4%
 
 
 # Write a function to plot box plots for each variable by in_hospital_death
@@ -306,10 +306,8 @@ boxplot_eda <- function(variable){
 }
 
 
-### Continuous variables EDA and their interpretation ###
+# Continuous variables EDA and their interpretation
 
-#################################################################################
-### CODE COPIED FROM TASK 2
 # continuous variables from the list of initial subset of explanatory variables
 cont_vars <- c('Age', 'Height', 'Weight_max', 'Albumin_min', 'Bilirubin_max',
                'BUN_max', 'Creatinine_max', 'GCS_min', 'Glucose_min',
@@ -318,8 +316,6 @@ cont_vars <- c('Age', 'Height', 'Weight_max', 'Albumin_min', 'Bilirubin_max',
                'NISysABP_max', 'Platelets_min', 'PFratio', 'pH_min', 'pH_max',
                'RespRate_min', 'RespRate_max', 'Temp_min', 'Temp_max',
                'TroponinI_max', 'TroponinT_max', 'Urine_min', 'WBC_min', 'WBC_max')
-### CODE COPIED FROM TASK 2
-#################################################################################
 
 # Loop through the continuous variables and produce box plots using the boxplot_eda() function 
 b <- list() # initialise an empty list to store the plots in
@@ -330,44 +326,12 @@ for(i in 1:length(cont_vars)){
 do.call(grid.arrange, c(b, nrow = 12))
 
 
-# Higher age in those that died
-# Some extreme illogical outliers in height variable
-# Similar weight median / IQR in both groups, but more high outliers in the alive group
-# Higher min albumin in those that died
-# Slightly higher max bilirubin in those that died
-# Higher max urea in those that died
-# Higher max creatinine in those that died
-# Lower GCS min in those that died
-# Similar min glucose in both groups
-# Slightly higher max glucose in those that died
-# Lower min HCO3 in those that died
-# Similar min HR in both groups
-# Slightly higher max HR in those that died
-# Similar min K in both groups
-# Similar max K in both groups
-# Slightly higher max lactate in those that died
-# Similar min MAP in both groups
-# Similar min Na in both groups
-# Similar max Na in both groups
-# Slightly lower min NISysABP in those that died
-# Similar max NISysABP in both groups
-# Similar min platelets in both groups
-# Similar PF ratio in both groups
-# Similar min pH in both groups - one extreme outlier
-# Similar pH max in both groups
-# Higher min RR in those that died
-# Higher max RR in those that died
-# Similar min temp in both groups
-# Similar max temp in both groups
-# Similar max troponinI in both groups
-# Similar max troponinT in both groups
-# Similar min urine in both groups
-# Slightly higher min WBC in those that died
-# Slightly higher max WBC in those that died
+
+
+
 ```
 
 ```{r task 1.2.2} 
-## had to split this chunk into two to allow making the big grid figure larger without affecting the others ##
 
 # Patients who died had higher SAPS1 and SOFA scores
 ggplot(data=icu_patients_df1, 
@@ -404,13 +368,56 @@ gender_plot <- ggplot(data=icu_patients_df1,
 grid.arrange(icutype_plot, gender_plot, nrow=1)
 ```
 
+*EDA Findings*
+
+* There are 2061 unique individuals in the dataset. Of these, 913 are female (44%) and 1148 are male (56%).
+* There were 297 deaths out of 2061 observations, which is a risk rate of 14.4% (not an uncommon event).
+* Medical ICU accounted for 38% of individuals, 26% in Surgical ICU, 24% in Cardiac Surgery recovery Unit and 14% in the Coronary Care unit.
+* The following variables have a large proportion of missing observations:
+    * Weight_max - 146 missing observations
+    * Height - 992 missing observations
+    * NISysABP_min & NISysABP_max - 453 missing observations
+* Proportion of in hospital deaths were observed for each variable:
+    * Those that died had higher SAPS1 and SOFA scores.
+    * Females had higher proportion of deaths than males.
+    * Medical ICU had a greatest rate of mortality, whereas Cardiac Surgery recovery unit had the lowest porportion of deaths.
+    * Higher age in those that died
+    * Higher min albumin in those that died
+    * Slightly higher max bilirubin in those that died
+    * Higher max (BUN) urea in those that died
+    * Higher max creatinine in those that died
+    * Lower GCS min in those that died
+    * Similar min glucose in both groups
+    * Slightly higher max glucose in those that died
+    * Lower min HCO3 in those that died
+    * Similar min HR in both groups
+    * Slightly higher max HR in those that died
+    * Similar min K in both groups
+    * Similar max K in both groups
+    * Slightly higher max lactate in those that died
+    * Similar min MAP in both groups
+    * Similar min Na in both groups
+    * Similar max Na in both groups
+    * Slightly lower min NISysABP in those that died
+    * Similar max NISysABP in both groups
+    * Similar min platelets in both groups
+    * Similar PF ratio in both groups
+    * Similar min pH in both groups - one extreme outlier
+    * Similar pH max in both groups
+    * Higher min RR in those that died
+    * Higher max RR in those that died
+    * Similar min temp in both groups
+    * Similar max temp in both groups
+    * Similar max troponinI in both groups
+    * Similar max troponinT in both groups
+    * Similar min urine in both groups
+    * Slightly higher min WBC in those that died
+    * Slightly higher max WBC in those that died
+
 3. Fit appropriate univariate logistic regression models.
 
 ``` {r task1.3}
-# univariate comparisons above
-# removed: Mg_min, Na_min, Na_max, MAP_diff, MAP_max
-# now in order as per above list
-
+# Univariate logistic regression comparisons
 
 age_glm <- glm(in_hospital_death ~ Age, data=icu_patients_df1, family="binomial")
 summary(age_glm) # is significant
@@ -420,8 +427,6 @@ summary(gender_glm) # NOT significant
 
 icuType_glm <- glm(in_hospital_death ~ ICUType, data=icu_patients_df1, family="binomial")
 summary(icuType_glm) # cardiac surgery recovery unit is significant
-
-# height variable not used
 
 maxWeight_glm <- glm(in_hospital_death ~ Weight_max, data=icu_patients_df1, family="binomial")
 summary(maxWeight_glm) # is significant
@@ -520,55 +525,54 @@ maxWBC_glm <- glm(in_hospital_death ~ WBC_max, data=icu_patients_df1, family="bi
 summary(maxWBC_glm) # is significant
 
 
-
-### IN SUMMARY:
-# significant variables were:
-  # age
-  # ICUType
-  # Weight_max
-  # Albumin_min
-  # Bilirubin_max
-  # BUN_max
-  # Creatinine_max
-  # GCS_min
-  # Glucose_max
-  # HCO3_min
-  # HR_max
-  # Lactate_max
-  # Na_min
-  # NISysABP_min
-  # pH_min
-  # RespRate_min
-  # RespRate_max
-  # Temp_min
-  # TroponinT_max
-  # Urine_min
-  # WBC_min
-  # WBC_max
-
-# non-significant variables were:
-  # Glucose_min
-  # HR_min
-  # K_min
-  # K_max
-  # MAP_min
-  # Na_max
-  # NISysABP_max
-  # Platelets_min
-  # PFratio
-  # pH_max
-  # Temp_max
-  # TroponinI_max
-
-
 ```
+
+
+**Univariate Models Finidngs**
+
+* Variables that had a significant Wald test, resulting a rejection of the null hypothesis concluding that the variable is significant in explaining the outcome variable of `in_hospital_death` are:
+  * age
+  * ICUType
+  * Weight_max
+  * Albumin_min
+  * Bilirubin_max
+  * BUN_max
+  * Creatinine_max
+  * GCS_min
+  * Glucose_max
+  * HCO3_min
+  * HR_max
+  * Lactate_max
+  * Na_min
+  * NISysABP_min
+  * pH_min
+  * RespRate_min
+  * RespRate_max
+  * Temp_min
+  * TroponinT_max
+  * Urine_min
+  * WBC_min
+  * WBC_max
+
+* Variables that resulted in a non-significant Wald test are:
+  * Glucose_min
+  * HR_min
+  * K_min
+  * K_max
+  * MAP_min
+  * Na_max
+  * NISysABP_max
+  * Platelets_min
+  * PFratio
+  * pH_max
+  * Temp_max
+  * TroponinI_max
+
 
 4. Fit an appropriate series of multivariable logistic regression models, justifying your approach. Assess each model you consider for goodness of fit and other relevant statistics.
 
 ``` {r task1.4}
 
-#################################################################################
-### CODE COPIED FROM TASK 2
 ## Create a dataset without missing or invalid data to use to build the model ##
 ## in order to remain consistent and allow comparisons between models to be made ##
 
@@ -605,9 +609,6 @@ nm_icu_model_df1 <- na.omit(subset(icu_patients_df1,
                                             pH_max, RespRate_min, RespRate_max,
                                             Temp_min, Temp_max, TroponinT_max, 
                                             TroponinI_max, Urine_min, WBC_min, WBC_max)))
-### CODE COPIED FROM TASK 2
-#################################################################################
-
 
 
 # all variables from initially selected predictors
@@ -647,8 +648,6 @@ full_glm <- glm(in_hospital_death ~
                   WBC_max
                 ,data=nm_icu_model_df1, family="binomial")
 summary(full_glm) #AIC 1332.1
-
-
 
 ###
 # variables that were significant on univariate comparisons
@@ -722,6 +721,8 @@ anova(reduced_signifUni_glm,signifUni_glm, test="Chisq")
 
 
 ```
+
+
 
 5. Present your final model. Your final model should **not** include all the predictor variables, just a small subset of them, which you have selected based on statistical significance and/or background knowledge.
 ```{r task1.5}
@@ -1271,7 +1272,7 @@ for(i in 1:length(cont_vars)){
 
 ```
 
-** EDA Findings
+*EDA Findings*
 
 * There are 2061 unique individuals in the dataset. Of these, 913 are female (44%) and 1148 are male (56%).
 * Medical ICU accounted for 38% of individuals, 26% in Surgical ICU, 24% in Cardiac Surgery recovery Unit and 14% in the Coronary Care unit.
@@ -1805,6 +1806,36 @@ The Schoenfeld residuals represent the difference between the observed covariate
 
 7. Write a very brief paragraph summarising the most important findings of your final model. Include the most important values from the statistical output, and a simple clinical interpretation. 
 
+```{r task2.7}
+
+##Compare model on df0 to df1
+
+nm_icu_model_df0 <- na.omit(subset(icu_patients_df0, 
+                                    select=c(Days, Status, # the survival object variables
+                                             RecordID, # keep record id for reference if needed
+                                             Age,  ICUType, 
+                                             Albumin_min, Bilirubin_max, BUN_max, GCS_max, HCO3_min, HR_min, Lactate_max, Na_max, pH_min,
+                                             Temp_max, Urine_min)))
+
+dim(nm_icu_model_df0)
+
+ICUdf0.split <- survSplit(Surv(Days, Status) ~ ., data = nm_icu_model_df0, cut=c(90), episode= "tgroup", id="id2")
+head(icu_patients_df0)
+
+ICU.final.coxdf0 <- coxph(Surv(Days, Status) ~
+                         Age + ICUType:strata(tgroup) + 
+                         Albumin_min:strata(tgroup) + 
+                         Bilirubin_max:strata(tgroup) + BUN_max + 
+                         GCS_max:strata(tgroup) + HCO3_min:strata(tgroup) + 
+                         HR_min:strata(tgroup) + Lactate_max:strata(tgroup) + 
+                         Na_max + pH_min + Temp_max + Urine_min,
+                         data = ICUdf0.split)
+
+summary(ICU.final.coxdf0)
+summary(ICU.final.cox)
+
+
+```
 
 **Findings of Final Model**
 
