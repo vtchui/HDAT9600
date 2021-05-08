@@ -172,8 +172,6 @@ In this task, you are required to develop a logistic regression model using the 
 
 The purpose of this task is to understand the impact of information collected during the first 24 hours of an ICU stay on the survival times of the ICU population.
 
-
-
 To select a subset of explanatory variables, we have examined the SAPS1 score and the SOFA scores included in the dataset in more detail to ascertain which variables could be logically associated with increased mortality and poor survival. We have also assessed the clinical measures used to calculate the APACHE score which is another commonly used measure in ICU risk prediction models.
 
 `SAPS1` - Simplified Acute Physiology Score is a measure of the severity of disease for patients admitted to ICU. The following measures increases the SAPS1 score:
@@ -526,9 +524,7 @@ summary(maxWBC_glm) # is significant
 
 
 ```
-
-
-**Univariate Models Finidngs**
+**Univariate Models Findings**
 
 * Variables that had a significant Wald test, resulting a rejection of the null hypothesis concluding that the variable is significant in explaining the outcome variable of `in_hospital_death` are:
   * age
@@ -717,8 +713,6 @@ summary(reduced_signifUni_glm) # AIC 1311.1
 
 anova(reduced_signifUni_glm,signifUni_glm, test="Chisq") 
 # p value not significant, the dropped parameters are not significant
-
-
 
 ```
 
