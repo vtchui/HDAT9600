@@ -1903,12 +1903,20 @@ Difference when fitted to dataset without imputed values of missing observations
 
 **Findings of Final Model:**
 
-*** 
-Final paragraph (very brief as per task)
-- summarising the most important findings of your final model
-- most important values from stats output
-- simple clinical interpretation
-***
+**SUMMARY**
+
+Our Cox proportional hazards survival model of the icu_patients_df1 dataset is based on initial variables selected due to known association with morbidity and mortality either individually or as part of a validated ICU risk score (SOFA, SAPS1 and APACHE). Based on initial EDA, variables with a large proportion of missing data were excluded from the analysis (Height, NISysABP_min, NISysABP_max).
+
+The initial full model with all variables known to be associated with survival (Model 1, AIC 10136) was distilled using stepwise regression to include 18 covariates (Model 3, AIC 10113). Only significant variables (p<0.01) from this reduced model were included in the subsequent multivariable Cox proportional model (Model 4, AIC 10113). This model was subsequently adjusted to satisfy the proportional hazards assumption by including covariate - time interaction terms (dataset split at 90 days) and further adjusted to satisfy the linearity assumption by removing extreme outliers (Final Model, global test p value=0.08 AIC 10057).
+
+Our final model suggests that:
+•	Age, maximum BUN/ Na/ Temperature and minimum pH/Urine output,
+•	as well as ICUtype, minimum Albumin/ HCO3/ HR and maximum Bilirubin/ GCS/ Lactate when stratified by length of stay greater or lesser than 90 days
+Predicts survival in adult ICU patients with ICU length of stay >48 hours.
+
+Predictors that had a large magnitude of effect on survival include the individual variables of age and minimum pH, as well as the stratified variables of minimum albumin, type of ICU admission and GCS.
+
+
 
 
 
