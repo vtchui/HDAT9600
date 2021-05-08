@@ -1213,7 +1213,8 @@ cont_eda <- function(variable){
     print(paste(variable,'EDA:'))
   
     na_rm <- na.omit(icu_patients_df1[,variable])
-    print(paste('Number of non-missing values:',length(na_rm))) # number of non-missing values
+    neg_val<-icu_patients_df1[variable<0,variable]
+    print(paste('Number of non-missing values:',length(na_rm)+length(neg_val))) # number of non-missing values
     print(paste('Number of missing values:',sum(is.na(icu_patients_df1[,variable])))) # number of missing values
   
     print(quantile(icu_patients_df1[,variable], na.rm=TRUE))
@@ -1221,7 +1222,7 @@ cont_eda <- function(variable){
 }
 
 # Loop through the continuous variables from the chosen list of variables to explore and pass them to the EDA function
- cont_vars <- c('Age', 'Height', 'Weight_max', 'Albumin_min', 'Bilirubin_max', 
+ cont_vars <- c('Age', 'Length_of_stay', 'Height', 'Weight_max', 'Albumin_min', 'Bilirubin_max', 
                 'BUN_max', 'Creatinine_max', 'GCS_min', 'Glucose_min', 
                 'Glucose_max', 'HCO3_min', 'HR_min', 'HR_max', 'K_min', 'K_max', 
                 'Lactate_max', 'MAP_min', 'Na_min', 'Na_max', 'NISysABP_min', 
@@ -1229,11 +1230,15 @@ cont_eda <- function(variable){
                 'RespRate_min', 'RespRate_max', 'Temp_min', 'Temp_max', 
                 'TroponinI_max', 'TroponinT_max', 'Urine_min', 'WBC_min', 'WBC_max')
 
+
 par(mfrow=c(12,3)) # set the layout of the histograms in 12 row x 3 column grid
 for(i in 1:length(cont_vars)){
   cont_eda(cont_vars[i])
 }
 
+#Check negative values in 
+neg_val<-icu_patients_df1[icu_patients_df1$Length_of_stay<0,"Length_of_stay"]
+length(neg_val)
 ```
 
 **EDA Findings:**
@@ -1245,6 +1250,7 @@ for(i in 1:length(cont_vars)){
     * `Weight_max` - 146 missing observations
     * `Height` - 992 missing observations
     * `NISysABP_min` & `NISysABP_max` - 453 missing observations
+    * `Length_of_stay` - 25 negative values
     
 * The median values (50% quantile) and IQR (25% - 75% quantiles) are displayed for all continuous variables.
 
@@ -1291,6 +1297,10 @@ summary(ICU.fitbytype)
 # Age
 ICU.fitbyage <- coxph( Surv(Days, Status) ~ Age, data = icu_patients_df1) 
 summary(ICU.fitbyage)
+
+# Length_of_stay
+ICU.fitbyLoS <- coxph( Surv(Days, Status) ~ Length_of_stay, data = icu_patients_df1) 
+summary(ICU.fitbyLoS)
 
 # Height
 ICU.fitbyheight <- coxph( Surv(Days, Status) ~ Height, data = icu_patients_df1) 
@@ -1412,6 +1422,7 @@ summary(ICU.fitbyWBCmax)
 * `Gender` - non-significant log-rank test (p-value = 0.06), means that the null hypothesis of no difference in survival between genders is not rejected with a conclusion that survival does not significantly differ by gender.
 * `ICUType` - significant log-rank test (p-value close to 0), means that the null hypothesis is rejected with a conclusion that survival significantly differs by each ICU Type. Note that, hazard rate for those in Medical ICU is not statistically significantly different for those in Coronary Care Unit.
 * `Age` - significant log-rank test (p-value close to 0), means that the null hypothesis is rejected with a conclusion that survival significantly differs by individual's age. For every year older in age, the risk of mortality increases by approximately 3%.
+* `Length_of_stay` - significant log-rank test (p-value = 0.000005), means that the null hypothesis is rejected with a conclusion that survival significantly differs by individual's length of stay in hospital. For every extra day in hospital, the risk of mortality increases by approximately 1%.
 * `Height` - non-significant log-rank test (p-value = 0.1), means that the null hypothesis of no difference in survival for varying heights is not rejected with a conclusion that survival does not significantly differ by height.
 * `Weight_max` - significant log-rank test (p-value = 0.00004) indicating that the null hypothesis is rejected with a conclusion that survival significantly differs by weight. For every additional kilogram, the risk of mortality reduces by approximately 1%. The use of a centered variable may make it easier to interpret.
 
@@ -1456,7 +1467,7 @@ summary(ICU.fitbyWBCmax)
  for(i in 1:length(colnames(icu_patients_df1))){
    print(c(i,colnames(icu_patients_df1[i]), sum(icu_patients_df1[i] < 0)))
  }
- ## Result: negative values in Length_of_stay and SOFA (not listed in initial choice of variables anyway)
+ ## Result: negative values in Length_of_stay and SOFA (not listed in initial choice of variables)
 
 
  # Create a new dataset with the only non-missing data from list of initial variables chosen
@@ -1465,7 +1476,7 @@ summary(ICU.fitbyWBCmax)
                                     select=c(Days, Status, # the survival object variables
                                              RecordID, # keep record id for reference if needed
                                              in_hospital_death, # from task 1
-                                             Age, Gender, ICUType, Weight_max,
+                                             Age, Length_of_stay, Gender, ICUType, Weight_max,
                                              Albumin_min, Bilirubin_max,
                                              BUN_max, Creatinine_max, 
                                              GCS_max, Glucose_min, Glucose_max, 
@@ -1476,7 +1487,9 @@ summary(ICU.fitbyWBCmax)
                                              Temp_min, Temp_max, TroponinT_max, 
                                              TroponinI_max, Urine_min, WBC_min, WBC_max)))
 
-dim(nm_icu_model_df1)
+ dim(nm_icu_model_df1)
+ nm_icu_model_df1<-nm_icu_model_df1[nm_icu_model_df1$Length_of_stay>=0,]
+ dim(nm_icu_model_df1)
  
 ```
 
@@ -1495,7 +1508,7 @@ calc_aic <- function(model){
 
 # Full model using all listed initial variables (excluding those with high missingness)
 ICU.mv_full <- coxph(Surv(Days, Status) ~ 
-                    Age + Gender + ICUType + Weight_max + Albumin_min + Bilirubin_max +
+                    Age + Length_of_stay + Gender + ICUType + Weight_max + Albumin_min + Bilirubin_max +
                     BUN_max + Creatinine_max + GCS_max + Glucose_min + Glucose_max + 
                     HCO3_min + HR_min + HR_max + K_min + K_max + Lactate_max + MAP_min + 
                     Na_min + Na_max + Platelets_min + PFratio + pH_min + pH_max + 
@@ -1506,12 +1519,12 @@ summary(ICU.mv_full)
 
 # Calculate full model AIC
 AIC.mv_full <- calc_aic(ICU.mv_full)
-AIC.mv_full #10136
+AIC.mv_full #10069
 
 
 # 1st reduced model using all variables with significant log-rank tests
 ICU.mv_reduced1 <- coxph(Surv(Days, Status) ~
-                        Age + ICUType + Weight_max + Albumin_min + Bilirubin_max +
+                        Age + Length_of_stay + ICUType + Weight_max + Albumin_min + Bilirubin_max +
                         BUN_max + Creatinine_max + Glucose_max + HCO3_min + 
                         K_max + Lactate_max + MAP_min + Na_min + pH_min + 
                         pH_max + RespRate_min + RespRate_max + Temp_min + 
@@ -1521,13 +1534,13 @@ summary(ICU.mv_reduced1)
 
 # Calculate 1st reduced model AIC
 AIC.mv_reduced1 <- calc_aic(ICU.mv_reduced1)
-AIC.mv_reduced1 #10178
+AIC.mv_reduced1 #10111
 
 
 # 2nd reduced model using all variables significant (using cut off p < 0.1) in ICU.mv_reduced1
 # (note using p < 0.1 gained better results than p < 0.05 as a cut off)
 ICU.mv_reduced2 <- coxph(Surv(Days, Status) ~
-                        Age + ICUType + Albumin_min + Bilirubin_max + BUN_max + 
+                        Age + Length_of_stay + ICUType + Albumin_min + Bilirubin_max + BUN_max + 
                         HCO3_min + Lactate_max + Na_min + pH_min + 
                         RespRate_max + Urine_min,
                         data = nm_icu_model_df1)
@@ -1535,7 +1548,7 @@ summary(ICU.mv_reduced2)
 
 # Calculate 2nd reduced model AIC
 AIC.mv_reduced2 <- calc_aic(ICU.mv_reduced2)
-AIC.mv_reduced2 #10171
+AIC.mv_reduced2 #10105
 
 
 # 3rd reduced model by using step() function on the full model (which had the lowest AIC so far)
@@ -1545,10 +1558,10 @@ summary(ICU.mv_reduced3)
 
 # Calculate 3rd reduced model AIC
 AIC.mv_reduced3 <- calc_aic(ICU.mv_reduced3)
-AIC.mv_reduced3 #10113
+AIC.mv_reduced3 #10047
 
 
-# 4th reduced model using significant variables (using cut off p < 0.1) from ICU.mv_reduced3 
+# 4th reduced model using significant variables (using cut off p < 0.05) from ICU.mv_reduced3 
 ICU.mv_reduced4 <- coxph(Surv(Days, Status) ~
                         Age + ICUType + Albumin_min + Bilirubin_max + BUN_max + 
                         GCS_max + HCO3_min + HR_min + Lactate_max + Na_max + 
@@ -1558,7 +1571,7 @@ summary(ICU.mv_reduced4)
 
 # Calculate 4th reduced model AIC
 AIC.mv_reduced4 <- calc_aic(ICU.mv_reduced4)
-AIC.mv_reduced4 #10112
+AIC.mv_reduced4 #10047
 
 
 # Comparing models with LRT
@@ -1575,23 +1588,25 @@ names(aic_output) <- c('Full AIC', 'Reduced 1 AIC', 'Reduced 2 AIC', 'Reduced 3 
 print(aic_output)
 
 ## Decision: use ICU.mv_reduced4 as the provisional final model (lowest AIC and non-significant LRT)
-## Note: the model 3 still has the better likelihood statistic than Model 4, but we choose model 4 for parsimony
+
+anova(ICU.mv_reduced3, ICU.mv_reduced4)
 
 
 ```
 
 **Selecting a multivariable Cox proportional hazards model:**
 
-1) *Full model* - a model with all selected variables (excluding those with high degree of missingness) has been fitted. In the resulting fitted model, Age, ICU type, BUN_max, GCS_max, are highly significant. Lactate_max, pH_min, Temp_max and urine_min are also significant at 5% significance level. Furthermore, Albumin_min, Bilirubin_max, HCO3_min, HR_min, WBC_min and WBC_max are significant at 10% significance level. The resulting model has a maximised likelihood of 518.5. The log rank test statistic is highly significant (p-value close to 0), indicating that the variables in the full model have significant explanatory power on ICU population survival. Note, the AIC of the full model is 10,136. <br>
+1) *Full model* - a model with all selected variables (excluding those with high degree of missingness) has been fitted. In the resulting fitted model, Age, ICU type, BUN_max, GCS_max, are highly significant. Lactate_max, pH_min, Temp_max and urine_min are also significant at 5% significance level. Furthermore, Albumin_min, Bilirubin_max, HCO3_min, HR_min, WBC_min and WBC_max are significant at 10% significance level. The resulting model has a maximised likelihood of 521.9. The log rank test statistic is highly significant (p-value close to 0), indicating that the variables in the full model have significant explanatory power on ICU population survival. Note, the AIC of the full model is 10,069. <br>
 
-2) *Reduced Model 1* - for parsimony, we look for a reduced model with fewer variables than can adequately explain survival rates for the ICU population. Our first attempt is to only include variables that resulted in a significant log rank test for the respective univariate models. Since the reduced model is nested in the full model, we use a likelihood ratio test to compare the two model. We reject the null hypothesis (p-value is 0.000000000152) and conclude that the full model is a better fit to the data. This conclusion is echoed when comparing the models' AICs - the reduced model has a higher AIC of 10,178. <br>
+2) *Reduced Model 1* - for parsimony, we look for a reduced model with fewer variables than can adequately explain survival rates for the ICU population. Our first attempt is to only include variables that resulted in a significant log rank test for the respective univariate models. Since the reduced model is nested in the full model, we use a likelihood ratio test to compare the two model. We reject the null hypothesis (p-value is 2.139e-09) and conclude that the full model is a better fit to the data. This conclusion is echoed when comparing the models' AICs - the reduced model has a higher AIC of 10,111. <br>
 
-3) *Reduced Model 2* - the second attempt, reduces the Reduced Model 1 by only including variables that were significant at a 10% significance level. We can again use a likelihood ratio test to compare this model with the full model as the models are nested. We reject the null hypothesis (p-value is 0.00000002043) and conclude that the full model is a better fit to the data. Whilst the AIC for Model 2 (10,171) is lower than for Model 1, it is higher than the Full Model, which leads to the same conclusion as the LRT test. <br>
+3) *Reduced Model 2* - the second attempt, reduces the Reduced Model 1 by only including variables that were significant at a 10% significance level. We can again use a likelihood ratio test to compare this model with the full model as the models are nested. We reject the null hypothesis (p-value is 1.701e-08) and conclude that the full model is a better fit to the data. Whilst the AIC for Model 2 (10,105) is lower than for Model 1, it is higher than the Full Model, which leads to the same conclusion as the LRT test. <br>
 
-4) *Reduced Model 3* - the third attempt starts with the full model and uses the step function to search the model space for a model with a better fit and fewer covariates. After 17 iterations, the reduced model includes 18 covariates. Interestingly, GCS_max, HR_min & Na_max are now being included in the model despite the non-significant log rank tests for the univariate models. When compared with the full model,  the null hypothesis of the LRT test (p-value = 0.95)is accepted and we can conclude that the reduced model is a better fit to the data than the full model. Furthermore, the AIC is reduced to 10,113. <br>
+4) *Reduced Model 3* - the third attempt starts with the full model and uses the step function to search the model space for a model with a better fit and fewer covariates. After 17 iterations, the reduced model includes 18 covariates. Interestingly, GCS_max, HR_min & Na_max are now being included in the model despite the non-significant log rank tests for the univariate models. When compared with the full model,  the null hypothesis of the LRT test (p-value = 0.94)is accepted and we can conclude that the reduced model is a better fit to the data than the full model. Furthermore, the AIC is reduced to 10,047. <br>
 
-5) *Reduced Model 4* - in this model, we take Model 3 and only include the significant variables at 10% significance level (i.e. removed Weight_max, RespRate_min, respRate_max, WBC_min, WBC_max). When compared with the full model,  the null hypothesis of the LRT test (p-value = 0.66) is accepted and we can conclude that the reduced model is a better fit to the data than the full model. Furthermore, the AIC is reduced to 10,112 which is slightly lower than the AIC for Reduced Model 3. <br>
+5) *Reduced Model 4* - in this model, we take Model 3 and only include the significant variables at 5% significance level (i.e. removed Weight_max, RespRate_min, respRate_max, WBC_min, WBC_max). When compared with the full model,  the null hypothesis of the LRT test (p-value = 0.51) is accepted and we can conclude that the reduced model is a better fit to the data than the full model. Furthermore, the AIC is 10,047 similar to the AIC for Reduced Model 3. The LRT when comparing Model 3 and 4 does not reject the null hypothesis concluding that Model 4 is a better fit than Model 3.  <br>
 
+Hence, we choose Model 4 as the final selection of covariates for the multivariable Cox model. 
 
 ### Cox proportional hazards model assumption checking:
 
@@ -1676,13 +1691,13 @@ summary(ICU.mv_reduced4.split.noutliers)
 
 # Calculate the split/no outlier model AIC
 AIC.mv_reduced4.split.noutliers <- calc_aic(ICU.mv_reduced4.split.noutliers)
-AIC.mv_reduced4.split.noutliers #10057 -- improvement
+AIC.mv_reduced4.split.noutliers #9993 -- improvement
 
 ## Decision: use the 4th reduced model, split at time 3 months (90 days) on the split dataset with the outliers removed as the final dataset
 
 # Difference in Coefficients
 ICU.mv_reduced4.split.noutliers$coefficients
-ICU.mv_reduced4$coefficients
+ICU.mv_reduced4.split$coefficients
 
 ```
 
@@ -1692,27 +1707,33 @@ We need to test whether the chosen model satisfies the assumptions underlying th
 
 * Proportional hazard assumption is supported by a non-significant relationship between residuals and time, while a significant relationship favours the null of non-constant hazards. 
 
-* The output from the proportional hazards test shows that the test is statistically significant (p-value < 0.05) for `ICUType`, `Albumin_min`, `Bilirubin_max`, `GCS_max`, `HCO3_min`, `HR_min` and `Lactate_max`. The global test is also statistically significant (p-value is very small = 1.0e-12). Therefore, there appears to be a violation of the proportional hazards model.
+* The output from the proportional hazards test shows that the test is statistically significant (p-value < 0.05) for `ICUType`, `Albumin_min`, `Bilirubin_max`, `GCS_max`, `HCO3_min`, `HR_min` and `Lactate_max`. The global test is also statistically significant (p-value is very small = 1.6e-12). Therefore, there appears to be a violation of the proportional hazards model.
 
-* We choose to address the violations of the proportional hazards assumption by including time x covariate interactions in the model for the variables that violated the proportional hazards assumption. By looking at the survival curve and the asusmption that there may be systematic differences in patients who survive less than or greater than 3 months after ICU admission, we choose a post ICU survival time of 90 days.
+* We choose to address the violations of the proportional hazards assumption by including time x covariate interactions in the model for the variables that violated the proportional hazards assumption. By looking at the survival curve and the assumption that there may be systematic differences in patients who survive less than or greater than 3 months after ICU admission, we choose a post ICU survival time of 90 days.
 
-* The hazard rate increases at varying rates for the population who survived less than 90 days.  ***add inferences for coefficients, CI's and hazard rates ***
+* The hazard rate increases at varying rates for the population who survived less than 90 days. Looking at the exponential of the coefficients gives us an estimate of the hazard rate related to each covariate.
+    * `ICUType` - the reference group is those in Surgical ICU. Those in Medical ICU are 21.6% more likely to die than those is surgical ICU within the first 90 days.  For those who survive the first 90 days, this risk increases to 75.4%. For those in Cardiac SUrgery Recovery Unit, the risk is 70% lower than Surgical ICU for those who survive less than 90 days. This changes to 30% lower than risk for Surgical ICU for those who survive more than 90 days.
+    * `Albumin_min` - for every additional unit of Albumin, the risk of mortality is  22% lower for those that die within the first 90 days. For those that survive more than 90 days, the risk of mortality does not significantly differ by level of Albumin  as the confidence interval for the second period includes the value 1.
+    * `Bilirubin_max` - the impact on mortality risk is not significant for either time period as the confidence interval includes 1.
+    * `GCS_max` - for every additional unit of GCS, the mortality risk is reduced significantly in both periods. For the first 90 days,  the risk is reduced by 12%. For the subsequent period, the risk is reduced by 7%.
+    * `HCO3_min` - for the first time period (< 90 days) there is no significant difference in mortality risk by level of HCO3. However, in the subsequent period, every additional unit of HCO3 results in an increased mortality by 4%.
+    * `HR_min` - for every additional 10 beats per minute, there is a 8% increase in mortality for those that die within the first 90 days. The difference is not significant for patients who survive more than 90 days.
+    * `Lactate` - for every additional unit of Lactate, there us 9% increase in mortality risk for those who die within the first 90 days. The difference is not significant for the subsequent period.
 
 * Allowing the regression coefficients to differ in the two time intervals (before 90 days and after) has helped address the violation of the PH assumption. The global test for our model is no longer significant (p-value =0.07).
 
 
 2) Check linearity by observing Martingale residuals for continuous variables
 
-* We observe a close to linear relationship for `Age`, `Albumin_min`, `Bilirubin_max`, `GCS_max`, `Lactate_max` and `Urine_min` variables.
-* There is a clear ly non-linear relationship for `BUN_max`, `HCO3_min`, `HR_min`, `Na-max`, `pH_min` and `Temp_max`.
-* Explanation - especially with laboratory values very far from the reference ranges (likely few observations in this range / potential outliers) ***Can someone explain this a bit better?***
+* None of the martingale residual plots look particularly flat around the zero point and this could be a result of scale on the plot, the residuals are quite small in size compared to the observed values of the covariates.
+* Many plots show residuals clustered around certain values of the covariate, which makes the fitted loess curves of resiudals (black smooth lines) difficult to interpret. These values are typical measures of the variable (e.g. ph of 7, temperature of 37 degrees). AS expected, there would be very few (if any) real observations in the extreme ranges of the variables.
 
 
 3) Checking linearity for the model as a whole
 
 * The overall model residuals appear reasonably linear around 0. However, we do observe 2 very large negative outliers (individuals whose actual survival time was significantly greater than estimated by the model.  On closer observation, these 2 individuals were relatively elderly with long lengths of stay in hospital. One had low GCS values, high SAPS1, high lactate whilst the other had high bilirubin, deranged LFTs and high lactate, all indicators of high risk of mortality.
 
-* We have removed these outliers observations and re-fit the model to the dataset excluding these observations. The model fit has improved (with AIC now 10,057 compared to 10,112). The resulting changes in coefficients include: ***add comparison to previous inferences on coefficients, CI's and hazard rates ***
+* We have removed these outliers observations and re-fit the model to the dataset excluding these observations. The model fit has improved (with AIC now 9,993 compared to 10,047). The resulting changes in coefficient estimates are insignificant.
 
 
 ### Final multivariable Cox proportional hazards model:
@@ -1730,8 +1751,22 @@ ICU.final.cox <- coxph(Surv(Days, Status) ~
 summary(ICU.final.cox)
 
 ```
-
-
+* The estimated coefficients, related hazard rates (exponential of these coefficients) and teh confidence interval of the hazard rates allow us to make some conclusions about clinical measures and their impact on ICU survival.
+    * `Age` - for every additional year of survival, the difference in mortality risk is significant, increasing by 3.5% with a 95% confidence that this increase could range between 2.95% and 4.07% per year.
+    * `BUN_max` - for every additional unit of urea, difference in mortality risk is significant, increasing by 1.1% (95% confidence between 0.8% and 1.4%).
+    * `Na_max` - for every additional unit of Na, difference in mortality risk is significant, decreasing by 4% (95% confidence between 3.5% and 5.5%).
+    * `pH_min` - for every additional unit of pH, risk of mortality decreases in 35% but the 95% confidence interval is large, ranging between a reduction of 4% and 55%). This could be due to the sensitivity of the measure as humans are highly unlikely to increase or decrease pH by 1 whole unit.
+    * `Temp_max` - for every additional unit of temperature, mortality risk decreases by 15% (95% confidence interval between 5% and 23%).
+    * `Urine_max` - for every additional 10ml or urine output, the risk of mortality decreases by 2% (confidence interval between 0% and 4%).
+    
+* As mentioned earlier, the variables which have been split into 2 time periods produce the following insights:
+    * `ICUType` - the reference group is those in Surgical ICU. Those in Medical ICU are 21.6% more likely to die than those is surgical ICU within the first 90 days.  For those who survive the first 90 days, this risk increases to 75.4%. For those in Cardiac SUrgery Recovery Unit, the risk is 70% lower than Surgical ICU for those who survive less than 90 days. This changes to 30% lower than risk for Surgical ICU for those who survive more than 90 days.
+    * `Albumin_min` - for every additional unit of Albumin, the risk of mortality is  22% lower for those that die within the first 90 days. For those that survive more than 90 days, the risk of mortality does not significantly differ by level of Albumin  as the confidence interval for the second period includes the value 1.
+    * `Bilirubin_max` - the impact on mortality risk is not significant for either time period as the confidence interval includes 1.
+    * `GCS_max` - for every additional unit of GCS, the mortality risk is reduced significantly in both periods. For the first 90 days,  the risk is reduced by 12%. For the subsequent period, the risk is reduced by 7%.
+    * `HCO3_min` - for the first time period (< 90 days) there is no significant difference in mortality risk by level of HCO3. However, in the subsequent period, every additional unit of HCO3 results in an increased mortality by 4%.
+    * `HR_min` - for every additional 10 beats per minute, there is a 8% increase in mortality for those that die within the first 90 days. The difference is not significant for patients who survive more than 90 days.
+    * `Lactate` - for every additional unit of Lactate, there us 9% increase in mortality risk for those who die within the first 90 days. The difference is not significant for the subsequent period.
 ### Final model diagnostics:
 
 ```{r task2.6}
@@ -1774,7 +1809,6 @@ nm_icu_model_df0 <- na.omit(subset(icu_patients_df0,
 dim(nm_icu_model_df0)
 
 ICUdf0.split <- survSplit(Surv(Days, Status) ~ ., data = nm_icu_model_df0, cut=c(90), episode= "tgroup", id="id2")
-head(icu_patients_df0)
 
 ICU.final.coxdf0 <- coxph(Surv(Days, Status) ~
                          Age + ICUType:strata(tgroup) + 
@@ -1790,6 +1824,15 @@ summary(ICU.final.cox)
 
 
 ```
+Difference when fitted to dataset without imputed values of missing observations (df0):
+
+* The dataset for fitting reduces from 2,061 individuals in df1 to 299 individuals in df0. With significantly fewer data points to fit the model, we observe the following differences:
+    * Variables that were significant in the model fitted to df1 are no longer significant  for the model on df0.
+    * The coefficient estimates are significantly different for `pH`, `Temp_max`, ICUType` and `Albumin` which leads to vastly different inferences on the impact of these variables on mortality risk.
+    * The confidence intervals are much wider for the model on df0 reflecting the fewer data points, which increases teh uncertainty. 
+
+
+**Findings of Final Model:**
 
 *** 
 Final paragraph (very brief as per task)
@@ -1797,10 +1840,6 @@ Final paragraph (very brief as per task)
 - most important values from stats output
 - simple clinical interpretation
 ***
-
-**Findings of Final Model:**
-
-
 
 
 
