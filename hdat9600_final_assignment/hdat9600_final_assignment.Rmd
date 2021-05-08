@@ -1828,8 +1828,8 @@ Difference when fitted to dataset without imputed values of missing observations
 
 * The dataset for fitting reduces from 2,061 individuals in df1 to 299 individuals in df0. With significantly fewer data points to fit the model, we observe the following differences:
     * Variables that were significant in the model fitted to df1 are no longer significant  for the model on df0.
-    * The coefficient estimates are significantly different for `pH`, `Temp_max`, ICUType` and `Albumin` which leads to vastly different inferences on the impact of these variables on mortality risk.
-    * The confidence intervals are much wider for the model on df0 reflecting the fewer data points, which increases teh uncertainty. 
+    * The coefficient estimates are significantly different for `pH`, `Temp_max`, `ICUType` and `Albumin` which leads to vastly different inferences on the impact of these variables on mortality risk.
+    * The confidence intervals are much wider for the model on df0 reflecting the fewer data points, which increases the uncertainty in the estimation of coefficients. 
 
 
 **Findings of Final Model:**
