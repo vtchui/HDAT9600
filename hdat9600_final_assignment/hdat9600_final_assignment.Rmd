@@ -1,8 +1,8 @@
 ---
 title: "HDAT9600 Final Assignment"
-subtitle: "Please see course outline / 'Announcements' for submission deadline"
+subtitle: "Submission deadline: Monday 10 May 2021, 9am AEST"
 author: "Meg Stevens, Maathumai Ranjan, Victor Hui, Haran Nathan"
-date: "insert date of completion here"
+date: "Last modified: 9 May 2021"
 output: html_document
 ---
 
@@ -266,6 +266,7 @@ DEMOGRAPHIC VARIABLES: <br>
   * `Gender`<br>
   * `ICUType`<br>
   * `Height`<br>
+  * `Length_of_stay`<br>
   * `Weight_max`<br><br>
   
 CLINICAL VARIABLES: <br>
@@ -304,8 +305,8 @@ icu_patients_df0$PFratio<-icu_patients_df0$PaO2_min/icu_patients_df0$FiO2_max
 explore_vars <- c('Age', 'Gender', 'ICUType', 'Height', 'Weight_max', 
                   'Albumin_min', 'Bilirubin_max', 'BUN_max', 'Creatinine_max', 
                   'GCS_min', 'Glucose_min', 'Glucose_max', 'HCO3_min', 'HR_min', 
-                  'HR_max', 'K_min', 'K_max', 'Lactate_max', 'MAP_min', 
-                  'Na_min', 'Na_max', 'NISysABP_min', 'NISysABP_max', 
+                  'HR_max', 'K_min', 'K_max', 'Lactate_max', 'Length_of_stay', 
+                  'MAP_min', 'Na_min', 'Na_max', 'NISysABP_min', 'NISysABP_max', 
                   'Platelets_min', 'PFratio', 'pH_min', 'pH_max', 
                   'RespRate_min', 'RespRate_max', 'Temp_min', 'Temp_max', 
                   'TroponinI_max', 'TroponinT_max', 'Urine_min', 'WBC_min', 
@@ -333,7 +334,7 @@ boxplot_eda <- function(variable){
 cont_vars <- c('Age', 'Height', 'Weight_max', 'Albumin_min', 'Bilirubin_max',
                'BUN_max', 'Creatinine_max', 'GCS_min', 'Glucose_min',
                'Glucose_max', 'HCO3_min', 'HR_min', 'HR_max', 'K_min', 'K_max',
-               'Lactate_max', 'MAP_min', 'Na_min', 'Na_max', 'NISysABP_min',
+               'Lactate_max', 'Length_of_stay', 'MAP_min', 'Na_min', 'Na_max', 'NISysABP_min',
                'NISysABP_max', 'Platelets_min', 'PFratio', 'pH_min', 'pH_max',
                'RespRate_min', 'RespRate_max', 'Temp_min', 'Temp_max',
                'TroponinI_max', 'TroponinT_max', 'Urine_min', 'WBC_min', 'WBC_max')
@@ -350,7 +351,8 @@ do.call(grid.arrange, c(b, nrow = 12))
 
 ```{r task 1.2.2} 
 
-# Patients who died had higher SAPS1 and SOFA scores
+# Examine SAPS1 and SOFA scores by in_hospital_death
+# Given our variables were chosen based on these scores
 ggplot(data=icu_patients_df1, 
        mapping = aes(x = in_hospital_death=="1", y = SAPS1)) + geom_boxplot() +
        labs(title=paste('Box plot of SAPS1 scores'), 
@@ -362,10 +364,9 @@ ggplot(data=icu_patients_df1,
             x='In hospital death', y='SOFA score')
 
 
-### Categorical variables EDA and their interpretation ###
+### Categorical variables EDA ###
 
-# cardiac surgery recovery unit have a smaller death circle compared to the other 3 ICU units
-# ie less proportion of in hospital deaths compared to alive
+# plot ICU type by in_hospital_death and change the size of the circle to represent proportion
 icutype_plot <- ggplot(data=icu_patients_df1, 
                        mapping = aes(x = in_hospital_death=="1", y = ICUType)) + 
                 geom_count(aes(size = after_stat(prop), group = ICUType)) + 
@@ -373,7 +374,7 @@ icutype_plot <- ggplot(data=icu_patients_df1,
                 labs(title=paste('Proportion of patients by ICU type'), 
                      x='In hospital death', size='Proportion of patients')
 
-# difficult to say, roughly same amount of men/women died as a proportion of the alive group
+# plot gender by in_hospital_death and change the size of the circle to represent proportion
 gender_plot <- ggplot(data=icu_patients_df1, 
                       mapping = aes(x = in_hospital_death=="1", y = Gender)) + 
                geom_count(aes(size = after_stat(prop), group = ICUType)) + 
@@ -393,204 +394,259 @@ grid.arrange(icutype_plot, gender_plot, nrow=1)
 * Medical ICU accounted for 38% of individuals, 26% in Surgical ICU, 24% in Cardiac Surgery recovery Unit and 14% in the Coronary Care unit.
 
 * The following variables have a large proportion of missing observations:
-    * `Weight_max` - 146 missing observations
-    * `Height` - 992 missing observations
-    * `NISysABP_min` & `NISysABP_max` - 453 missing observations
+    * `Weight_max` - 146 missing observations <br>
+    * `Height` - 992 missing observations <br>
+    * `NISysABP_min` & `NISysABP_max` - 453 missing observations <br>
+* `Length_of_stay` has some invalid (-1) values
     
 * Proportion of in hospital deaths were observed for each variable:
-    * Those that died had higher SAPS1 and SOFA scores.
-    * Females had higher proportion of deaths than males.
-    * Medical ICU had a greatest rate of mortality, whereas Cardiac Surgery recovery unit had the lowest porportion of deaths.
-    * Higher age in those that died
-    * Higher min albumin in those that died
-    * Slightly higher max bilirubin in those that died
-    * Higher max (BUN) urea in those that died
-    * Higher max creatinine in those that died
-    * Lower GCS min in those that died
-    * Similar min glucose in both groups
-    * Slightly higher max glucose in those that died
-    * Lower min HCO3 in those that died
-    * Similar min HR in both groups
-    * Slightly higher max HR in those that died
-    * Similar min K in both groups
-    * Similar max K in both groups
-    * Slightly higher max lactate in those that died
-    * Similar min MAP in both groups
-    * Similar min Na in both groups
-    * Similar max Na in both groups
-    * Slightly lower min NISysABP in those that died
-    * Similar max NISysABP in both groups
-    * Similar min platelets in both groups
-    * Similar PF ratio in both groups
-    * Similar min pH in both groups - one extreme outlier
-    * Similar pH max in both groups
-    * Higher min RR in those that died
-    * Higher max RR in those that died
-    * Similar min temp in both groups
-    * Similar max temp in both groups
-    * Similar max troponinI in both groups
-    * Similar max troponinT in both groups
-    * Similar min urine in both groups
-    * Slightly higher min WBC in those that died
-    * Slightly higher max WBC in those that died
+    * Those that died in hospital had higher SAPS1 and SOFA scores (as expected, as these scores are validated to predict mortality).
+    * Females had higher proportion of in-hospital deaths than males.
+    * Medical ICU had a greatest rate of in-hospital mortality, whereas Cardiac Surgery recovery unit had the lowest proportion of in-hospital deaths.
+    * Those that died in hospital after ICU admission appear to have had:
+        * Higher: age, respiratory rate, white blood cell count (WBC), maximum bilirubin/urea (BUN)/creatinine/glucose/heart rate/lactate
+        * Lower: minimum albumin/GCS/bicarbonate (HCO3)/non-invasive systolic BP
+    * From inspection of the box-plots, between the groups of patients who died in-hospital and those who survived, there were similar values for PFratio, minimum glucose/heart rate/potassium/mean arterial pressure/sodium/platelets/pH/temperature/urine output, and maximum potassium/sodium/non-invasive systolic BP/pH/temperature/troponin I and T.
 
 
 ### Univariate logistic regression models:
 
 ``` {r task1.3}
-# Univariate logistic regression comparisons for all initial selected variables
+# Fit univariate logistic regression for all initial selected variables
+# Examine the ORs by exponentiating the coefficients of the models
 
+# Age
 age_glm <- glm(in_hospital_death ~ Age, data=icu_patients_df1, family="binomial")
-summary(age_glm) # is significant
+summary(age_glm)
+exp(coef(age_glm))
 
+# Gender
 gender_glm <- glm(in_hospital_death ~ Gender, data=icu_patients_df1, family="binomial")
-summary(gender_glm) # NOT significant
+summary(gender_glm)
+exp(coef(gender_glm))
 
+# ICU type
 icuType_glm <- glm(in_hospital_death ~ ICUType, data=icu_patients_df1, family="binomial")
-summary(icuType_glm) # cardiac surgery recovery unit is significant
+summary(icuType_glm)
+exp(coef(icuType_glm))
 
+# Length of stay
+los_glm <- glm(in_hospital_death ~ Length_of_stay, data=icu_patients_df1, family="binomial")
+summary(los_glm)
+exp(coef(los_glm))
+
+# Weight_max
 maxWeight_glm <- glm(in_hospital_death ~ Weight_max, data=icu_patients_df1, family="binomial")
-summary(maxWeight_glm) # is significant
+summary(maxWeight_glm)
+exp(coef(maxWeight_glm))
 
+# Albumin_min
 minAlbumin_glm <- glm(in_hospital_death ~ Albumin_min, data=icu_patients_df1, family="binomial")
-summary(minAlbumin_glm) # is significant
+summary(minAlbumin_glm)
+exp(coef(minAlbumin_glm))
 
+# Bilirubin_max
 maxBili_glm <- glm(in_hospital_death ~ Bilirubin_max, data=icu_patients_df1, family="binomial")
-summary(maxBili_glm) # is significant
+summary(maxBili_glm) 
+exp(coef(maxBili_glm))
 
+# BUN_max
 maxUrea_glm <- glm(in_hospital_death ~ BUN_max, data=icu_patients_df1, family="binomial")
-summary(maxUrea_glm) # is significant
+summary(maxUrea_glm) 
+exp(coef(maxUrea_glm))
 
+# Creatinine_max
 maxCr_glm <- glm(in_hospital_death ~ Creatinine_max, data=icu_patients_df1, family="binomial")
-summary(maxCr_glm) # is significant
+summary(maxCr_glm)
+exp(coef(maxCr_glm))
 
+# GCS_min
 minGCS_glm <- glm(in_hospital_death ~ GCS_min, data=icu_patients_df1, family="binomial")
-summary(minGCS_glm) # is significant
+summary(minGCS_glm)
+exp(coef(minGCS_glm))
 
+# Glucose_min
 minGlu_glm <- glm(in_hospital_death ~ Glucose_min, data=icu_patients_df1, family="binomial")
-summary(minGlu_glm) # NOT significant
+summary(minGlu_glm) 
+exp(coef(minGlu_glm))
 
+# Glucose_max
 maxGlu_glm <- glm(in_hospital_death ~ Glucose_max, data=icu_patients_df1, family="binomial")
-summary(maxGlu_glm) # is significant
+summary(maxGlu_glm)
+exp(coef(maxGlu_glm))
 
+# HCO3_min
 minHCO3_glm <- glm(in_hospital_death ~ HCO3_min, data=icu_patients_df1, family="binomial")
-summary(minHCO3_glm) # is significant
+summary(minHCO3_glm)
+exp(coef(minHCO3_glm))
 
+# HR_min
 minHR_glm <- glm(in_hospital_death ~ HR_min, data=icu_patients_df1, family="binomial")
-summary(minHR_glm) # NOT significant
+summary(minHR_glm) 
+exp(coef(minHR_glm))
 
+# HR_max
 maxHR_glm <- glm(in_hospital_death ~ HR_max, data=icu_patients_df1, family="binomial")
-summary(maxHR_glm) # is significant
+summary(maxHR_glm)
+exp(coef(maxHR_glm))
 
+# K_min
 minK_glm <- glm(in_hospital_death ~ K_min, data=icu_patients_df1, family="binomial")
-summary(minK_glm) # NOT significant
+summary(minK_glm)
+exp(coef(minK_glm))
 
+# K_max
 maxK_glm <- glm(in_hospital_death ~ K_max, data=icu_patients_df1, family="binomial")
-summary(maxK_glm) # NOT significant
+summary(maxK_glm) 
+exp(coef(maxK_glm))
 
+# Lactate_max
 maxLactate_glm <- glm(in_hospital_death ~ Lactate_max, data=icu_patients_df1, family="binomial")
-summary(maxLactate_glm) # is significant
+summary(maxLactate_glm)
+exp(coef(maxLactate_glm))
 
+# MAP_min
 minMAP_glm <- glm(in_hospital_death ~ MAP_min, data=icu_patients_df1, family="binomial")
-summary(minMAP_glm) # NOT significant
+summary(minMAP_glm)
+exp(coef(minMAP_glm))
 
+# Na_min
 minNa_glm <- glm(in_hospital_death ~ Na_min, data=icu_patients_df1, family="binomial")
-summary(minNa_glm) # is significant
+summary(minNa_glm) 
+exp(coef(minNa_glm))
 
+# Na_max
 maxNa_glm <- glm(in_hospital_death ~ Na_max, data=icu_patients_df1, family="binomial")
-summary(maxNa_glm) # NOT significant
+summary(maxNa_glm)
+exp(coef(maxNa_glm))
 
+# NISysABP_min
 minNISys_ABP_glm <- glm(in_hospital_death ~ NISysABP_min, data=icu_patients_df1, family="binomial")
-summary(minNISys_ABP_glm) # is significant
+summary(minNISys_ABP_glm)
+exp(coef(minNISys_ABP_glm))
 
+# NISysABP_max
 maxNISys_ABP_glm <- glm(in_hospital_death ~ NISysABP_max, data=icu_patients_df1, family="binomial")
-summary(maxNISys_ABP_glm) # NOT significant
+summary(maxNISys_ABP_glm)
+exp(coef(maxNISys_ABP_glm))
 
+# Platelets_min
 minPlt_glm <- glm(in_hospital_death ~ Platelets_min, data=icu_patients_df1, family="binomial")
-summary(minPlt_glm) # NOT significant
+summary(minPlt_glm)
+exp(coef(minPlt_glm))
 
+# PFratio
 maxPFratio_glm <- glm(in_hospital_death ~ PFratio, data=icu_patients_df1, family="binomial")
-summary(maxPFratio_glm) # NOT significant
+summary(maxPFratio_glm)
+exp(coef(maxPFratio_glm))
 
+# pH_min
 minpH_glm <- glm(in_hospital_death ~ pH_min, data=icu_patients_df1, family="binomial")
-summary(minpH_glm) # is significant
+summary(minpH_glm) 
+exp(coef(minpH_glm))
 
+# pH_max
 maxpH_glm <- glm(in_hospital_death ~ pH_max, data=icu_patients_df1, family="binomial")
-summary(maxpH_glm) # NOT significant
+summary(maxpH_glm)
+exp(coef(maxpH_glm))
 
+# RespRate_min
 minRR_glm <- glm(in_hospital_death ~ RespRate_min, data=icu_patients_df1, family="binomial")
-summary(minRR_glm) # is significant
+summary(minRR_glm)
+exp(coef(minRR_glm))
 
+# RespRate_max
 maxRR_glm <- glm(in_hospital_death ~ RespRate_max, data=icu_patients_df1, family="binomial")
-summary(maxRR_glm) # is significant
+summary(maxRR_glm)
+exp(coef(maxRR_glm))
 
+# Temp_min
 minTemp_glm <- glm(in_hospital_death ~ Temp_min, data=icu_patients_df1, family="binomial")
-summary(minTemp_glm) # is significant
+summary(minTemp_glm)
+exp(coef(minTemp_glm))
 
+# Temp_max
 maxTemp_glm <- glm(in_hospital_death ~ Temp_max, data=icu_patients_df1, family="binomial")
-summary(maxTemp_glm) # NOT significant
+summary(maxTemp_glm) 
+exp(coef(maxTemp_glm))
 
+# TroponinI_max
 maxTropI_glm <- glm(in_hospital_death ~ TroponinI_max, data=icu_patients_df1, family="binomial")
-summary(maxTropI_glm) # NOT significant
+summary(maxTropI_glm) 
+exp(coef(maxTropI_glm))
 
+# TroponinT_max
 maxTropT_glm <- glm(in_hospital_death ~ TroponinT_max, data=icu_patients_df1, family="binomial")
-summary(maxTropT_glm) # is significant
+summary(maxTropT_glm)
+exp(coef(maxTropT_glm))
 
+# Urine_min
 minUrine_glm <- glm(in_hospital_death ~ Urine_min, data=icu_patients_df1, family="binomial")
-summary(minUrine_glm) # is significant
+summary(minUrine_glm)
+exp(coef(minUrine_glm))
 
+# WBC_min
 minWBC_glm <- glm(in_hospital_death ~ WBC_min, data=icu_patients_df1, family="binomial")
-summary(minWBC_glm) # is significant
+summary(minWBC_glm)
+exp(coef(minWBC_glm))
 
+# WBC_max
 maxWBC_glm <- glm(in_hospital_death ~ WBC_max, data=icu_patients_df1, family="binomial")
-summary(maxWBC_glm) # is significant
-
+summary(maxWBC_glm)
+exp(coef(maxWBC_glm))
 
 ```
-**Univariate Models Findings**
+**Univariate Models Findings:**
 
-* Variables that had a significant Wald test, resulting a rejection of the null hypothesis concluding that the variable is significant in explaining the outcome variable of `in_hospital_death` are:
-  * age
-  * ICUType
-  * Weight_max
-  * Albumin_min
-  * Bilirubin_max
-  * BUN_max
-  * Creatinine_max
-  * GCS_min
-  * Glucose_max
-  * HCO3_min
-  * HR_max
-  * Lactate_max
-  * Na_min
-  * NISysABP_min
-  * pH_min
-  * RespRate_min
-  * RespRate_max
-  * Temp_min
-  * TroponinT_max
-  * Urine_min
-  * WBC_min
-  * WBC_max
+On univariate analysis using logistic regression, the following variables of the initial selected subset had a significant effect on the `in_hospital_death` binary outcome (i.e. the null hypothesis of no effect was rejected with a Wald statistic p-value (Pr(>|z|)) < 0.05):
 
-* Variables that resulted in a non-significant Wald test are:
-  * `Glucose_min`
-  * `HR_min`
-  * `K_min`
-  * `K_max`
-  * `MAP_min`
-  * `Na_max`
-  * `NISysABP_max`
-  * `Platelets_min`
-  * `PFratio`
-  * `pH_max`
-  * `Temp_max`
-  * `TroponinI_max`
+  * `Age` (OR: 1.03; p < 0.001) <br>
+  * `ICUType` - Cardiac Surgery Recovery Unit (compared to Coronary Care Unit) OR: 0.32; p < 0.001 <br>
+  * `Weight_max` (OR: 0.99; p = 0.03) <br>
+  * `Albumin_min` (OR: 0.62; p < 0.001) <br>
+  * `Bilirubin_max` (OR: 1.06; p < 0.001) <br>
+  * `BUN_max` (OR: 1.02; p < 0.001) <br>
+  * `Creatinine_max` (OR: 1.18; p < 0.001) <br>
+  * `GCS_min` (OR: 0.96; p < 0.001) <br>
+  * `Glucose_max` (OR: 1.00; p < 0.001) <br>
+  * `HCO3_min` (OR: 0.93; p < 0.001) <br>
+  * `HR_max` (OR: 1.01; p = 0.002) <br>
+  * `Lactate_max` (OR: 1.15; p < 0.001) <br>
+  * `Na_min` (OR: 0.97; p = 0.03) <br>
+  * `NISysABP_min` (OR: 0.99; p < 0.001) <br>
+  * `pH_min` (OR: 0.05; p < 0.001) <br>
+  * `RespRate_min` (OR: 1.09; p < 0.001) <br>
+  * `RespRate_max` (OR: 1.04; p < 0.001) <br>
+  * `Temp_min` (OR: 0.77; p < 0.001) <br>
+  * `TroponinT_max` (OR: 1.07; p = 0.01) <br>
+  * `Urine_min` (OR: 0.99; p < 0.001) <br>
+  * `WBC_min` (OR: 1.02; p = 0.04) <br>
+  * `WBC_max` (OR: 1.01; p = 0.04) <br>
+  
+Interestingly, we see some values have an odds ratio that reduces risk of `in_hospital_death` i.e. OR < 1. At first glance, these seem counter-intuitive. For example, clinically, we expect those with low albumin (lower protein) to be associated with poorer outcomes than those with normal albumin levels; however, the OR for `Albumin_min` is 0.62. This does not mean that having low albumin reduces one's risk of `in_hospital_death`, rather, it should be interpreted as 'those with larger values of `Albumin_min` are less likely to die in hospital than those with lower values of `Albumin_min`'; i.e. those with a 'less low' or 'higher' `Albumin_min` value will fare better. Similar results can be seen on univariate analysis for `GCS_min`, `HCO3_min`, `Na_min`, `NISysABP_min`, `Temp_min` and `Urine_min`.
+
+
+Variables without a significant effect on `in_hospital_death` are:
+
+  * `Gender` <br>
+  * `Length_of_stay` <br>
+  * `Glucose_min` <br>
+  * `HR_min` <br>
+  * `K_min` <br>
+  * `K_max` <br>
+  * `MAP_min` <br>
+  * `Na_max` <br>
+  * `NISysABP_max` <br>
+  * `Platelets_min` <br>
+  * `PFratio` <br>
+  * `pH_max` <br>
+  * `Temp_max` <br>
+  * `TroponinI_max` <br>
 
 
 ### Multivariable logistic regression models:
 
-``` {r task1.4}
+``` {r task1.4.1}
 
 ## Create a dataset without missing or invalid data to use to build the model ##
 ## in order to remain consistent and allow comparisons between models to be made ##
@@ -610,7 +666,7 @@ for(i in 1:length(colnames(icu_patients_df1))){
 for(i in 1:length(colnames(icu_patients_df1))){
   print(c(i,colnames(icu_patients_df1[i]), sum(icu_patients_df1[i] < 0)))
 }
-## Result: negative values in Length_of_stay and SOFA (not listed in initial choice of variables anyway)
+## Result: negative values in Length_of_stay and SOFA
 
 # Create a new dataset with the only non-missing data from list of initial variables chosen
 # (excluding those with very high missingness i.e. Height, NISysABP_min, NISysABP_max)
@@ -623,13 +679,19 @@ nm_icu_model_df1 <- na.omit(subset(icu_patients_df1,
                                             BUN_max, Creatinine_max, 
                                             GCS_max, Glucose_min, Glucose_max, 
                                             HCO3_min, HR_min, HR_max, K_min, 
-                                            K_max, Lactate_max, MAP_min, Na_min,
+                                            K_max, Lactate_max, Length_of_stay, MAP_min, Na_min,
                                             Na_max, Platelets_min, PFratio, pH_min,
                                             pH_max, RespRate_min, RespRate_max,
                                             Temp_min, Temp_max, TroponinT_max, 
                                             TroponinI_max, Urine_min, WBC_min, WBC_max)))
 
+# Also exclude the negative data in Length_of_stay
+nm_icu_model_df1 <- nm_icu_model_df1[nm_icu_model_df1$Length_of_stay>=0,]
+```
 
+``` {r task1.4.2}
+
+# Fit a multivariable glm to predict in_hospital_death using
 # all variables from initially selected predictors
 full_glm <- glm(in_hospital_death ~ 
                   Age + 
@@ -665,11 +727,11 @@ full_glm <- glm(in_hospital_death ~
                   Urine_min + 
                   WBC_min + 
                   WBC_max
-                ,data=nm_icu_model_df1, family="binomial")
-summary(full_glm) #AIC 1332.1
+                , data=nm_icu_model_df1, family="binomial")
+summary(full_glm) 
 
-###
-# variables that were significant on univariate comparisons
+# Fit a multivariable model using predictor variables that were significant on univariate comparisons
+# Note: NISysABP_min was not included as there was a large amount of missing data and was excluded from the dataset
 signifUni_glm <- glm(in_hospital_death ~
                        Age + 
                        ICUType + 
@@ -684,7 +746,6 @@ signifUni_glm <- glm(in_hospital_death ~
                        HR_max +
                        Lactate_max +
                        Na_min +
-                       # NISysABP_min + this was removed from the na.omit part anyway
                        pH_min + 
                        RespRate_min +
                        RespRate_max +
@@ -694,12 +755,10 @@ signifUni_glm <- glm(in_hospital_death ~
                        WBC_min +
                        WBC_max
                      ,data=nm_icu_model_df1, family="binomial")
-summary(signifUni_glm) #AIC 1320.9
+summary(signifUni_glm) 
 
 
-
-###
-# variables that were significant in the full_glm
+# Fit a multivariable model using predictor variables that were significant in the full_glm
 signifFull_glm <- glm(in_hospital_death ~
                         Age + 
                         ICUType +
@@ -712,17 +771,23 @@ signifFull_glm <- glm(in_hospital_death ~
                         WBC_min + 
                         WBC_max
                       ,data=nm_icu_model_df1, family="binomial")
-summary(signifFull_glm) #AIC 1330.2
-# no missing data removed due to missingness
+summary(signifFull_glm)
 
-# anova doesn't work because different missing data between the models
-anova(full_glm, signifUni_glm, test="Chisq") # the parameters different between the models are not significant
-anova(full_glm, signifFull_glm, test="Chisq") # the dropped parameters between the two models do matter
+# Compare the reduced models with the full model using analysis of deviance
+lapply(list(signifUni_glm, signifFull_glm), 
+       function(x) {print(anova(full_glm, x, test="Chisq"))} )
+  ## Result: signifUni_glm - support the null hypothesis that the reduced model is a better fit than the full model
+  ##         signifFull_glm - reject the null hypothesis (i.e. the reduced model is a worse fit than the full model)
+
+# Compare the AICs of the models
+glm.AICs <- c(full_glm$aic, signifUni_glm$aic, signifFull_glm$aic)
+names(glm.AICs) <- c('full_glm AIC:', 'signifUni_glm AIC:', 'signifFull_glm AIC:')
+glm.AICs
+  ## Result: signifUni_glm has the lowest AIC
 
 
-###
-# using the model with the lowest AIC
-# reduce it even further
+# Further refine the model:
+# use the step() function to search the model space with the lowest AIC
 reduced_signifUni_glm <- step(signifUni_glm, trace=1)
 # removed variables were:
   # Glucose_max
@@ -732,21 +797,28 @@ reduced_signifUni_glm <- step(signifUni_glm, trace=1)
   # Weight_max
   # RespRate_max
   # Creatinine_max
-summary(reduced_signifUni_glm) # AIC 1311.1
+summary(reduced_signifUni_glm)
 
-anova(reduced_signifUni_glm,signifUni_glm, test="Chisq") 
-# p value not significant, the dropped parameters are not significant
+# Compare the deviance of the further reduced model to signifUni_glm 
+anova(reduced_signifUni_glm, signifUni_glm, test="Chisq") 
+  ## Result: p value is not significant, the dropped parameters do not improve the fit of the model
 
 ```
 
-**commentary to explain developing the models above**
+1) *Full model* - a logistic model with all selected variables (excluding those with high degree of missingness) has been fitted. In the resulting fitted model, Age, ICUType, Albumin_min, Bilirubin_max, BUN_max, GCS_max, Temp_min, Urine_min, WBC_min and WBC_max are significant. These results do align with our brief EDA. The AIC of the model is 1322. <br>
+
+2) *Significant on univariate model* - for parsimony, we look for a reduced model with fewer variables than can adequately explain the occurrence of in-hospital death for the ICU patient population. Our first attempt is to only include variables were significant in univariate logistic regression. Since the reduced model is nested in the full model, we use analysis of deviance to compare the two models. We accept the null hypothesis (p = 0.31) and conclude that the reduced model is a better fit to the data. This conclusion aligns with the models' respective AICs - the `signifUni_glm` model has a lower AIC of 1312. <br>
+
+3) *Significant on full model* - the second attempt, reduces the full model again, this time by only including variables that were significant in the original full model itself. We again use the analysis of deviance to compare this model with the full model as the models are nested. We reject the null hypothesis (p = 0.004) and conclude that the full model is a better fit to the data. The AIC of this model (1321) is very similar to the full model (1322), however we do not continue to improve on the model as the significant analysis of deviance suggests we have excluded one or more important predictors. <br>
+
+4) *Reduced significant on univariate variable model* - a further attempt to simplify this predictive model starts with the `signifUni_glm` model (number 2 in this list) and uses the step function to search the model space for a model with a better fit and fewer covariates. After 6 iterations, the reduced model includes 14 covariates. The variables: `Glucose_max`, `TroponinT_max`, `HCO3_min`, `RespRate_min`, `Weight_max`, `RespRate_max` and `Creatinine_max` were removed. When compared with the full model using analysis of deviance, the null hypothesis (p = 0.7) is accepted and we  conclude that this reduced model is a better fit to the data than the full model. Furthermore, there is greater parsimony and the AIC is further reduced to 1302. <br>
 
 
 ### Final multivariable logistic regression model:
 
 ```{r task1.5}
-
-# same as model above: reduced_signifUni_glm
+# Choosing a final model
+# Initially, start with the same as the best-performing model above: reduced_signifUni_glm
 finalICU_glm <- glm(in_hospital_death ~ 
                       Age +
                       ICUType + 
@@ -763,10 +835,10 @@ finalICU_glm <- glm(in_hospital_death ~
                       WBC_min + 
                       WBC_max
                     ,data=nm_icu_model_df1, family="binomial")
-summary(finalICU_glm) # AIC 1311.1
+summary(finalICU_glm) 
 
 
-### testing interactions
+## Test some interactions based on clinical knowledge ##
 
 # finalICU_glm_AgeCr = finalICU_glm + Age:Creatinine_max
 finalICU_glm_AgeCr <- glm(in_hospital_death ~ 
@@ -788,7 +860,7 @@ finalICU_glm_AgeCr <- glm(in_hospital_death ~
                       # interaction term  
                       Age:Creatinine_max # creatinine generally increases with age
                     , data=nm_icu_model_df1, family="binomial")
-summary(finalICU_glm_AgeCr) # AIC 1311.6
+summary(finalICU_glm_AgeCr)
 
 # finalICU_glm_AgeTemp = finalICU_glm + Age:Temp_min
 finalICU_glm_AgeTemp <- glm(in_hospital_death ~ 
@@ -810,9 +882,9 @@ finalICU_glm_AgeTemp <- glm(in_hospital_death ~
                       # interaction term  
                       Age:Temp_min # low temp more often associated with illness in the elderly e.g. cold sepsis
                     , data=nm_icu_model_df1, family="binomial")
-summary(finalICU_glm_AgeTemp) # AIC 1313.1
+summary(finalICU_glm_AgeTemp)
 
-# finalICU_glm_AgeWeight = finalICU_glm + Age:Weight_max (rather than using Weight_min previously)
+# finalICU_glm_AgeWeight = finalICU_glm + Age:Weight_max 
 finalICU_glm_AgeWeight <- glm(in_hospital_death ~ 
                       Age +
                       ICUType + 
@@ -832,7 +904,7 @@ finalICU_glm_AgeWeight <- glm(in_hospital_death ~
                       # interaction term  
                       Age:Weight_max # weight generally decreases with age
                     , data=nm_icu_model_df1, family="binomial")
-summary(finalICU_glm_AgeWeight) # AIC 1311
+summary(finalICU_glm_AgeWeight)
 
 # finalICU_glm_AgeAlbumin = finalICU_glm + Age:Albumin_min
 finalICU_glm_AgeAlbumin <- glm(in_hospital_death ~ 
@@ -854,7 +926,7 @@ finalICU_glm_AgeAlbumin <- glm(in_hospital_death ~
                       # interaction term  
                       Age:Albumin_min # albumin generally decreases with age
                     , data=nm_icu_model_df1, family="binomial")
-summary(finalICU_glm_AgeAlbumin) # AIC 1309
+summary(finalICU_glm_AgeAlbumin) 
 
 # finalICU_glm_AgeICUType = finalICU_glm + Age:ICUType
 finalICU_glm_AgeICUType <- glm(in_hospital_death ~ 
@@ -878,12 +950,9 @@ finalICU_glm_AgeICUType <- glm(in_hospital_death ~
                                   # e.g. elderly more likely to have poor outcome 
                                   # after surgery requiring post-op ICU support
                     , data=nm_icu_model_df1, family="binomial")
-summary(finalICU_glm_AgeICUType) # AIC 1307
+summary(finalICU_glm_AgeICUType) 
 
-# Code from previous attempt at task 1
-# Gender:HCT, PaO2:RespRate not tested because they are not in the final model
-
-# Anova testing for the new models
+# Analysis of deviance tests for the new models
 lapply(list(finalICU_glm_AgeCr, finalICU_glm_AgeTemp, finalICU_glm_AgeWeight,
             finalICU_glm_AgeAlbumin, finalICU_glm_AgeICUType), 
        function(x) {print(anova(finalICU_glm, x, test="Chisq"))} )
@@ -912,67 +981,17 @@ finalICU_glm_interactions <- glm(in_hospital_death ~
                       # significant interaction terms
                       Age:ICUType + Age:Albumin_min
                     , data=nm_icu_model_df1, family="binomial")
-summary(finalICU_glm_interactions) # AIC 1305 (lowest so far - lower than just including age:icutype)
-
-```
-
-
-***
-? Do we include this poisson section, or just discuss it?
-***
-
-Testing the modified poisson regression, as the outcome is 14% in this data (>10% - common)
-
-```{r task 1.5_test-poisson}
-#################################################################################
-# NEED TO DECIDE WHETHER TO INCLUDE THIS SECTION
-
-# test using modified poisson regression for more common outcomes on the same covariates as above
-
-finalICU_glm_poisson <- glm(in_hospital_death ~ 
-                      Age +
-                      ICUType + 
-                      Albumin_min + 
-                      Bilirubin_max +
-                      BUN_max + 
-                      GCS_max + 
-                      HR_max + 
-                      Lactate_max + 
-                      Na_min + 
-                      pH_min + 
-                      Temp_min + 
-                      Urine_min + 
-                      WBC_min + 
-                      WBC_max
-                      
-                      # changed dataset to fit what we use for rest of task 1
-                    , data=nm_icu_model_df1, family="poisson"(link="log")) 
-
-summary(finalICU_glm_poisson) # AIC 1432.5
-
-# fewer significant variables (likely as CI can be wider in poisson)
-# but the variables that are significant were also significant in the logistic model
-
-# examine ORs from logistic regression
-options(scipen=999) # turn off scientific notation
+summary(finalICU_glm_interactions) 
 exp(coef(finalICU_glm_interactions))
-
-# examine RRs from logistic regression
-exp(coef(finalICU_glm_poisson))
-
-# the ORs and RRs appear very similar --> check the actual differences
-exp(coef(finalICU_glm_interactions))-exp(coef(finalICU_glm_poisson))
-# the intercept is very different (by 1141036498?!) - not sure how to interpret that. the other estimates are very similar
-
-# perhaps the logistic model is therefore justified? just need to be careful in interpretation using 'odds' rather than 'risk'
-
-#################################################################################
+exp(confint(finalICU_glm_interactions))
 ```
+In order to further improve the model, we choose to test some interaction terms based on clinical/conceptual interactions between predictors. The tested interactions were `Age` with each of: `Creatinine_max`, `Temp_min`, `Weight_max`, `Albumin_min` and `ICUType.` Each interaction term was added one at a time and compared to the provisional 'final' model with analysis of deviance. The analysis of deviance revealed a significant interaction effect on the model of Age:ICUType and Age:Albumin_min. Both terms were added to the provisional final model and the resulting model had a lower AIC again of 1297 (compared to 1302).
 
 
 ### Final model diagnostics:
 
 ```{r task1.6}
+## Using the 'final' model = finalICU_glm_interactions: ##
 
 ### Goodness of fit using bins df1 ###
 
@@ -995,6 +1014,7 @@ ggplot(aes(x=predprob_bin,
   labs(x="Predicted probability (binned)",
        y="Observed proportion (in each bin)")
 # the ideal calibration line fits within most of the dots and their 95% CI
+
 
 ### Goodness of fit using Hosmer Lemeshow stat ###
 
@@ -1026,8 +1046,51 @@ get_brier(finalICU_glm_interactions)
 
 # the final model with interactions has slightly lower brier score -> lower score is better fit
 
-```
 
+### ROC Curve ###
+
+# add the predicted probailities to the data frame
+nm_icu_model_df1 %>% mutate(predprob=predict(finalICU_glm_interactions, type="response")) -> nm_icu_model_df1
+
+# create multiple probability thresholds from 0.01 to 0.95
+thresholds <- seq(0.01, 0.95, by=0.01)
+# initialise sensitivities/specificities at the same length as thresholds vector
+sensitivities <- numeric(length(thresholds))
+specificities <- numeric(length(thresholds))
+
+# for each probability threshold, run this loop
+for (i in seq_along(thresholds)) {
+  # assign yes or no - if predicted probability greater to threshold
+  pp <- ifelse(nm_icu_model_df1$predprob < thresholds[i], "no", "yes")
+  # create confusion matrix with respective in_hospital_death and pp values
+  xx <- xtabs( ~ in_hospital_death + pp, data=nm_icu_model_df1)
+  # calculate sens and spec for each threshold using confusion matrix values
+  specificities[i] <- xx[1,1] / (xx[1,1] + xx[1,2])
+  sensitivities[i] <- xx[2,2] / (xx[2,1] + xx[2,2])
+}
+
+# plot the ROC
+plot(1 - specificities, sensitivities, type="l",
+        xlab="1 - Specificity", ylab="Sensitivity", xlim=c(0,1), ylim=c(0,1))
+abline(0,1, lty=2)
+
+# calculate AUC
+# sorts sensitivity and specificities into x and y coordinates
+x <- sort(1-specificities)
+y <- sort(sensitivities)
+
+# use AUC function from DescTools package to calculate AUC
+library(DescTools)
+paste('The AUC is:', AUC(x,y))
+
+```
+***
+Final paragraph
+- summarising the most important findings of your final model & diagnostics. Include the most important values from the statistical output, and a simple clinical interpretation.
+- ?explain why not poisson
+- highlight that the aim is predictive (not explanatory), hence why some important values for understanding all risk factors not included
+
+***
 
 ### Re-fitting the model to the original data:
 
@@ -1102,9 +1165,6 @@ summary(finalICU_glm_interactions)
 ```
 
 ***
-Final paragraph
-- summarising the most important findings of your final model & diagnostics. Include the most important values from the statistical output, and a simple clinical interpretation.
-- ?explain why not poisson
 - explain what we see when fitting to df0
 ***
 
@@ -1147,7 +1207,8 @@ DEMOGRAPHIC VARIABLES: <br>
   * `Gender`<br>
   * `ICUType`<br>
   * `Height`<br>
-  * `Weight_max`<br><br>
+  * `Weight_max`<br>
+  * `Length_of_stay` <br><br>
   
 CLINICAL VARIABLES: <br>
   * `Albumin_min`<br>
