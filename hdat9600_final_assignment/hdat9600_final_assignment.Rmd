@@ -1085,10 +1085,18 @@ paste('The AUC is:', AUC(x,y))
 
 ```
 ***
-Final paragraph
-- summarising the most important findings of your final model & diagnostics. Include the most important values from the statistical output, and a simple clinical interpretation.
-- ?explain why not poisson
-- highlight that the aim is predictive (not explanatory), hence why some important values for understanding all risk factors not included
+
+Our multivariable logistic regression model for mortality of the imputed ICU dataset (icu_patients_df1) is based on initial variables selected due to known association with mortality either individually or as part of a validated ICU risk score (SOFA, SAPS1 and APACHE). Based on initial EDA, variables with a large proportion of missing data were excluded from the analysis (Height, NISysABP_min, NISysABP_max).
+
+The initial model with all variables known to be associated with mortality (full_glm, AIC 1332) was refined to contain variables found to have significant association with mortality in univariate analysis (signifUni_glm, AIC 1321). The statistically significant variables from this mutrivariable model were further distilled using stepwise regression to include 14 covariates (reduced_signifUni_glm, AIC 1311). Based on clinical basis and ANOVA analysis of various models, interaction terms age:albumin (p=0.054) and age:icutype (p=0.016) were also included to produce the final model. Appropriate goodness of fit was demonstrated using bins as well as the Hosmer Lemeshow test, where a non-significant p value (p=0.37) was achieved and inclusion of interaction terms demonstrated an improved Brier score (0.1013 compared to 0.1022). The AUC of the ROC was 0.75 suggesting an acceptable clinical prediction model. 
+
+Our final model suggests that:
+•	Age, Type of ICU admission, minimum albumin/ Sodium/ pH/ Temperature/ Urine Output/ WBC, maximum Bilirubin/ BUN/ GCS/ Heart Rate/ Lactate/ WBC
+•	as well as Age when associated with ICU type and minimum albumin
+Predicts ICU mortality in adult ICU patients with ICU length of stay >48 hours.
+
+Our goal in creating this model was a predictive model rather than an explanatory model, hence why some important values for understanding all risk factors not included
+
 
 ***
 
@@ -1165,7 +1173,7 @@ summary(finalICU_glm_interactions)
 ```
 
 ***
-- explain what we see when fitting to df0
+Notably, when the final model was tested on the unimputed data, it was observed that many of the variables that were noted to be significant in the imputed data, were no longer significant. A potential explanation for this may be reduced power of the unimputed dataset to produce a statistically significant result due to the magnitude of missing variables.
 ***
 
 
