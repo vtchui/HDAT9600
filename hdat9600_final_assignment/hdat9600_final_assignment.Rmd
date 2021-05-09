@@ -991,7 +991,7 @@ exp(coef(finalICU_glm_interactions))
 exp(confint(finalICU_glm_interactions))
 ```
 
-In order to further improve the model, we choose to test some interaction terms based on clinical/conceptual interactions between predictors. The tested interactions were `Age` with each of: `Creatinine_max`, `Temp_min`, `Weight_max`, `Albumin_min` and `ICUType.` Each interaction term was added one at a time and compared to the provisional 'final' model with analysis of deviance. The analysis of deviance revealed a significant interaction effect on the model of Age:ICUType (p = 0.016) and Age:Albumin_min (p = 0.054). Both terms were added to the provisional final model and the resulting model had a lower AIC again of 1297 (compared to 1302).
+In order to further improve the model, we choose to test some interaction terms based on clinical/conceptual interactions between predictors. The tested interactions were `Age` with each of: `Creatinine_max`, `Temp_min`, `Weight_max`, `Albumin_min` and `ICUType.` Each interaction term was added one at a time and compared to the provisional 'final' model with analysis of deviance. The analysis of deviance revealed a significant interaction effect on the model of `Age:ICUType` (p = 0.016) and `Age:Albumin_min` (p = 0.054). Both terms were added to the provisional final model and the resulting model had a lower AIC again of 1297 (compared to 1302).
 
 
 ### Final model diagnostics:
@@ -1077,7 +1077,8 @@ for (i in seq_along(thresholds)) {
 
 # plot the ROC
 plot(1 - specificities, sensitivities, type="l",
-        xlab="1 - Specificity", ylab="Sensitivity", xlim=c(0,1), ylim=c(0,1))
+        xlab="1 - Specificity", ylab="Sensitivity", main='ROC curve of the final model',
+        xlim=c(0,1), ylim=c(0,1))
 abline(0,1, lty=2)
 
 # calculate AUC
@@ -1096,13 +1097,17 @@ After analysing a series of fitted multivariable logistic regression models and 
 
 Goodness of fit of the chosen final model was explored using several methods. Firstly, we plot predicted probabilities in bins against the observed proportions in each bin to examine calibration. The plot shows sound calibration, with similar observed proportions and predicted probabilities, without any systematic deviation from the ideal calibration line. Further, almost all 95% CIs (except one) of each bin overlap the ideal calibration line, which suggests the model is realtively well-calibrated. The non-significant Hosmer-Lemeshow test (p=0.66) further supports no 'lack of fit' of the model, although this test is not without limitations and the choice of bins is arbitrary. The Brier score test (which does not rely on arbitrary bins) does further support the choice of the final model with interaction terms included (`finalICU_glm_interactions`) over the model without interaction terms (`finalICU_glm`), with the former having a marginally lower Brier score (0.102 vs 0.103) indicating greater predictive ability. Lastly, the predictive value of this model (`finalICU_glm_interactions`) was assessed by producing a ROC (receiver operating characteristic) curve. The ROC curve suggests moderate predictive ability of the model, with an AUC of 0.75 - indicating approximately a 75% chance of the model correctly predicting whether a patient will experience `in_hospital_death` after an ICU admission of >48 hours.
 
-The pertinent characteristics of our predictive model suggests that in the first 24 hours of an ICU admission, higher `Albumin_min` (OR: 0.26, 95% CI: 0.08-0.77, p = 0.02), `GCS_max` (OR: 0.83, 95% CI: 0.80-0.87, p < 0.001), `Na_min` (OR: 0.96, 95% CI: 0.94-0.99, p = 0.006), `Temp_min` (OR: 0.85, 95% CI: 0.73-0.99, p = 0.04), `Urine_min` (OR: 0.99, 95% CI: 0.99-1.00 p = 0.02) and `WBC_max` (OR: 0.93, 95% CI: 0.89-0.97, p = 0.002) values _reduce_ the odds of in-hospital death after an ICU admission of >48 hours, while higher `Bilirubin_max` (OR: 1.05, 95% CI: 1.02-1.08, p < 0.001), `BUN_max` (OR: 1.02, 95% CI: 1.01-1.02, p < 0.001), `HR_max` (OR: 1.01, 95% CI: 1.00-1.01, p = 0.02) and `WBC_min` (OR: 1.08, 95% CI: 1.03-1.14, p = 0.003) values _increase_ the odds of in-hospital death after an ICU admission of >48 hours.
+<br>
+
+The pertinent characteristics of our predictive model suggests that in the first 24 hours of an ICU admission, higher `Albumin_min` (OR: 0.26, 95% CI: 0.08-0.77, p = 0.02), `GCS_max` (OR: 0.83, 95% CI: 0.80-0.87, p < 0.001), `Na_min` (OR: 0.96, 95% CI: 0.94-0.99, p = 0.006), `Temp_min` (OR: 0.85, 95% CI: 0.73-0.99, p = 0.04), `Urine_min` (OR: 0.99, 95% CI: 0.99-1.00 p = 0.02) and `WBC_max` (OR: 0.93, 95% CI: 0.89-0.97, p = 0.002) values **reduce** the odds of in-hospital death after an ICU admission of >48 hours; while higher `Bilirubin_max` (OR: 1.05, 95% CI: 1.02-1.08, p < 0.001), `BUN_max` (OR: 1.02, 95% CI: 1.01-1.02, p < 0.001), `HR_max` (OR: 1.01, 95% CI: 1.00-1.01, p = 0.02) and `WBC_min` (OR: 1.08, 95% CI: 1.03-1.14, p = 0.003) values **increase** the odds of in-hospital death after an ICU admission of >48 hours.
 
 Based on the OR and profiled 95% CIs of these predictors of in-hospital death, in the first 24 hours of ICU admission, having a higher minimum albumin level and higher maximum GCS score reduce the odds of in-hospital death with relative certainty, while having a higher minimum white blood cell count increases the odds of in-hospital death in the ICU population.
 
 Although these individual ORs provide some insights into the relative importance of different parameters, adequate overall prediction of in-hospital death after an ICU admission of >48 hours requires all of the predictor variables in the final model. Interestingly, age is not an individual predictor of in-hospital death using our model, although it remains important to include for the model's overall predictive capability.
 
 As the goal of our model was predictive, there may be other important parameters that are required to better understand and explain in-hospital death after ICU admission, however our aim was to produce the simplest possible model to adequately predict the outcome of interest, hence some of these explanatory values may not be included.
+
+<br>
 
 Finally, it is important to note that as the outcome `in_hospital_death` was not uncommon in this dataset (297 deaths out of 2061 observations = 14.4%), the logistic regression output must be interpreted with caution. The listed ORs (odds ratios) must not be interpreted as RRs (risk ratios), as with a relatively common outcome (>10% observations), odds no longer estimates risk (it over-estimates risk). In further analysis, it may be useful to trial other types of regression to calculate RRs rather than ORs, such as log-binomial (although may encounter non-convergence with many predictors) or modified poisson regression.
 
@@ -1147,6 +1152,7 @@ When the final model was re-fitted to the the unimputed data (icu_patients_df0),
 
 Many of the variables that were significant when fitted to the imputed data, were no longer significant. Only four (compared to ten) predictors remained significant. The profiled 95% confidence intervals were also significantly wider, especially notable in the `ICUType` variable (upper CI up to nearly 70000!). Therefore, we see that the precision of the estimators in the model is much lower, due to the large amount of lost data to missingness. If one was to pursue using the original dataset with substantial missingness, it would be important to identify any patterns in the missing data to ensure potential sources of bias were identified and accounted for.
 
+<br>
 
 
 # Task 2 (15 marks)
@@ -1294,9 +1300,6 @@ length(neg_val)
     
 * The median values (50% quantile) and IQR (25% - 75% quantiles) are displayed for all continuous variables.
 
-*** 
-Deleted the commentary for median values - I think it is clear from the code output and doesn't need additional explaining.
-***
 
 
 ```{r task 2.2.3}
@@ -1528,12 +1531,14 @@ summary(ICU.fitbyWBCmax)
                                              TroponinI_max, Urine_min, WBC_min, WBC_max)))
 
  dim(nm_icu_model_df1)
+ 
+# Also exclude the negative data in Length_of_stay 
  nm_icu_model_df1<-nm_icu_model_df1[nm_icu_model_df1$Length_of_stay>=0,]
  dim(nm_icu_model_df1)
  
 ```
 
-Due to the high degree of missingness, `NISysABP_min`,  `NISysABP_max` and `Height` variables will be excluded from the multivariate modelling. After removing missing values, the resulting dataset used to fit multivariable models has 1915 observations.
+Due to the high degree of missingness, `NISysABP_min`,  `NISysABP_max` and `Height` variables will be excluded from the multivariate modelling. The negative values of `Length_of_stay` are also removed. After removing missing and negative values, the resulting dataset used to fit multivariable models has 1891 observations.
 
 
 ```{r task 2.4.2 }
@@ -1624,7 +1629,7 @@ lapply(list(ICU.mv_reduced1, ICU.mv_reduced2, ICU.mv_reduced3, ICU.mv_reduced4),
 
 # Print the AICs all together to review
 aic_output <- c(AIC.mv_full, AIC.mv_reduced1, AIC.mv_reduced2, AIC.mv_reduced3, AIC.mv_reduced4)
-names(aic_output) <- c('Full AIC', 'Reduced 1 AIC', 'Reduced 2 AIC', 'Reduced 3 AIC', 'Reduced 4 AIC')
+names(aic_output) <- c('Full AIC:', 'Reduced 1 AIC:', 'Reduced 2 AIC:', 'Reduced 3 AIC:', 'Reduced 4 AIC:')
 print(aic_output)
 
 ## Decision: use ICU.mv_reduced4 as the provisional final model (lowest AIC and non-significant LRT)
@@ -1694,8 +1699,7 @@ ICU.mv_reduced4.nofactor <- coxph(Surv(Days, Status) ~
                                   pH_min + Temp_max + Urine_min,
                                   data = nm_icu_model_df1)
 ggcoxfunctional(ICU.mv_reduced4.nofactor, nm_icu_model_df1)
-## Result: they don't look particularly linear... especially with laboratory values very far from the reference ranges 
-##         (likely few observations in this range / potential outliers)
+## Result: Some observations with non-linear residuals, particularly in the extremes of that value
 
 
 # Check linearity of the model as a whole
@@ -1732,7 +1736,7 @@ summary(ICU.mv_reduced4.split.noutliers)
 
 # Calculate the split/no outlier model AIC
 AIC.mv_reduced4.split.noutliers <- calc_aic(ICU.mv_reduced4.split.noutliers)
-AIC.mv_reduced4.split.noutliers #9993 -- improvement
+AIC.mv_reduced4.split.noutliers 
 
 ## Decision: use the 4th reduced model, split at time 3 months (90 days) on the split dataset with the outliers removed as the final dataset
 
@@ -1795,22 +1799,22 @@ summary(ICU.final.cox)
 
 ```
 
-* The estimated coefficients, related hazard rates (exponential of these coefficients) and the confidence interval of the hazard rates allow us to make some conclusions about clinical measures and their impact on ICU survival.
+* The estimated coefficients, related hazard rates (exponential of these coefficients) and the confidence interval of the hazard rates allow us to make some conclusions about clinical measures in the first 24 hours of ICU admission, and their impact on overall survival.
     * `Age` - for every additional year of survival, the difference in mortality risk is significant, increasing by 3.5% with a 95% confidence that this increase could range between 2.95% and 4.07% per year.
-    * `BUN_max` - for every additional unit of urea, difference in mortality risk is significant, increasing by 1.1% (95% confidence between 0.8% and 1.4%).
-    * `Na_max` - for every additional unit of Na, difference in mortality risk is significant, decreasing by 4% (95% confidence between 3.5% and 5.5%).
-    * `pH_min` - for every additional unit of pH, risk of mortality decreases in 35% but the 95% confidence interval is large, ranging between a reduction of 4% and 55%). This could be due to the sensitivity of the measure as humans are highly unlikely to increase or decrease pH by 1 whole unit.
-    * `Temp_max` - for every additional unit of temperature, mortality risk decreases by 15% (95% confidence interval between 5% and 23%).
-    * `Urine_max` - for every additional 10ml or urine output, the risk of mortality decreases by 2% (confidence interval between 0% and 4%).
+    * `BUN_max` - for every additional unit of maximum urea, difference in mortality risk is significant, increasing by 1.1% (95% confidence between 0.8% and 1.4%).
+    * `Na_max` - for every additional unit of maximum sodium, difference in mortality risk is significant, decreasing by 4% (95% confidence between 3.5% and 5.5%).
+    * `pH_min` - for every additional unit of minimum pH, risk of mortality decreases in 35% but the 95% confidence interval is large, ranging between a reduction of 4% and 55%). This could be due to the sensitivity of the measure as humans are highly unlikely to increase or decrease pH by 1 whole unit (normal pH range is narrow: 7.35-7.45).
+    * `Temp_max` - for every additional unit of maximum temperature, mortality risk decreases by 15% (95% confidence interval between 5% and 23%).
+    * `Urine_max` - for every additional 10mL of maximum urine output, the risk of mortality decreases by 2% (confidence interval between 0% and 4%).
     
 * As mentioned earlier, the variables which have been split into 2 time periods produce the following insights:
-    * `ICUType` - the reference group is those in Surgical ICU. Those in Medical ICU are 21.6% more likely to die than those is surgical ICU within the first 90 days.  For those who survive the first 90 days, this risk increases to 75.4%. For those in Cardiac SUrgery Recovery Unit, the risk is 70% lower than Surgical ICU for those who survive less than 90 days. This changes to 30% lower than risk for Surgical ICU for those who survive more than 90 days.
-    * `Albumin_min` - for every additional unit of Albumin, the risk of mortality is  22% lower for those that die within the first 90 days. For those that survive more than 90 days, the risk of mortality does not significantly differ by level of Albumin  as the confidence interval for the second period includes the value 1.
+    * `ICUType` - the reference group is those in Surgical ICU. Those in Medical ICU are 21.6% more likely to die than those in surgical ICU within the first 90 days.  For those who survive the first 90 days, this risk increases to 75.4%. For those in Cardiac Surgery Recovery Unit, the risk is 70% lower than Surgical ICU for those who survive less than 90 days. This changes to 30% lower than risk for Surgical ICU for those who survive more than 90 days.
+    * `Albumin_min` - for every additional unit of minimum albumin, the risk of mortality is 22% lower for those that die within the first 90 days. For those that survive more than 90 days, the risk of mortality does not significantly differ by level of Albumin as the confidence interval for the second period includes the value 1.
     * `Bilirubin_max` - the impact on mortality risk is not significant for either time period as the confidence interval includes 1.
-    * `GCS_max` - for every additional unit of GCS, the mortality risk is reduced significantly in both periods. For the first 90 days,  the risk is reduced by 12%. For the subsequent period, the risk is reduced by 7%.
-    * `HCO3_min` - for the first time period (< 90 days) there is no significant difference in mortality risk by level of HCO3. However, in the subsequent period, every additional unit of HCO3 results in an increased mortality by 4%.
-    * `HR_min` - for every additional 10 beats per minute, there is a 8% increase in mortality for those that die within the first 90 days. The difference is not significant for patients who survive more than 90 days.
-    * `Lactate` - for every additional unit of Lactate, there us 9% increase in mortality risk for those who die within the first 90 days. The difference is not significant for the subsequent period.
+    * `GCS_max` - for every additional unit of maximum GCS score, the mortality risk is reduced significantly in both periods. For the first 90 days, the risk is reduced by 12%. For the subsequent period, the risk is reduced by 7%.
+    * `HCO3_min` - for the first time period (< 90 days) there is no significant difference in mortality risk by minimum level of HCO3. However, in the subsequent period, every additional unit of minimum HCO3 results in an increased mortality by 4%.
+    * `HR_min` - for every additional 10 beats per minute in the minimum recorded HR, there is a 8% increase in mortality for those that die within the first 90 days. The difference is not significant for patients who survive more than 90 days.
+    * `Lactate_max` - for every additional unit of maximum lactate, there us 9% increase in mortality risk for those who die within the first 90 days. The difference is not significant for the subsequent period.
     
     
 ### Final model diagnostics:
@@ -1881,26 +1885,23 @@ Difference when fitted to dataset without imputed values of missing observations
     * The coefficient estimates are significantly different for `pH`, `Temp_max`, `ICUType` and `Albumin` which leads to vastly different inferences on the impact of these variables on mortality risk.
     * The confidence intervals are much wider for the model on df0 reflecting the fewer data points, which increases the uncertainty (decreases precision) in the estimation of coefficients. 
 
-
-**Findings of Final Model:**
-
-**SUMMARY**
-
-Our Cox proportional hazards survival model of the icu_patients_df1 dataset is based on initial variables selected due to known association with morbidity and mortality either individually or as part of a validated ICU risk score (SOFA, SAPS1 and APACHE). Based on initial EDA, variables with a large proportion of missing data were excluded from the analysis (Height, NISysABP_min, NISysABP_max).
-
-The initial full model with all variables known to be associated with survival (Model 1, AIC 10136) was distilled using stepwise regression to include 18 covariates (Model 3, AIC 10113). Only significant variables (p<0.01) from this reduced model were included in the subsequent multivariable Cox proportional model (Model 4, AIC 10113). This model was subsequently adjusted to satisfy the proportional hazards assumption by including covariate - time interaction terms (dataset split at 90 days) and further adjusted to satisfy the linearity assumption by removing extreme outliers (Final Model, global test p value=0.08 AIC 10057).
-
-Our final model suggests that:
-•	Age, maximum BUN/ Na/ Temperature and minimum pH/Urine output,
-•	as well as ICUtype, minimum Albumin/ HCO3/ HR and maximum Bilirubin/ GCS/ Lactate when stratified by length of stay greater or lesser than 90 days
-Predicts survival in adult ICU patients with ICU length of stay >48 hours.
-
-Predictors that had a large magnitude of effect on survival include the individual variables of age and minimum pH, as well as the stratified variables of minimum albumin, type of ICU admission and GCS.
+<br>
 
 
+**Summary of findings of the final model:**
 
+Our Cox proportional hazards survival model of the icu_patients_df1 dataset is based on initial variables selected due to known association with morbidity and mortality either individually or as part of a validated ICU risk score (SOFA, SAPS1 and APACHE). Based on initial EDA, variables with a large proportion of missing data were excluded from the analysis (`Height`, `NISysABP_min`, `NISysABP_max`).
 
+After analysing a series of fitted Cox proportional hazard models and addressing issues with assumptions, as explained above, we arrive at the final chosen model to predict overall survival in patients who had been admitted to ICU for >48 hours: `ICU.final.cox`.
 
+Indepth discussion of the hazard rates for individual parameters is outlined above. The final Cox proportional hazards model suggests that in the first 24 hours of ICU admission, age, maximum BUN, maximum sodium, maximum temperature, minimum pH, minimum urine output, as well as ICU type, minimum albumin, minimum bicarbonate (HCO3), minimum heart rate, maximum bilirubin, maximum GCS and maximum lactate when stratified by survival lesser or greater than 90 days, predicts overall survival in adult ICU patients with ICU admissions >48 hours.
+
+Based on our final model, ICU patients who have longer overall survival, in the first 24 hours of ICU admission, had lower age, lower maximum urea, higher maximum sodium, higher minimum pH, higher maximum temperature and higher maximum GCS scores. For patients that did not survive past 90 days, their survival was longer with higher minimum albumin, lower minimum heart rate and lower maximum lactate. For patients who did survive past 90 days, their survival was longer with lower minimum bicarbonate (HCO3) levels. Patients also had longer overall survival in Surgical ICU compared to Medical ICU, and in Cardiac Surgery Recovery Unit compared to Surgical ICU.
+
+Individual predictors that had a large magnitude of effect on survival include age and minimum pH, as well as the stratified variables (by survival more or less than 90 days) of minimum albumin, type of ICU admission and maximum GCS. 
+
+<br>
+<br>
 
 ## Save, knit and submit
 
