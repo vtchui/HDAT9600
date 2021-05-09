@@ -398,7 +398,7 @@ grid.arrange(icutype_plot, gender_plot, nrow=1)
     * `Weight_max` - 146 missing observations <br>
     * `Height` - 992 missing observations <br>
     * `NISysABP_min` & `NISysABP_max` - 453 missing observations <br>
-* `Length_of_stay` has some invalid (-1) values
+    * `Length_of_stay` has 24 invalid (-1) values
     
 * Proportion of in hospital deaths were observed for each variable:
     * Those that died in hospital had higher SAPS1 and SOFA scores (as expected, as these scores are validated to predict mortality).
