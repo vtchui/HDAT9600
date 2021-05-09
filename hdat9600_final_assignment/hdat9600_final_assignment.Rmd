@@ -150,6 +150,7 @@ library(ggplot2)
 library(gridExtra)
 library(magrittr)
 library(dplyr)
+library(DescTools)
 library(survival)
 library(eha)
 library(stringi)
@@ -711,6 +712,7 @@ full_glm <- glm(in_hospital_death ~
                   K_min + 
                   K_max + 
                   Lactate_max + 
+                  Length_of_stay +
                   MAP_min + 
                   Na_min +
                   Na_max +
@@ -805,20 +807,21 @@ anova(reduced_signifUni_glm, signifUni_glm, test="Chisq")
 
 ```
 
-1) *Full model* - a logistic model with all selected variables (excluding those with high degree of missingness) has been fitted. In the resulting fitted model, Age, ICUType, Albumin_min, Bilirubin_max, BUN_max, GCS_max, Temp_min, Urine_min, WBC_min and WBC_max are significant. These results do align with our brief EDA. The AIC of the model is 1322. <br>
+1) *Full model* - a logistic model with all selected variables (excluding those with high degree of missingness) has been fitted. In the resulting fitted model, Age, ICUType, Albumin_min, Bilirubin_max, BUN_max, GCS_max, Temp_min, Urine_min, WBC_min and WBC_max are significant. These results do align with our brief EDA. The AIC of the model is 1323. <br>
 
-2) *Significant on univariate model* - for parsimony, we look for a reduced model with fewer variables than can adequately explain the occurrence of in-hospital death for the ICU patient population. Our first attempt is to only include variables were significant in univariate logistic regression. Since the reduced model is nested in the full model, we use analysis of deviance to compare the two models. We accept the null hypothesis (p = 0.31) and conclude that the reduced model is a better fit to the data. This conclusion aligns with the models' respective AICs - the `signifUni_glm` model has a lower AIC of 1312. <br>
+2) *Significant on univariate model* - for parsimony, we look for a reduced model with fewer variables than can adequately explain the occurrence of in-hospital death for the ICU patient population. Our first attempt is to only include variables were significant in univariate logistic regression. Since the reduced model is nested in the full model, we use analysis of deviance to compare the two models. We accept the null hypothesis (p = 0.32) and conclude that the reduced model is a better fit to the data. This conclusion aligns with the models' respective AICs - the `signifUni_glm` model has a lower AIC of 1312. <br>
 
-3) *Significant on full model* - the second attempt, reduces the full model again, this time by only including variables that were significant in the original full model itself. We again use the analysis of deviance to compare this model with the full model as the models are nested. We reject the null hypothesis (p = 0.004) and conclude that the full model is a better fit to the data. The AIC of this model (1321) is very similar to the full model (1322), however we do not continue to improve on the model as the significant analysis of deviance suggests we have excluded one or more important predictors. <br>
+3) *Significant on full model* - the second attempt, reduces the full model again, this time by only including variables that were significant in the original full model itself. We again use the analysis of deviance to compare this model with the full model as the models are nested. We reject the null hypothesis (p = 0.004) and conclude that the full model is a better fit to the data. The AIC of this model (1321) is very similar to the full model (1323), however we do not continue to improve on the model as the significant analysis of deviance suggests we have excluded one or more important predictors. <br>
 
-4) *Reduced significant on univariate variable model* - a further attempt to simplify this predictive model starts with the `signifUni_glm` model (number 2 in this list) and uses the step function to search the model space for a model with a better fit and fewer covariates. After 6 iterations, the reduced model includes 14 covariates. The variables: `Glucose_max`, `TroponinT_max`, `HCO3_min`, `RespRate_min`, `Weight_max`, `RespRate_max` and `Creatinine_max` were removed. When compared with the full model using analysis of deviance, the null hypothesis (p = 0.7) is accepted and we  conclude that this reduced model is a better fit to the data than the full model. Furthermore, there is greater parsimony and the AIC is further reduced to 1302. <br>
+4) *Reduced significant on univariate variable model* - a further attempt to simplify this predictive model starts with the `signifUni_glm` model (number 2 in this list) and uses the step function to search the model space for a model with a better fit and fewer covariates. After 6 iterations, the reduced model includes 14 covariates. The variables: `Glucose_max`, `TroponinT_max`, `HCO3_min`, `RespRate_min`, `Weight_max`, `RespRate_max` and `Creatinine_max` were removed. When compared with the `signifUni_glm` model using analysis of deviance, the null hypothesis (p = 0.7) is accepted and we conclude that this reduced model is a better fit to the data than the `signifUni_glm` model. Furthermore, there is greater parsimony and the AIC is further reduced to 1302. <br>
 
 
 ### Final multivariable logistic regression model:
 
 ```{r task1.5}
 # Choosing a final model
-# Initially, start with the same as the best-performing model above: reduced_signifUni_glm
+# Initially, start with a provisional final model 
+# which is the same as the best-performing model above: reduced_signifUni_glm
 finalICU_glm <- glm(in_hospital_death ~ 
                       Age +
                       ICUType + 
@@ -982,10 +985,13 @@ finalICU_glm_interactions <- glm(in_hospital_death ~
                       Age:ICUType + Age:Albumin_min
                     , data=nm_icu_model_df1, family="binomial")
 summary(finalICU_glm_interactions) 
+
+# Examine the ORs and profiled 95% CIs
 exp(coef(finalICU_glm_interactions))
 exp(confint(finalICU_glm_interactions))
 ```
-In order to further improve the model, we choose to test some interaction terms based on clinical/conceptual interactions between predictors. The tested interactions were `Age` with each of: `Creatinine_max`, `Temp_min`, `Weight_max`, `Albumin_min` and `ICUType.` Each interaction term was added one at a time and compared to the provisional 'final' model with analysis of deviance. The analysis of deviance revealed a significant interaction effect on the model of Age:ICUType and Age:Albumin_min. Both terms were added to the provisional final model and the resulting model had a lower AIC again of 1297 (compared to 1302).
+
+In order to further improve the model, we choose to test some interaction terms based on clinical/conceptual interactions between predictors. The tested interactions were `Age` with each of: `Creatinine_max`, `Temp_min`, `Weight_max`, `Albumin_min` and `ICUType.` Each interaction term was added one at a time and compared to the provisional 'final' model with analysis of deviance. The analysis of deviance revealed a significant interaction effect on the model of Age:ICUType (p = 0.016) and Age:Albumin_min (p = 0.054). Both terms were added to the provisional final model and the resulting model had a lower AIC again of 1297 (compared to 1302).
 
 
 ### Final model diagnostics:
@@ -1079,31 +1085,33 @@ abline(0,1, lty=2)
 x <- sort(1-specificities)
 y <- sort(sensitivities)
 
-# use AUC function from DescTools package to calculate AUC
-library(DescTools)
+# use AUC function from {DescTools} package to calculate AUC
 paste('The AUC is:', AUC(x,y))
 
 ```
-***
 
-Our multivariable logistic regression model for mortality of the imputed ICU dataset (icu_patients_df1) is based on initial variables selected due to known association with mortality either individually or as part of a validated ICU risk score (SOFA, SAPS1 and APACHE). Based on initial EDA, variables with a large proportion of missing data were excluded from the analysis (Height, NISysABP_min, NISysABP_max).
+Our multivariable logistic regression model for mortality of the imputed ICU dataset (icu_patients_df1) is based on initial variables selected due to known association with mortality either individually or as part of a validated ICU risk score (SOFA, SAPS1 and APACHE). Based on initial EDA, variables with a large proportion of missing data were excluded from the analysis (`Height`, `NISysABP_min`, `NISysABP_max`).
 
-The initial model with all variables known to be associated with mortality (full_glm, AIC 1332) was refined to contain variables found to have significant association with mortality in univariate analysis (signifUni_glm, AIC 1321). The statistically significant variables from this mutrivariable model were further distilled using stepwise regression to include 14 covariates (reduced_signifUni_glm, AIC 1311). Based on clinical basis and ANOVA analysis of various models, interaction terms age:albumin (p=0.054) and age:icutype (p=0.016) were also included to produce the final model. Appropriate goodness of fit was demonstrated using bins as well as the Hosmer Lemeshow test, where a non-significant p value (p=0.37) was achieved and inclusion of interaction terms demonstrated an improved Brier score (0.1013 compared to 0.1022). The AUC of the ROC was 0.75 suggesting an acceptable clinical prediction model. 
+After analysing a series of fitted multivariable logistic regression models and exploring the effect of interaction terms, as explained above, we arrive at the final chosen model to predict in-hospital death in patients who have been admitted to ICU: `finalICU_glm_interactions`.
 
-Our final model suggests that:
-•	Age, Type of ICU admission, minimum albumin/ Sodium/ pH/ Temperature/ Urine Output/ WBC, maximum Bilirubin/ BUN/ GCS/ Heart Rate/ Lactate/ WBC
-•	as well as Age when associated with ICU type and minimum albumin
-Predicts ICU mortality in adult ICU patients with ICU length of stay >48 hours.
+Goodness of fit of the chosen final model was explored using several methods. Firstly, we plot predicted probabilities in bins against the observed proportions in each bin to examine calibration. The plot shows sound calibration, with similar observed proportions and predicted probabilities, without any systematic deviation from the ideal calibration line. Further, almost all 95% CIs (except one) of each bin overlap the ideal calibration line, which suggests the model is realtively well-calibrated. The non-significant Hosmer-Lemeshow test (p=0.66) further supports no 'lack of fit' of the model, although this test is not without limitations and the choice of bins is arbitrary. The Brier score test (which does not rely on arbitrary bins) does further support the choice of the final model with interaction terms included (`finalICU_glm_interactions`) over the model without interaction terms (`finalICU_glm`), with the former having a marginally lower Brier score (0.102 vs 0.103) indicating greater predictive ability. Lastly, the predictive value of this model (`finalICU_glm_interactions`) was assessed by producing a ROC (receiver operating characteristic) curve. The ROC curve suggests moderate predictive ability of the model, with an AUC of 0.75 - indicating approximately a 75% chance of the model correctly predicting whether a patient will experience `in_hospital_death` after an ICU admission of >48 hours.
 
-Our goal in creating this model was a predictive model rather than an explanatory model, hence why some important values for understanding all risk factors not included
+The pertinent characteristics of our predictive model suggests that in the first 24 hours of an ICU admission, higher `Albumin_min` (OR: 0.26, 95% CI: 0.08-0.77, p = 0.02), `GCS_max` (OR: 0.83, 95% CI: 0.80-0.87, p < 0.001), `Na_min` (OR: 0.96, 95% CI: 0.94-0.99, p = 0.006), `Temp_min` (OR: 0.85, 95% CI: 0.73-0.99, p = 0.04), `Urine_min` (OR: 0.99, 95% CI: 0.99-1.00 p = 0.02) and `WBC_max` (OR: 0.93, 95% CI: 0.89-0.97, p = 0.002) values _reduce_ the odds of in-hospital death after an ICU admission of >48 hours, while higher `Bilirubin_max` (OR: 1.05, 95% CI: 1.02-1.08, p < 0.001), `BUN_max` (OR: 1.02, 95% CI: 1.01-1.02, p < 0.001), `HR_max` (OR: 1.01, 95% CI: 1.00-1.01, p = 0.02) and `WBC_min` (OR: 1.08, 95% CI: 1.03-1.14, p = 0.003) values _increase_ the odds of in-hospital death after an ICU admission of >48 hours.
+
+Based on the OR and profiled 95% CIs of these predictors of in-hospital death, in the first 24 hours of ICU admission, having a higher minimum albumin level and higher maximum GCS score reduce the odds of in-hospital death with relative certainty, while having a higher minimum white blood cell count increases the odds of in-hospital death in the ICU population.
+
+Although these individual ORs provide some insights into the relative importance of different parameters, adequate overall prediction of in-hospital death after an ICU admission of >48 hours requires all of the predictor variables in the final model. Interestingly, age is not an individual predictor of in-hospital death using our model, although it remains important to include for the model's overall predictive capability.
+
+As the goal of our model was predictive, there may be other important parameters that are required to better understand and explain in-hospital death after ICU admission, however our aim was to produce the simplest possible model to adequately predict the outcome of interest, hence some of these explanatory values may not be included.
+
+Finally, it is important to note that as the outcome `in_hospital_death` was not uncommon in this dataset (297 deaths out of 2061 observations = 14.4%), the logistic regression output must be interpreted with caution. The listed ORs (odds ratios) must not be interpreted as RRs (risk ratios), as with a relatively common outcome (>10% observations), odds no longer estimates risk (it over-estimates risk). In further analysis, it may be useful to trial other types of regression to calculate RRs rather than ORs, such as log-binomial (although may encounter non-convergence with many predictors) or modified poisson regression.
 
 
-***
 
 ### Re-fitting the model to the original data:
 
 ``` {r task1.7}
-#### re-fit your final model to the unimputed data frame 
+#### re-fit the final model to the unimputed data frame 
 # (`icu_patients_df0.rds`) and comment on any differences you find 
 # compared to the same model fitted to the data without imputation, 
 
@@ -1122,59 +1130,22 @@ df0_finalICU_glm_interactions <- glm(in_hospital_death ~
                       Urine_min + 
                       WBC_min + 
                       WBC_max +
-                      
-                      # significant interaction terms
                       Age:ICUType + Age:Albumin_min
                     , data=icu_patients_df0, family="binomial")
 summary(df0_finalICU_glm_interactions) 
 # when using the predictors from our final df1 model with interactions onto df0 data
-# 1762 observations of data is removed due to missingness
-# the AIC is very low 253 - less data = easier to predict?
+# 1762 observations are removed due to missingness
 
-summary(finalICU_glm)
-summary(finalICU_glm_interactions)
-# variables significant in finalICU_glm
-  # Age
-  # ICUTypeCardiac Surgery Recovery unit
-  # Albumin_min
-  # Bilirubin_max
-  # BUN_max
-  # GCS_max
-  # HR_max
-  # Na_min
-  # Temp_min
-  # Urine_min
-  # WBC_min
-  # WBC_max
-
-# variables significant in finalICU_glm_interactions
-  # Albumin_min
-  # Bilirubin_max
-  # BUN_max
-  # GCS_max
-  # HR_max
-  # Na_min
-  # Temp_min
-  # Urine_min
-  # WBC_min
-  # WBC_max
-  # Age:ICUTypeSurgicalICU
-
-# variables significant in df0_finalICU_glm_interactions
-  # BUN_max
-  # GCS_max
-  # WBC_min
-  # WBC_max
-
-# many of the variables that were significant in the imputed data model, are not significant when fitted to the df0 unimputated data
-# more missing variables = less power to produce a statistically significant result
+# Examine ORs and profiled 95% CIs
+exp(coef(df0_finalICU_glm_interactions))
+exp(confint(df0_finalICU_glm_interactions))
 
 
 ```
 
-***
-Notably, when the final model was tested on the unimputed data, it was observed that many of the variables that were noted to be significant in the imputed data, were no longer significant. A potential explanation for this may be reduced power of the unimputed dataset to produce a statistically significant result due to the magnitude of missing variables.
-***
+When the final model was re-fitted to the the unimputed data (icu_patients_df0), we see that 1762 observations are removed due to missingness. This is because the default method used by `R` when attempting to fit a model to a dataset with missing data is to use only the observations with complete data (in this case, only 299 of the original 2061 observations had complete data).
+
+Many of the variables that were significant when fitted to the imputed data, were no longer significant. Only four (compared to ten) predictors remained significant. The profiled 95% confidence intervals were also significantly wider, especially notable in the `ICUType` variable (upper CI up to nearly 70000!). Therefore, we see that the precision of the estimators in the model is much lower, due to the large amount of lost data to missingness. If one was to pursue using the original dataset with substantial missingness, it would be important to identify any patterns in the missing data to ensure potential sources of bias were identified and accounted for.
 
 
 
@@ -1588,7 +1559,7 @@ summary(ICU.mv_full)
 
 # Calculate full model AIC
 AIC.mv_full <- calc_aic(ICU.mv_full)
-AIC.mv_full #10069
+AIC.mv_full
 
 
 # 1st reduced model using all variables with significant log-rank tests
@@ -1603,7 +1574,7 @@ summary(ICU.mv_reduced1)
 
 # Calculate 1st reduced model AIC
 AIC.mv_reduced1 <- calc_aic(ICU.mv_reduced1)
-AIC.mv_reduced1 #10111
+AIC.mv_reduced1
 
 
 # 2nd reduced model using all variables significant (using cut off p < 0.1) in ICU.mv_reduced1
@@ -1617,7 +1588,7 @@ summary(ICU.mv_reduced2)
 
 # Calculate 2nd reduced model AIC
 AIC.mv_reduced2 <- calc_aic(ICU.mv_reduced2)
-AIC.mv_reduced2 #10105
+AIC.mv_reduced2 
 
 
 # 3rd reduced model by using step() function on the full model (which had the lowest AIC so far)
@@ -1627,7 +1598,7 @@ summary(ICU.mv_reduced3)
 
 # Calculate 3rd reduced model AIC
 AIC.mv_reduced3 <- calc_aic(ICU.mv_reduced3)
-AIC.mv_reduced3 #10047
+AIC.mv_reduced3 
 
 
 # 4th reduced model using significant variables (using cut off p < 0.05) from ICU.mv_reduced3 
@@ -1640,7 +1611,7 @@ summary(ICU.mv_reduced4)
 
 # Calculate 4th reduced model AIC
 AIC.mv_reduced4 <- calc_aic(ICU.mv_reduced4)
-AIC.mv_reduced4 #10047
+AIC.mv_reduced4 
 
 
 # Comparing models with LRT
@@ -1658,8 +1629,8 @@ print(aic_output)
 
 ## Decision: use ICU.mv_reduced4 as the provisional final model (lowest AIC and non-significant LRT)
 
+# Compare LRT for 3rd and 4th reduced models
 anova(ICU.mv_reduced3, ICU.mv_reduced4)
-
 
 ```
 
@@ -1676,6 +1647,7 @@ anova(ICU.mv_reduced3, ICU.mv_reduced4)
 5) *Reduced Model 4* - in this model, we take Model 3 and only include the significant variables at 5% significance level (i.e. removed Weight_max, RespRate_min, respRate_max, WBC_min, WBC_max). When compared with the full model,  the null hypothesis of the LRT test (p-value = 0.51) is accepted and we can conclude that the reduced model is a better fit to the data than the full model. Furthermore, the AIC is 10,047 similar to the AIC for Reduced Model 3. The LRT when comparing Model 3 and 4 does not reject the null hypothesis concluding that Model 4 is a better fit than Model 3.  <br>
 
 Hence, we choose Model 4 as the final selection of covariates for the multivariable Cox model. 
+
 
 ### Cox proportional hazards model assumption checking:
 
@@ -1809,6 +1781,8 @@ We need to test whether the chosen model satisfies the assumptions underlying th
 
 ```{r task2.5}
 
+# The final model chosen after checking and addressing assumptions
+# (the same model as above: ICU.mv_reduced4.split.noutliers)
 ICU.final.cox <- coxph(Surv(Days, Status) ~
                          Age + ICUType:strata(tgroup) + 
                          Albumin_min:strata(tgroup) + 
@@ -1820,7 +1794,8 @@ ICU.final.cox <- coxph(Surv(Days, Status) ~
 summary(ICU.final.cox)
 
 ```
-* The estimated coefficients, related hazard rates (exponential of these coefficients) and teh confidence interval of the hazard rates allow us to make some conclusions about clinical measures and their impact on ICU survival.
+
+* The estimated coefficients, related hazard rates (exponential of these coefficients) and the confidence interval of the hazard rates allow us to make some conclusions about clinical measures and their impact on ICU survival.
     * `Age` - for every additional year of survival, the difference in mortality risk is significant, increasing by 3.5% with a 95% confidence that this increase could range between 2.95% and 4.07% per year.
     * `BUN_max` - for every additional unit of urea, difference in mortality risk is significant, increasing by 1.1% (95% confidence between 0.8% and 1.4%).
     * `Na_max` - for every additional unit of Na, difference in mortality risk is significant, decreasing by 4% (95% confidence between 3.5% and 5.5%).
@@ -1836,6 +1811,8 @@ summary(ICU.final.cox)
     * `HCO3_min` - for the first time period (< 90 days) there is no significant difference in mortality risk by level of HCO3. However, in the subsequent period, every additional unit of HCO3 results in an increased mortality by 4%.
     * `HR_min` - for every additional 10 beats per minute, there is a 8% increase in mortality for those that die within the first 90 days. The difference is not significant for patients who survive more than 90 days.
     * `Lactate` - for every additional unit of Lactate, there us 9% increase in mortality risk for those who die within the first 90 days. The difference is not significant for the subsequent period.
+    
+    
 ### Final model diagnostics:
 
 ```{r task2.6}
@@ -1844,7 +1821,6 @@ summary(ICU.final.cox)
 cox.zph(ICU.final.cox, terms=FALSE)
 
 # Graph of Schoenfeld residuals
-#ggcoxzph(cox.zph(ICU.final.cox, terms=FALSE))
 ggcoxdiagnostics(ICU.final.cox, type = "schoenfeld", title = "Diagnostic plot")
 
 ```
@@ -1868,17 +1844,22 @@ The Schoenfeld residuals represent the difference between the observed covariate
 
 ##Compare model on df0 to df1
 
+# Remove the missing data for the variables in the final model
+# (this is what R would have done anyway when fitting to the model with missing data, as we saw in Task 1)
 nm_icu_model_df0 <- na.omit(subset(icu_patients_df0, 
-                                    select=c(Days, Status, # the survival object variables
-                                             RecordID, # keep record id for reference if needed
-                                             Age,  ICUType, 
-                                             Albumin_min, Bilirubin_max, BUN_max, GCS_max, HCO3_min, HR_min, Lactate_max, Na_max, pH_min,
-                                             Temp_max, Urine_min)))
+                                    select=c(Days, Status,
+                                             RecordID, 
+                                             Age, ICUType, Albumin_min, 
+                                             Bilirubin_max, BUN_max, GCS_max, 
+                                             HCO3_min, HR_min, Lactate_max, Na_max, 
+                                             pH_min, Temp_max, Urine_min)))
 
 dim(nm_icu_model_df0)
 
+# Split the df0 dataset at the 90 day time point to allow direct comparison to the chosen final model
 ICUdf0.split <- survSplit(Surv(Days, Status) ~ ., data = nm_icu_model_df0, cut=c(90), episode= "tgroup", id="id2")
 
+# Refit the model to the df0, split dataset
 ICU.final.coxdf0 <- coxph(Surv(Days, Status) ~
                          Age + ICUType:strata(tgroup) + 
                          Albumin_min:strata(tgroup) + 
@@ -1889,16 +1870,16 @@ ICU.final.coxdf0 <- coxph(Surv(Days, Status) ~
                          data = ICUdf0.split)
 
 summary(ICU.final.coxdf0)
-summary(ICU.final.cox)
-
 
 ```
+In order to fit the final model to the original dataset, we first manually remove the missing data for the variables in the final model, which allows us to split the df0 dataset at the 90 day timepoint - to remain consistent with the dataset used in the final model. As we saw in Task 1, `R` would have removed the observations with missing data when attempting to fit the model to the original dataset, but here we do this manually to allow the splitting of the dataset to work.
+
 Difference when fitted to dataset without imputed values of missing observations (df0):
 
 * The dataset for fitting reduces from 2,061 individuals in df1 to 299 individuals in df0. With significantly fewer data points to fit the model, we observe the following differences:
-    * Variables that were significant in the model fitted to df1 are no longer significant  for the model on df0.
+    * Variables that were significant in the model fitted to df1 are no longer significant for the model on df0.
     * The coefficient estimates are significantly different for `pH`, `Temp_max`, `ICUType` and `Albumin` which leads to vastly different inferences on the impact of these variables on mortality risk.
-    * The confidence intervals are much wider for the model on df0 reflecting the fewer data points, which increases the uncertainty in the estimation of coefficients. 
+    * The confidence intervals are much wider for the model on df0 reflecting the fewer data points, which increases the uncertainty (decreases precision) in the estimation of coefficients. 
 
 
 **Findings of Final Model:**
